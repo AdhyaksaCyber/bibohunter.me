@@ -1,0 +1,88 @@
+:root {
+    --neon-green: #00ff41;
+    --dark-bg: #050505;
+    --terminal-header: #1a1a1a;
+    --glass: rgba(0, 255, 65, 0.1);
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--neon-green);
+    font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Background Effect ala Matrix */
+body::before {
+    content: " ";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.terminal-window {
+    width: 95%;
+    max-width: 850px;
+    height: 80vh;
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid var(--neon-green);
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 5;
+}
+
+header {
+    background: var(--terminal-header);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #333;
+    border-top-left-radius: 11px;
+    border-top-right-radius: 11px;
+}
+
+.dot { height: 12px; width: 12px; border-radius: 50%; margin-right: 8px; }
+.red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
+
+header p { margin: 0 auto 0 10px; font-size: 13px; color: #888; }
+
+.terminal-body {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon-green) transparent;
+}
+
+.online-tag {
+    color: #27c93f;
+    text-shadow: 0 0 8px #27c93f;
+    font-weight: bold;
+}
+
+pre {
+    background: var(--glass);
+    padding: 15px;
+    border-radius: 4px;
+    border-left: 3px solid var(--neon-green);
+    margin-top: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
