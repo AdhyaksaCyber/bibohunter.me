@@ -3,28 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BIBOHUNTER | GATEWAY</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <title>BIBOHUNTER | GLOBAL NETWORKS INTEL</title>
+    <link rel="stylesheet" href="assets/css/intel.css">
+    <link rel="icon" type="image/png" href="https://via.placeholder.com/16/00ff00/000000?text=B">
 </head>
 <body>
-    <div class="terminal-window">
-        <header>
-            <div class="dot red"></div>
-            <div class="dot yellow"></div>
-            <div class="dot green"></div>
-            <p>bibohunter@gateway:~/server-a-bridge</p>
-        </header>
-        <section class="terminal-body">
-            <div id="boot">
-                <p>> INITIALIZING BRIDGE...</p>
-                <p>> DOMAIN: <span style="color:white">BIBOHUNTER.ME</span></p>
-                <p>> STATUS: <span class="online-tag">ONLINE (SECURE)</span></p>
-                <hr style="border: 0.5px solid #333; margin: 20px 0;">
+    <div class="grid-overlay"></div>
+
+    <div class="dashboard-wrapper">
+        
+        <header class="intel-header">
+            <div class="logo">BH_GNI v3.1</div>
+            <div class="sys-info">
+                <span>// DOMAIN: <a href="#">BIBOHUNTER.ME</a> // SEC_LEVEL: ALPHA-6 // SYSTEM_TIME: <span id="sys-clock">--:--:--</span></span>
             </div>
-            <div id="log-stream">
-                <p style="color: #666;">[SYSTEM] Awaiting payload from Server A...</p>
+            <div class="status-indicator">SYSTEM: <span class="online">NOMINAL</span></div>
+        </header>
+
+        <div class="main-body">
+            
+            <aside class="left-panel panel">
+                <h2>ACTIVE_NETWORK_UNITS</h2>
+                <ul id="endpoint-list">
+                    <li class="active"><span class="unit-id">ALPHA-01</span> / API-V1-FEED<div class="status-dot green pulse"></div></li>
+                    <li><span class="unit-id">BETA-03</span> / STATS-CORE<div class="status-dot green"></div></li>
+                    <li><span class="unit-id">GAMMA-9</span> / GEO-MAPS<div class="status-dot yellow"></div></li>
+                    <li><span class="unit-id">DELTA-0</span> / FIREWALL-LOG<div class="status-dot green pulse"></div></li>
+                    <li><span class="unit-id">ECH_SRV</span> / MANTAN_INTEL<div class="status-dot red pulse"></div></li>
+                </ul>
+            </aside>
+
+            <section class="center-panel panel terminal-window">
+                <header class="terminal-header">
+                    <div class="terminal-title">> // LIVE_TERMINAL</div>
+                </header>
+                <div id="log-stream" class="terminal-body">
+                    <p style="color: #444;">[BOOT] Initializing BiboHunter Global Network Interface...</p>
+                    <p>> AUTHENTICATION SUCCESSFUL.</p>
+                    <p>> GNI: Establishing secure bridge connection via bibohunter.me...</p>
+                    <p>> [SYSTEM] Waiting for network data packets...</p>
                 </div>
-        </section>
+            </section>
+
+            <aside class="right-panel panel">
+                <h2>SYS_METRICS_OVERVIEW</h2>
+                
+                <div class="metric">
+                    <div class="metric-label">SRV-A-LOAD</div>
+                    <div class="metric-bar-container"><div class="metric-bar bar-1"></div></div>
+                    <div class="metric-value">42%</div>
+                </div>
+                
+                <div class="metric">
+                    <div class="metric-label">BANDWIDTH_TX</div>
+                    <div class="metric-bar-container"><div class="metric-bar bar-2"></div></div>
+                    <div class="metric-value">1.1TB/s</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">SEC_THREATS_BGT</div>
+                    <div class="metric-bar-container"><div class="metric-bar bar-3"></div></div>
+                    <div class="metric-value">0</div>
+                </div>
+
+                <hr style="border: 1px solid #111; margin: 20px 0;">
+                
+                <h2>GLOBAL_ACTIVITY_FEED</h2>
+                <div id="global-feed" class="feed-content">
+                    <p>[GEO] Threat detected near Singapore - Deflected.</p>
+                    <p>[API] Request from unit DELTA-0 processed.</p>
+                    <p>[SYS] Memory optimization sequence completed.</p>
+                </div>
+            </aside>
+        </div>
+
+        <footer class="intel-footer">
+            <div class="coord">// LAT: 01.3521 / LON: 103.8198</div>
+            <div class="footer-note">// AUTHORIZED PERSONNEL ONLY // BIBOHUNTER(C) 2024 //</div>
+        </footer>
     </div>
+
+    <script src="assets/js/intel.js"></script>
 </body>
 </html>
