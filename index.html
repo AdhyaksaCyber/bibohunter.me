@@ -2,28 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BIBOHUNTER | API GATEWAY</title>
-    <link rel="stylesheet" href="assets/css/terminal.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIBOHUNTER | GATEWAY</title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <div class="terminal-window">
         <header>
-            <span class="dot red"></span>
-            <span class="dot yellow"></span>
-            <span class="dot green"></span>
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
             <p>bibohunter@gateway:~/server-a-bridge</p>
         </header>
         <section class="terminal-body">
-            <div id="boot-sequence">
+            <div id="boot">
                 <p>> INITIALIZING BRIDGE...</p>
-                <p>> DOMAIN: BIBOHUNTER.ME</p>
-                <p>> STATUS: <span class="online">ONLINE</span></p>
-                <hr>
+                <p>> DOMAIN: <span style="color:white">BIBOHUNTER.ME</span></p>
+                <p>> STATUS: <span class="online-tag">ONLINE (SECURE)</span></p>
+                <hr style="border: 0.5px solid #333; margin: 20px 0;">
             </div>
             <div id="log-stream">
+                <p style="color: #666;">[SYSTEM] Awaiting payload from Server A...</p>
                 </div>
         </section>
     </div>
-    <script src="assets/js/core.js"></script>
 </body>
 </html>
