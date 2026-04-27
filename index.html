@@ -3,9 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<!-- === CSP PALING SANGAR === -->
+<!-- default-src 'none' = blokir SEMUA secara default -->
+<!-- script-src nonce + strict-dynamic = hanya script dengan nonce tertentu, turunannya diizinkan -->
+<!-- style-src nonce = hanya style dengan nonce -->
+<!-- img-src data: = hanya gambar base64/SVG inline, tidak ada eksternal -->
+<!-- frame-ancestors 'none' = anti clickjacking level maksimal -->
+<!-- base-uri 'none' = tidak bisa diubah base URL -->
+<!-- form-action 'none' = tidak bisa submit form kemana-mana -->
+<!-- upgrade-insecure-requests = force HTTPS -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-njYq4pciV560GDPhPPsy54YD7jIY7zRZ' 'strict-dynamic'; style-src 'nonce-T8WCYChwMPow-QDWk0ibLsfGztQnV0gI'; img-src data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default;">
+
+<!-- === ANTI CLICKJACKING HEADER TAMBAHAN === -->
+<meta http-equiv="X-Frame-Options" content="DENY">
+
+<!-- === ANTI MIME SNIFFING === -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+
+<!-- === REFERRER POLICY === -->
+<meta name="referrer" content="no-referrer">
+
+<!-- === PERMISSIONS POLICY === -->
+<meta http-equiv="Permissions-Policy" content="accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), identity-credentials-get=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-create=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), speaker-selection=(), storage-access=(), usb=(), web-share=(), window-management=(), xr-spatial-tracking=()">
+
 <title>CIA - Central Intelligence Agency</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
+
+<style nonce="T8WCYChwMPow-QDWk0ibLsfGztQnV0gI">
+  /* === FONT STACK SISTEM (TANPA EKSTERNAL) === */
+  @font-face {
+    font-family: 'SystemSerif';
+    src: local('Georgia'), local('Times New Roman'), local('Times'), local('DejaVu Serif');
+  }
+  @font-face {
+    font-family: 'SystemSans';
+    src: local('Segoe UI'), local('Roboto'), local('Helvetica Neue'), local('Arial'), local('Noto Sans');
+  }
+  @font-face {
+    font-family: 'SystemCondensed';
+    src: local('Oswald'), local('Impact'), local('Arial Narrow'), local('Roboto Condensed');
+  }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -24,10 +63,28 @@
   html { scroll-behavior: smooth; }
 
   body {
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: 'SystemSans', 'Segoe UI', Roboto, sans-serif;
     color: var(--text-dark);
     background: var(--white);
     overflow-x: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* === ANTI DATA LEAK === */
+  @media print {
+    body { display: none !important; }
+    html::after {
+      content: "PRINTING DISABLED FOR SECURITY";
+      display: block;
+      text-align: center;
+      padding: 50px;
+      font-size: 24px;
+      color: #c00;
+    }
   }
 
   /* ── TOP BAR ── */
@@ -79,13 +136,8 @@
     justify-content: center;
     overflow: hidden;
   }
-  .logo-seal img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
   .logo-text {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'SystemCondensed', Impact, sans-serif;
     font-size: 26px;
     font-weight: 700;
     color: var(--white);
@@ -178,7 +230,7 @@
     color: var(--white);
   }
   .slide-content h1 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'SystemSerif', Georgia, serif;
     font-size: clamp(32px, 6vw, 72px);
     font-weight: 900;
     line-height: 1.05;
@@ -231,14 +283,10 @@
 
   /* ── SECTIONS ── */
   section { padding: 64px 0; }
-
   .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
 
   /* ── OUR AGENCY ── */
-  .agency-section {
-    background: var(--white);
-    padding: 64px 0;
-  }
+  .agency-section { background: var(--white); padding: 64px 0; }
   .agency-inner {
     display: grid;
     grid-template-columns: 1fr 1.4fr;
@@ -254,13 +302,9 @@
     align-items: flex-start;
     gap: 16px;
   }
-  .section-icon {
-    width: 48px;
-    height: 48px;
-    opacity: .75;
-  }
+  .section-icon { width: 48px; height: 48px; opacity: .75; }
   .section-title {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'SystemCondensed', Impact, sans-serif;
     font-size: clamp(28px, 4vw, 44px);
     font-weight: 700;
     color: var(--text-dark);
@@ -280,7 +324,7 @@
     font-weight: 700;
     color: var(--text-dark);
     margin-bottom: 16px;
-    font-family: 'Playfair Display', serif;
+    font-family: 'SystemSerif', Georgia, serif;
   }
   .btn-gold {
     display: inline-block;
@@ -308,7 +352,7 @@
   .careers-image {
     overflow: hidden;
     min-height: 360px;
-    background: #2a3f55 url('https://www.cia.gov/static/images/careers-building.jpg') center/cover no-repeat;
+    background: linear-gradient(135deg, #1a3a5c 0%, #0f2540 50%, #2a3f55 100%);
     position: relative;
   }
   .careers-image::after {
@@ -325,12 +369,9 @@
     gap: 24px;
     border-left: 4px solid var(--gold);
   }
-  .starburst {
-    width: 44px;
-    opacity: .6;
-  }
+  .starburst { width: 44px; opacity: .6; }
   .careers-title {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'SystemCondensed', Impact, sans-serif;
     font-size: 40px;
     font-weight: 700;
     letter-spacing: 3px;
@@ -354,8 +395,9 @@
   .legacy-bg {
     position: absolute;
     inset: 0;
-    background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/CIA_headquarters.jpg/1280px-CIA_headquarters.jpg') center/cover no-repeat;
-    opacity: .15;
+    background: linear-gradient(135deg, rgba(15,37,64,0.95) 0%, rgba(26,58,92,0.9) 100%),
+                radial-gradient(circle at 30% 50%, rgba(42,95,143,0.3) 0%, transparent 50%);
+    opacity: 1;
   }
   .legacy-inner {
     position: relative;
@@ -368,10 +410,7 @@
     margin: 0 auto;
     padding: 0 32px;
   }
-  .legacy-seal {
-    display: flex;
-    justify-content: center;
-  }
+  .legacy-seal { display: flex; justify-content: center; }
   .seal-circle {
     width: 220px;
     height: 220px;
@@ -383,38 +422,18 @@
     align-items: center;
     justify-content: center;
     background: var(--navy);
-    font-size: 80px;
-    user-select: none;
     position: relative;
   }
-  .seal-text {
-    position: absolute;
-    font-family: 'Oswald', sans-serif;
-    font-size: 8px;
-    letter-spacing: 3px;
-    color: var(--gold);
-    text-transform: uppercase;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-  }
-  .legacy-content {
-    color: var(--white);
-  }
+  .legacy-content { color: var(--white); }
   .legacy-header {
     display: flex;
     align-items: center;
     gap: 16px;
     margin-bottom: 24px;
   }
-  .legacy-icon {
-    width: 40px;
-    opacity: .7;
-    filter: invert(1);
-  }
+  .legacy-icon { width: 40px; opacity: .7; filter: invert(1); }
   .legacy-title {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'SystemCondensed', Impact, sans-serif;
     font-size: 40px;
     font-weight: 700;
     letter-spacing: 3px;
@@ -422,7 +441,7 @@
     line-height: 1;
   }
   .legacy-highlight {
-    font-family: 'Playfair Display', serif;
+    font-family: 'SystemSerif', Georgia, serif;
     font-size: 17px;
     font-weight: 700;
     color: var(--gold);
@@ -437,10 +456,7 @@
   }
 
   /* ── OUR STORIES ── */
-  .stories-section {
-    background: var(--white);
-    padding: 72px 0;
-  }
+  .stories-section { background: var(--white); padding: 72px 0; }
   .stories-header {
     display: flex;
     align-items: center;
@@ -458,7 +474,7 @@
     font-size: 28px;
   }
   .stories-title {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'SystemCondensed', Impact, sans-serif;
     font-size: 36px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -477,15 +493,6 @@
     transition: transform .2s, box-shadow .2s;
   }
   .story-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.2); }
-  .story-img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    display: block;
-    filter: grayscale(30%);
-    transition: filter .3s;
-  }
-  .story-card:hover .story-img { filter: grayscale(0%); }
   .story-img-placeholder {
     width: 100%;
     height: 180px;
@@ -496,12 +503,9 @@
     font-size: 48px;
     color: rgba(255,255,255,.2);
   }
-  .story-body {
-    padding: 20px;
-    color: var(--white);
-  }
+  .story-body { padding: 20px; color: var(--white); }
   .story-body h3 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'SystemSerif', Georgia, serif;
     font-size: 16px;
     font-weight: 700;
     line-height: 1.5;
@@ -542,7 +546,7 @@
     border-bottom: 1px solid rgba(255,255,255,.15);
   }
   .footer-col h4 {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'SystemCondensed', Impact, sans-serif;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -621,8 +625,24 @@
   }
   .footer-legal a:hover { color: var(--gold); }
 
-  /* ── INLINE SVGs ── */
-  svg { fill: currentColor; }
+  /* ── SECURITY OVERLAY ── */
+  .sec-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,37,64,0.98);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    color: var(--gold);
+    font-family: 'SystemCondensed', Impact, sans-serif;
+    font-size: 24px;
+    text-align: center;
+    padding: 20px;
+  }
+  .sec-overlay.active { display: flex; }
 
   /* ── ANIMATIONS ── */
   @keyframes fadeUp {
@@ -652,18 +672,25 @@
     .footer-grid { grid-template-columns: 1fr; }
   }
 </style>
+<base target="_blank">
 </head>
 <body>
 
+<!-- SECURITY OVERLAY -->
+<div class="sec-overlay" id="secOverlay">
+  <div>⚠ SECURITY BREACH DETECTED ⚠</div>
+  <div style="font-size:14px;color:#fff;font-family:sans-serif;">DevTools / Debugger Access Forbidden</div>
+</div>
+
 <!-- TOP BAR -->
 <div class="top-bar">
-  <a href="#">Contact</a>
-  <a href="#">Report Information</a>
+  <a href="#" onclick="return handleNavClick(this)">Contact</a>
+  <a href="#" onclick="return handleNavClick(this)">Report Information</a>
 </div>
 
 <!-- NAVBAR -->
 <nav>
-  <a href="#" class="logo">
+  <a href="#" class="logo" onclick="return handleNavClick(this)">
     <div class="logo-seal">
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
         <circle cx="50" cy="50" r="48" fill="#0f2540" stroke="#c8922a" stroke-width="3"/>
@@ -674,14 +701,14 @@
   </a>
   <div class="nav-right">
     <div class="search-bar">
-      <input type="text" placeholder="Search">
-      <button aria-label="Search">
+      <input type="text" placeholder="Search" id="searchInput" maxlength="50" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button aria-label="Search" onclick="return handleSearch()">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </button>
     </div>
-    <button class="hamburger" aria-label="Menu">
+    <button class="hamburger" aria-label="Menu" onclick="return false">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -689,15 +716,13 @@
 
 <!-- HERO SLIDER -->
 <div class="hero" id="hero">
-  <!-- Slide 1 -->
   <div class="slide active" id="slide-0">
-    <div class="slide-bg" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/CIA_seal.svg/400px-CIA_seal.svg.png'), linear-gradient(135deg, #0f2540 0%, #1a3a5c 50%, #2a5f8f 100%); background-size: 300px, cover; background-position: center 40%, center; background-repeat: no-repeat, no-repeat;"></div>
+    <div class="slide-bg" style="background: linear-gradient(135deg, #0f2540 0%, #1a3a5c 50%, #2a5f8f 100%);"></div>
     <div class="slide-overlay"></div>
     <div class="slide-content fade-up fade-up-1">
       <h1>We Are The Nation's<br>First Line of Defense</h1>
     </div>
   </div>
-  <!-- Slide 2 -->
   <div class="slide" id="slide-1">
     <div class="slide-bg" style="background: linear-gradient(135deg, #1a3a5c 0%, #0f2540 100%);"></div>
     <div class="slide-overlay"></div>
@@ -705,7 +730,6 @@
       <h1>Extraordinary<br>Intelligence.<br>Extraordinary People.</h1>
     </div>
   </div>
-  <!-- Slide 3 -->
   <div class="slide" id="slide-2">
     <div class="slide-bg" style="background: linear-gradient(135deg, #2a5f8f 0%, #0f2540 100%);"></div>
     <div class="slide-overlay"></div>
@@ -713,7 +737,6 @@
       <h1>Defending Freedom<br>Since 1947</h1>
     </div>
   </div>
-  <!-- Slide 4 -->
   <div class="slide" id="slide-3">
     <div class="slide-bg" style="background: linear-gradient(135deg, #0f2540 0%, #1a3a5c 100%);"></div>
     <div class="slide-overlay"></div>
@@ -722,20 +745,18 @@
     </div>
   </div>
 
-  <!-- Arrows -->
-  <button class="slider-arrow prev" onclick="changeSlide(-1)" aria-label="Previous">
+  <button class="slider-arrow prev" onclick="changeSlide(-1);return false" aria-label="Previous">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
-  <button class="slider-arrow next" onclick="changeSlide(1)" aria-label="Next">
+  <button class="slider-arrow next" onclick="changeSlide(1);return false" aria-label="Next">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
 
-  <!-- Dots -->
   <div class="slider-nav">
-    <button class="dot active" onclick="goSlide(0)" aria-label="Slide 1"></button>
-    <button class="dot" onclick="goSlide(1)" aria-label="Slide 2"></button>
-    <button class="dot" onclick="goSlide(2)" aria-label="Slide 3"></button>
-    <button class="dot" onclick="goSlide(3)" aria-label="Slide 4"></button>
+    <button class="dot active" onclick="goSlide(0);return false" aria-label="Slide 1"></button>
+    <button class="dot" onclick="goSlide(1);return false" aria-label="Slide 2"></button>
+    <button class="dot" onclick="goSlide(2);return false" aria-label="Slide 3"></button>
+    <button class="dot" onclick="goSlide(3);return false" aria-label="Slide 4"></button>
   </div>
 </div>
 
@@ -743,7 +764,6 @@
 <section class="agency-section">
   <div class="agency-inner">
     <div class="agency-left">
-      <!-- Compass star icon -->
       <svg class="section-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
         <polygon points="32,2 36,28 62,32 36,36 32,62 28,36 2,32 28,28" fill="none" stroke="#1a1a1a" stroke-width="2"/>
         <circle cx="32" cy="32" r="4" fill="#1a1a1a"/>
@@ -753,7 +773,7 @@
     <div class="agency-right">
       <strong>We give U.S. leaders the intelligence they need to keep our country safe.</strong>
       <p>As the world's premier foreign intelligence agency, the work we do at CIA is vital to U.S. national security. We collect and analyze foreign intelligence and conduct covert action. U.S. policymakers, including the President of the United States, make policy decisions informed by the information we provide.</p>
-      <a href="#" class="btn-gold">Learn About Us</a>
+      <a href="#" class="btn-gold" onclick="return handleNavClick(this)">Learn About Us</a>
     </div>
   </div>
 </section>
@@ -762,7 +782,6 @@
 <div class="careers-section">
   <div class="careers-image" role="img" aria-label="CIA headquarters building"></div>
   <div class="careers-content">
-    <!-- Starburst SVG -->
     <svg class="starburst" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
       <g stroke="#1a1a1a" stroke-width="1.5" fill="none">
         <line x1="32" y1="2" x2="32" y2="62"/>
@@ -777,7 +796,7 @@
     </svg>
     <h2 class="careers-title">Careers</h2>
     <p>A career at CIA is unlike any other. We are looking for people from all backgrounds and walks of life to carry out the work of a Nation.</p>
-    <a href="#" class="btn-gold">Find Your Calling</a>
+    <a href="#" class="btn-gold" onclick="return handleNavClick(this)">Find Your Calling</a>
   </div>
 </div>
 
@@ -788,26 +807,17 @@
     <div class="legacy-seal">
       <div class="seal-circle">
         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
-          <!-- Outer ring -->
           <circle cx="100" cy="100" r="96" fill="#0f2540" stroke="#c8922a" stroke-width="3"/>
-          <!-- Eagle body -->
           <ellipse cx="100" cy="110" rx="28" ry="22" fill="#c8922a"/>
-          <!-- Eagle head -->
           <circle cx="100" cy="82" r="14" fill="#c8922a"/>
-          <!-- Wings -->
           <ellipse cx="60" cy="100" rx="36" ry="14" fill="#c8922a" transform="rotate(-20 60 100)"/>
           <ellipse cx="140" cy="100" rx="36" ry="14" fill="#c8922a" transform="rotate(20 140 100)"/>
-          <!-- Shield -->
           <rect x="86" y="95" width="28" height="32" rx="4" fill="#1a3a5c" stroke="#c8922a" stroke-width="1.5"/>
           <rect x="89" y="98" width="22" height="8" fill="#c8922a"/>
-          <!-- Star compass -->
           <polygon points="100,50 103,64 117,60 106,70 112,84 100,76 88,84 94,70 83,60 97,64" fill="#ffffff" opacity=".9"/>
-          <!-- Text arc simulation -->
           <circle cx="100" cy="100" r="88" fill="none" stroke="#c8922a" stroke-width="1" stroke-dasharray="4 3"/>
-          <!-- Bottom text band -->
           <path d="M 20 140 Q 100 175 180 140" fill="#c8922a" opacity=".85"/>
           <text x="100" y="158" text-anchor="middle" fill="#0f2540" font-size="8" font-weight="bold" font-family="serif" letter-spacing="1">UNITED STATES OF AMERICA</text>
-          <!-- Top text -->
           <text x="100" y="36" text-anchor="middle" fill="#ffffff" font-size="7" font-weight="bold" font-family="serif" letter-spacing="2">CENTRAL INTELLIGENCE AGENCY</text>
         </svg>
       </div>
@@ -822,7 +832,7 @@
       </div>
       <p class="legacy-highlight">CIA's legacy is one of brave individuals dedicated to freedom, fulfilling our intelligence mission with ingenuity and grit.</p>
       <p>Protecting our country is at the heart of our mission — past, present, and future. From our World War II roots through today, we carry on the traditions of ingenuity, bravery, and quiet sacrifice that have made us the world's premier foreign intelligence agency.</p>
-      <a href="#" class="btn-gold">Discover Our Legacy</a>
+      <a href="#" class="btn-gold" onclick="return handleNavClick(this)">Discover Our Legacy</a>
     </div>
   </div>
 </section>
@@ -831,36 +841,33 @@
 <section class="stories-section">
   <div class="container">
     <div class="stories-header">
-      <div class="globe-icon">🌐</div>
+      <div class="globe-icon">&#x1F310;</div>
       <h2 class="stories-title">Our Stories</h2>
     </div>
     <div class="stories-grid">
-      <!-- Card 1 -->
       <div class="story-card">
-        <div class="story-img-placeholder">🏇</div>
+        <div class="story-img-placeholder">&#x1F3C7;</div>
         <div class="story-body">
           <h3>Eve of Revolution: The Boston Mechanics and the Legendary Midnight Ride</h3>
         </div>
-        <a href="#" class="story-read-more">Read More <span class="arrow-icon">↗</span></a>
+        <a href="#" class="story-read-more" onclick="return handleNavClick(this)">Read More <span class="arrow-icon">&#x2197;</span></a>
       </div>
-      <!-- Card 2 -->
       <div class="story-card">
-        <div class="story-img-placeholder">✉️</div>
+        <div class="story-img-placeholder">&#x2709;&#xFE0F;</div>
         <div class="story-body">
           <h3>Prelude to COLDFEET: From Air Mail to Spy Sky Pickups</h3>
         </div>
-        <a href="#" class="story-read-more">Read More <span class="arrow-icon">↗</span></a>
+        <a href="#" class="story-read-more" onclick="return handleNavClick(this)">Read More <span class="arrow-icon">&#x2197;</span></a>
       </div>
-      <!-- Card 3 -->
       <div class="story-card">
-        <div class="story-img-placeholder">🎭</div>
+        <div class="story-img-placeholder">&#x1F3AD;</div>
         <div class="story-body">
           <h3>Five Lessons in Spying, Courtesy of George Washington</h3>
         </div>
-        <a href="#" class="story-read-more">Read More <span class="arrow-icon">↗</span></a>
+        <a href="#" class="story-read-more" onclick="return handleNavClick(this)">Read More <span class="arrow-icon">&#x2197;</span></a>
       </div>
     </div>
-    <a href="#" class="btn-gold">Explore All Stories</a>
+    <a href="#" class="btn-gold" onclick="return handleNavClick(this)">Explore All Stories</a>
   </div>
 </section>
 
@@ -870,114 +877,439 @@
     <div class="footer-col">
       <h4>Agency</h4>
       <ul>
-        <li><a href="#">About CIA</a></li>
-        <li><a href="#">Leadership</a></li>
-        <li><a href="#">Organization</a></li>
-        <li><a href="#">Mission and Vision</a></li>
-        <li><a href="#">CIA Museum</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">About CIA</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Leadership</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Organization</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Mission and Vision</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">CIA Museum</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>Careers</h4>
       <ul>
-        <li><a href="#">Career Opportunities</a></li>
-        <li><a href="#">Hiring Process</a></li>
-        <li><a href="#">Student Programs</a></li>
-        <li><a href="#">Accommodations</a></li>
-        <li><a href="#">MyLink</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Career Opportunities</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Hiring Process</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Student Programs</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Accommodations</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">MyLink</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>Resources</h4>
       <ul>
-        <li><a href="#">News and Stories</a></li>
-        <li><a href="#">Center for the Study of Intelligence (CSI)</a></li>
-        <li><a href="#">World Leaders</a></li>
-        <li><a href="#">The Langley Files</a></li>
-        <li><a href="#">Spy Kids</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">News and Stories</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Center for the Study of Intelligence (CSI)</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">World Leaders</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">The Langley Files</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Spy Kids</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>Helpful Links</h4>
       <ul>
-        <li><a href="#">Partner with CIA</a></li>
-        <li><a href="#">Prepublication Review</a></li>
-        <li><a href="#">Freedom of Information Act (FOIA)</a></li>
-        <li><a href="#">Frequently Asked Questions</a></li>
-        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Partner with CIA</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Prepublication Review</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Freedom of Information Act (FOIA)</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Frequently Asked Questions</a></li>
+        <li><a href="#" onclick="return handleNavClick(this)">Privacy Policy</a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
     <div class="footer-ctas">
-      <a href="#" class="btn-gold-outline">Contact CIA</a>
-      <a href="#" class="btn-gold-outline">Report Information</a>
+      <a href="#" class="btn-gold-outline" onclick="return handleNavClick(this)">Contact CIA</a>
+      <a href="#" class="btn-gold-outline" onclick="return handleNavClick(this)">Report Information</a>
     </div>
     <div class="social-links">
       <span>Connect with CIA</span>
-      <a href="#" class="social-link" aria-label="Instagram">IG</a>
-      <a href="#" class="social-link" aria-label="Facebook">FB</a>
-      <a href="#" class="social-link" aria-label="X / Twitter">𝕏</a>
-      <a href="#" class="social-link" aria-label="LinkedIn">in</a>
-      <a href="#" class="social-link" aria-label="YouTube">▶</a>
+      <a href="#" class="social-link" aria-label="Instagram" onclick="return handleNavClick(this)">IG</a>
+      <a href="#" class="social-link" aria-label="Facebook" onclick="return handleNavClick(this)">FB</a>
+      <a href="#" class="social-link" aria-label="X / Twitter" onclick="return handleNavClick(this)">X</a>
+      <a href="#" class="social-link" aria-label="LinkedIn" onclick="return handleNavClick(this)">in</a>
+      <a href="#" class="social-link" aria-label="YouTube" onclick="return handleNavClick(this)">&#x25B6;</a>
     </div>
   </div>
   <div class="footer-legal">
-    <a href="#">Search CIA.gov</a>
-    <a href="#">Site Policies</a>
-    <a href="#">Privacy</a>
-    <a href="#">No Fear Act</a>
-    <a href="#">EEO</a>
-    <a href="#">Inspector General</a>
-    <a href="#">USA.gov</a>
-    <a href="#">Sitemap</a>
+    <a href="#" onclick="return handleNavClick(this)">Search CIA.gov</a>
+    <a href="#" onclick="return handleNavClick(this)">Site Policies</a>
+    <a href="#" onclick="return handleNavClick(this)">Privacy</a>
+    <a href="#" onclick="return handleNavClick(this)">No Fear Act</a>
+    <a href="#" onclick="return handleNavClick(this)">EEO</a>
+    <a href="#" onclick="return handleNavClick(this)">Inspector General</a>
+    <a href="#" onclick="return handleNavClick(this)">USA.gov</a>
+    <a href="#" onclick="return handleNavClick(this)">Sitemap</a>
   </div>
 </footer>
 
-<script>
-  // ── SLIDER ──
-  let current = 0;
-  const totalSlides = 4;
-  let timer = null;
+<script nonce="njYq4pciV560GDPhPPsy54YD7jIY7zRZ">
+(function() {
+  "use strict";
 
-  function updateSlider() {
-    document.querySelectorAll('.slide').forEach((s, i) => s.classList.toggle('active', i === current));
-    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  // ============================================================
+  // 1. ANTI CLICKJACKING (FRAME BUSTING DOUBLE LAYER)
+  // ============================================================
+  if (window.top !== window.self) {
+    window.top.location = window.self.location;
+    document.body.innerHTML = "<h1 style='text-align:center;color:#c00;padding:50px;'>FRAME DETECTED - ACCESS DENIED</h1>";
+    throw new Error("Clickjacking attempt blocked");
   }
 
-  function changeSlide(dir) {
+  // ============================================================
+  // 2. DISABLE KLIK KANAN + SHORTCUT DEVTOOLS + COPY/PASTE
+  // ============================================================
+  document.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }, true);
+
+  document.addEventListener("keydown", function(e) {
+    // F12, Ctrl+Shift+I/J/C, Ctrl+U, Cmd+Opt+I/J
+    var key = e.key || e.keyCode;
+    if (
+      key === "F12" || e.keyCode === 123 ||
+      (e.ctrlKey && e.shiftKey && (key === "I" || key === "J" || key === "C" || e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
+      (e.ctrlKey && (key === "U" || e.keyCode === 85)) ||
+      (e.metaKey && e.altKey && (key === "I" || key === "J" || e.keyCode === 73 || e.keyCode === 74)) ||
+      (e.ctrlKey && (key === "S" || e.keyCode === 83)) ||
+      (e.ctrlKey && (key === "P" || e.keyCode === 80))
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
+
+  // Blokir copy/cut/paste kecuali search box
+  document.addEventListener("copy", function(e) {
+    if (e.target.id !== "searchInput") { e.preventDefault(); }
+  }, true);
+  document.addEventListener("cut", function(e) {
+    e.preventDefault();
+  }, true);
+  document.addEventListener("paste", function(e) {
+    if (e.target.id !== "searchInput") { e.preventDefault(); }
+  }, true);
+
+  // ============================================================
+  // 3. ANTI DATA LEAK - CLEAR CLIPBOARD, PREVENT DRAG
+  // ============================================================
+  document.addEventListener("dragstart", function(e) {
+    e.preventDefault();
+  }, true);
+  document.addEventListener("drop", function(e) {
+    e.preventDefault();
+  }, true);
+  document.addEventListener("selectstart", function(e) {
+    if (e.target.id !== "searchInput") {
+      e.preventDefault();
+    }
+  }, true);
+
+  // Clear clipboard on leave
+  window.addEventListener("beforeunload", function() {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText("").catch(function(){});
+    }
+  });
+
+  // ============================================================
+  // 4. BATASI API - FREEZE & SEAL CRITICAL OBJECTS
+  // ============================================================
+  // Blokir fetch, XHR, WebSocket, EventSource
+  if (window.fetch) {
+    window.fetch = function() {
+      console.warn("[SECURITY] fetch() blocked by policy");
+      return Promise.reject(new Error("Network access disabled"));
+    };
+  }
+  if (window.XMLHttpRequest) {
+    window.XMLHttpRequest = function() {
+      throw new Error("XMLHttpRequest disabled by security policy");
+    };
+  }
+  if (window.WebSocket) {
+    window.WebSocket = function() {
+      throw new Error("WebSocket disabled by security policy");
+    };
+  }
+  if (window.EventSource) {
+    window.EventSource = function() {
+      throw new Error("EventSource disabled by security policy");
+    };
+  }
+  // Blokir importScripts di worker (jika ada)
+  if (window.Worker) {
+    var OriginalWorker = window.Worker;
+    window.Worker = function(scriptURL) {
+      throw new Error("Web Workers disabled by security policy");
+    };
+  }
+  // Blokir SharedWorker
+  if (window.SharedWorker) {
+    window.SharedWorker = function() {
+      throw new Error("SharedWorker disabled by security policy");
+    };
+  }
+  // Blokir ServiceWorker registration
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.register = function() {
+      return Promise.reject(new Error("ServiceWorker registration disabled"));
+    };
+  }
+
+  // Seal critical objects agar tidak bisa di-modify
+  try { Object.freeze(window.location); } catch(e){}
+  try { Object.freeze(window.document); } catch(e){}
+  try { Object.freeze(navigator); } catch(e){}
+
+  // ============================================================
+  // 5. SANITASI INPUT VERSI PRO
+  // ============================================================
+  var InputSanitizer = {
+    // Regex patterns untuk deteksi serangan
+    patterns: {
+      xss: /<script[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      eventHandler: /\s*on\w+\s*=\s*["']?[^"'>]*/gi,
+      javascriptProtocol: /javascript\s*:/gi,
+      dataProtocol: /data\s*:/gi,
+      vbscript: /vbscript\s*:/gi,
+      expression: /expression\s*\(/gi,
+      htmlComments: /<!--[\s\S]*?-->/g,
+      entities: /&#[xX]?[0-9a-fA-F]+;/g,
+      sqlInjection: /((SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC|EXECUTE|SCRIPT))|(--|#|\/\*|\*\/)/gi,
+      pathTraversal: /\.\.[\\/]/g,
+      nullBytes: //g,
+      controlChars: /[--]/g,
+      unicodeBidi: /[‪-‮]/g,
+      excessiveLength: function(str) { return str.length > 500; }
+    },
+
+    sanitize: function(input) {
+      if (typeof input !== "string") return "";
+      if (this.patterns.excessiveLength(input)) {
+        console.warn("[SECURITY] Input too long, truncated");
+        input = input.substring(0, 500);
+      }
+      return input
+        .replace(this.patterns.nullBytes, "")
+        .replace(this.patterns.controlChars, "")
+        .replace(this.patterns.unicodeBidi, "")
+        .replace(this.patterns.xss, "[BLOCKED]")
+        .replace(this.patterns.eventHandler, "")
+        .replace(this.patterns.javascriptProtocol, "[BLOCKED]")
+        .replace(this.patterns.dataProtocol, "[BLOCKED]")
+        .replace(this.patterns.vbscript, "[BLOCKED]")
+        .replace(this.patterns.expression, "[BLOCKED]")
+        .replace(this.patterns.htmlComments, "")
+        .replace(this.patterns.pathTraversal, "")
+        .replace(/[<>]/g, function(c) { return c === "<" ? "&lt;" : "&gt;"; })
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;")
+        .trim();
+    },
+
+    validateSearch: function(input) {
+      var sanitized = this.sanitize(input);
+      if (this.patterns.sqlInjection.test(sanitized)) {
+        console.warn("[SECURITY] SQL injection pattern detected");
+        return { valid: false, value: "", reason: "Suspicious pattern detected" };
+      }
+      return { valid: true, value: sanitized };
+    }
+  };
+
+  // ============================================================
+  // 6. RATE LIMITING & ANTI DOS (DEBOUNCE/THROTTLE)
+  // ============================================================
+  var RateLimiter = {
+    clicks: {},
+    maxClicks: 5,
+    windowMs: 2000,
+    blocked: false,
+    blockDuration: 10000,
+
+    check: function(action) {
+      if (this.blocked) {
+        console.warn("[SECURITY] Rate limit exceeded. Please wait.");
+        return false;
+      }
+      var now = Date.now();
+      if (!this.clicks[action]) this.clicks[action] = [];
+      this.clicks[action] = this.clicks[action].filter(function(t) {
+        return now - t < this.windowMs;
+      }.bind(this));
+      this.clicks[action].push(now);
+      if (this.clicks[action].length > this.maxClicks) {
+        this.blocked = true;
+        console.warn("[SECURITY] Too many actions. Blocked for " + (this.blockDuration/1000) + "s");
+        setTimeout(function() {
+          this.blocked = false;
+          this.clicks = {};
+        }.bind(this), this.blockDuration);
+        return false;
+      }
+      return true;
+    }
+  };
+
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() { func.apply(context, args); }, wait);
+    };
+  }
+
+  // ============================================================
+  // 7. ANTI DEBUGGING (DETEKSI DEVTOOLS)
+  // ============================================================
+  var devtoolsOpen = false;
+  var threshold = 160;
+  function detectDevTools() {
+    var widthThreshold = window.outerWidth - window.innerWidth > threshold;
+    var heightThreshold = window.outerHeight - window.innerHeight > threshold;
+    if (widthThreshold || heightThreshold) {
+      if (!devtoolsOpen) {
+        devtoolsOpen = true;
+        document.getElementById("secOverlay").classList.add("active");
+        console.clear();
+        setInterval(function() {
+          console.clear();
+          debugger;
+        }, 100);
+      }
+    } else {
+      devtoolsOpen = false;
+      document.getElementById("secOverlay").classList.remove("active");
+    }
+  }
+  setInterval(detectDevTools, 500);
+
+  // ============================================================
+  // 8. EVENT HANDLER TERPROTEKSI
+  // ============================================================
+  window.handleNavClick = function(el) {
+    if (!RateLimiter.check("nav")) return false;
+    console.log("[INFO] Navigation to:", el.textContent.trim());
+    return false; // prevent actual navigation for demo
+  };
+
+  window.handleSearch = function() {
+    if (!RateLimiter.check("search")) return false;
+    var input = document.getElementById("searchInput");
+    var raw = input.value;
+    var result = InputSanitizer.validateSearch(raw);
+    if (!result.valid) {
+      alert("[SECURITY] " + result.reason);
+      input.value = "";
+      return false;
+    }
+    console.log("[INFO] Search query (sanitized):", result.value);
+    // In real app, submit sanitized value
+    return false;
+  };
+
+  // ============================================================
+  // 9. SLIDER (TETAPI DENGAN RATE LIMITING)
+  // ============================================================
+  var current = 0;
+  var totalSlides = 4;
+  var timer = null;
+
+  function updateSlider() {
+    document.querySelectorAll(".slide").forEach(function(s, i) {
+      s.classList.toggle("active", i === current);
+    });
+    document.querySelectorAll(".dot").forEach(function(d, i) {
+      d.classList.toggle("active", i === current);
+    });
+  }
+
+  window.changeSlide = function(dir) {
+    if (!RateLimiter.check("slider")) return;
     current = (current + dir + totalSlides) % totalSlides;
     updateSlider();
     resetTimer();
-  }
+  };
 
-  function goSlide(n) {
+  window.goSlide = function(n) {
+    if (!RateLimiter.check("slider")) return;
     current = n;
     updateSlider();
     resetTimer();
-  }
+  };
 
   function resetTimer() {
     clearInterval(timer);
-    timer = setInterval(() => changeSlide(1), 5000);
+    timer = setInterval(function() {
+      current = (current + 1) % totalSlides;
+      updateSlider();
+    }, 5000);
   }
-
   resetTimer();
 
-  // ── SCROLL REVEAL ──
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
+  // ============================================================
+  // 10. SCROLL REVEAL (DENGAN INTERSECTION OBSERVER)
+  // ============================================================
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
       if (e.isIntersecting) {
-        e.target.style.animation = 'fadeUp .7s ease forwards';
+        e.target.style.animation = "fadeUp .7s ease forwards";
         observer.unobserve(e.target);
       }
     });
   }, { threshold: 0.15 });
 
-  document.querySelectorAll('.agency-inner, .careers-content, .legacy-inner, .stories-grid, .stories-header').forEach(el => {
-    el.style.opacity = '0';
+  document.querySelectorAll(".agency-inner, .careers-content, .legacy-inner, .stories-grid, .stories-header").forEach(function(el) {
+    el.style.opacity = "0";
     observer.observe(el);
   });
+
+  // ============================================================
+  // 11. ANTI TAMPERING - MONITOR DOM MUTATIONS
+  // ============================================================
+  var observerTamper = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === "childList") {
+        mutation.addedNodes.forEach(function(node) {
+          if (node.nodeType === 1) { // Element
+            var html = node.outerHTML || "";
+            if (/<script/i.test(html) || /on\w+\s*=/i.test(html)) {
+              console.warn("[SECURITY] DOM tampering detected - malicious node removed");
+              node.remove();
+            }
+          }
+        });
+      }
+    });
+  });
+  observerTamper.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["onerror", "onload", "onclick", "href"]
+  });
+
+  // ============================================================
+  // 12. HAPUS SENSITIVE DATA DARI MEMORY SAAT LEAVE
+  // ============================================================
+  window.addEventListener("beforeunload", function() {
+    document.body.innerHTML = "";
+    if (window.localStorage) localStorage.clear();
+    if (window.sessionStorage) sessionStorage.clear();
+  });
+
+  // ============================================================
+  // 13. CONSOLE WARNING
+  // ============================================================
+  console.log("%c[SECURITY] This is a protected system. Unauthorized access is prohibited.",
+    "color: #c8922a; font-size: 16px; font-weight: bold;");
+  console.log("%cAll network APIs, workers, and external resources have been disabled.",
+    "color: #c00; font-size: 12px;");
+
+})();
 </script>
 
 </body>
