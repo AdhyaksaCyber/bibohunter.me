@@ -1,0 +1,14 @@
+"@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap');
+
+.App {
+  background: #ffffff;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #0e2233;
+}
+
+.font-serif {
+  font-family: 'Merriweather', Georgia, serif;
+}
