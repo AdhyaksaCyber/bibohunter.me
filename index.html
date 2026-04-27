@@ -5,50 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<!--
-  ╔══════════════════════════════════════════════════════════════╗
-  ║   SECURITY HARDENING - STATIC SITE MAXIMUM GRADE            ║
-  ║   ► CSP Level 3 + Trusted Types                             ║
-  ║   ► Anti-XSS, Anti-Clickjacking, Anti-MIME, Anti-CSRF      ║
-  ║   ► Anti-DevTools, Anti-DOM-Tamper, Anti-Prototype-Poison   ║
-  ║   ► Anti-Timing-Attack, Anti-Tabnapping, Anti-Drag-Drop     ║
-  ║   ► Rate Limiting, Input Sanitizer (DOMPurify-like)         ║
-  ║   ► Canary Trap, Honeypot Console, Integrity Monitor        ║
-  ║                                                              ║
-  ║   NOTE: Static nonce is unavoidable on GitHub Pages.        ║
-  ║   HSTS + live nonce rotation handled by Cloudflare Worker.  ║
-  ╚══════════════════════════════════════════════════════════════╝
-
-  BUG FIXED vs previous version:
-  ✗ REMOVED <base target="_blank"> — causes TABNAPPING (A04)
-  ✗ REMOVED inline onclick= — violates CSP strict-dynamic
-  ✓ All events via addEventListener only
--->
-
-<!-- ══ CSP Level 3 — MAXIMUM LOCKDOWN ══
-     default-src 'none'    → blokir SEMUA jika tidak disebutkan
-     script-src nonce+strict-dynamic → hanya script dengan nonce valid
-     style-src nonce        → hanya style dengan nonce valid
-     img-src data:          → hanya inline SVG/base64, 0 request ke luar
-     font-src 'none'        → sistem font saja (tidak ada Google Fonts request)
-     connect-src 'none'     → blokir fetch/XHR/WebSocket/Beacon
-     media-src 'none'       → blokir audio/video
-     object-src 'none'      → blokir Flash/plugin
-     frame-src 'none'       → blokir iframe
-     worker-src 'none'      → blokir Web Worker/SW/SharedWorker
-     frame-ancestors 'none' → anti clickjacking HTTP level
-     base-uri 'none'        → anti base-tag injection
-     form-action 'none'     → blokir form submit
-     require-trusted-types  → blokir innerHTML/outerHTML tanpa Trusted Type
-     sandbox (CF Worker)    → untuk browser yang mendukung
--->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'none';
   script-src 'nonce-Zx9kQm2vR7pLsY4nBcWj8eH3uF6tAiDo' 'strict-dynamic';
   style-src 'nonce-Kp5nRt8mXqL3vJ2cGwB9aE7yS1hUiZoF';
   img-src data:;
   font-src 'none';
-  connect-src 'none';
+  connect-src 'self' https://api1.teman.com https://api2.teman.com https://api3.teman.com;
   media-src 'none';
   object-src 'none';
   frame-src 'none';
@@ -64,13 +27,9 @@
   trusted-types default dompurify;
 ">
 
-<!-- Anti-Clickjacking backup layer -->
 <meta http-equiv="X-Frame-Options" content="DENY">
-<!-- Anti-MIME-Sniffing -->
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
-<!-- No referrer — zero info leak -->
 <meta name="referrer" content="no-referrer">
-<!-- Permissions Policy — blokir SEMUA sensor/hardware API -->
 <meta http-equiv="Permissions-Policy" content="
   accelerometer=(), ambient-light-sensor=(), autoplay=(),
   battery=(), camera=(), clipboard-read=(), clipboard-write=(),
@@ -84,7 +43,6 @@
   speaker-selection=(), storage-access=(), usb=(), web-share=(),
   window-management=(), xr-spatial-tracking=()
 ">
-<!-- Cross-Origin isolation (COEP/COOP via meta as best-effort) -->
 <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
 <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
 <meta http-equiv="Cross-Origin-Resource-Policy" content="same-origin">
@@ -175,6 +133,18 @@ nav { background: var(--navy); display: flex; align-items: center; justify-conte
 .slider-arrow.next { right: 16px; }
 .slider-arrow svg { width: 18px; height: 18px; }
 
+/* ══ API DASHBOARD ══ */
+.api-section { background: var(--navy-dark); padding: 60px 32px; border-bottom: 2px solid var(--gold); }
+.api-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; max-width: 1100px; margin: 0 auto 30px auto; }
+.api-title { font-family: var(--font-cond); font-size: 32px; color: var(--white); letter-spacing: 2px; text-transform: uppercase; }
+.api-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; }
+.api-card { background: rgba(0,0,0,0.5); border: 1px solid rgba(200,146,42,0.4); padding: 24px; font-family: monospace; color: var(--white); position: relative; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.api-card::before { content: "LIVE_FEED"; position: absolute; top: -10px; right: 15px; background: var(--navy-dark); color: var(--gold); padding: 2px 10px; font-size: 11px; border: 1px solid var(--gold); font-weight: bold; }
+.api-status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #555; margin-right: 10px; box-shadow: 0 0 5px #000; }
+.api-status-indicator.online { background: #0f0; box-shadow: 0 0 10px #0f0; }
+.api-status-indicator.offline { background: #f00; box-shadow: 0 0 10px #f00; }
+.api-content { margin-top: 15px; font-size: 12px; color: #0f0; height: 140px; overflow-y: auto; background: #050505; padding: 12px; border: 1px solid #222; white-space: pre-wrap; word-wrap: break-word; }
+
 /* ══ SECTIONS ══ */
 section { padding: 64px 0; }
 .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
@@ -258,7 +228,6 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
 </head>
 <body>
 
-<!-- ══ SECURITY OVERLAY (DevTools / Tampering Alert) ══ -->
 <div id="sec-overlay" role="alertdialog" aria-modal="true" aria-labelledby="sec-title">
   <div class="sec-icon">&#x26A0;</div>
   <h2 id="sec-title">UNAUTHORIZED ACCESS DETECTED</h2>
@@ -266,7 +235,6 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   <div class="sec-code" id="sec-code">SESSION-ID: ...</div>
 </div>
 
-<!-- ══ HONEYPOT TRAPS (bots & scanners akan trigger ini) ══ -->
 <div class="hp-trap" aria-hidden="true">
   <input type="text" name="username" id="hp-user" autocomplete="off" tabindex="-1">
   <input type="password" name="password" id="hp-pass" autocomplete="off" tabindex="-1">
@@ -275,13 +243,11 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   <a href="/wp-admin" id="hp-wp">wp-admin</a>
 </div>
 
-<!-- TOP BAR -->
 <div class="top-bar">
   <a href="#" rel="noopener noreferrer">Contact</a>
   <a href="#" rel="noopener noreferrer">Report Information</a>
 </div>
 
-<!-- NAVBAR -->
 <nav role="navigation" aria-label="Main navigation">
   <a href="#" class="logo" rel="noopener noreferrer" aria-label="CIA Home">
     <div class="logo-seal">
@@ -309,7 +275,6 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   </div>
 </nav>
 
-<!-- HERO SLIDER -->
 <div class="hero" id="hero" role="region" aria-label="Hero slideshow" aria-live="polite">
   <div class="slide active" id="slide-0" role="group" aria-label="Slide 1 of 4">
     <div class="slide-bg" style="background:linear-gradient(135deg,#0f2540 0%,#1a3a5c 50%,#2a5f8f 100%);" aria-hidden="true"></div>
@@ -345,7 +310,15 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   </div>
 </div>
 
-<!-- OUR AGENCY -->
+<section class="api-section" aria-labelledby="api-title">
+  <div class="api-header">
+    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#c8922a" stroke-width="2" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <h2 class="api-title" id="api-title">SECURE DATA STREAMS</h2>
+  </div>
+  <div class="api-grid" id="api-grid-container">
+    </div>
+</section>
+
 <section class="agency-section" aria-labelledby="agency-title">
   <div class="agency-inner">
     <div class="agency-left">
@@ -363,7 +336,6 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   </div>
 </section>
 
-<!-- CAREERS -->
 <div class="careers-section" role="region" aria-label="Careers">
   <div class="careers-image" role="img" aria-label="CIA headquarters building"></div>
   <div class="careers-content">
@@ -381,7 +353,6 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   </div>
 </div>
 
-<!-- OUR LEGACY -->
 <section class="legacy-section" aria-labelledby="legacy-title">
   <div class="legacy-bg" aria-hidden="true"></div>
   <div class="legacy-inner">
@@ -418,7 +389,6 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   </div>
 </section>
 
-<!-- OUR STORIES -->
 <section class="stories-section" aria-labelledby="stories-title">
   <div class="container">
     <div class="stories-header">
@@ -446,7 +416,6 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer role="contentinfo">
   <div class="footer-grid">
     <div class="footer-col">
@@ -516,11 +485,6 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   </div>
 </footer>
 
-<!-- ════════════════════════════════════════════════════════════
-     ULTRA HARDENED JAVASCRIPT ENGINE
-     Zero eval · Zero innerHTML from input · Zero external fetch
-     Full Trusted Types · Prototype Poison Guard · Canary Trap
-     ════════════════════════════════════════════════════════════ -->
 <script nonce="njYq4pciV560GDPhPPsy54YD7jIY7zRZ" type="text/javascript">
 (function(global) {
   "use strict";
@@ -581,14 +545,32 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
   })();
 
   /* ══════════════════════════════════════════════════════
-     LAYER 3 — BLOKIR SEMUA NETWORK API
-     fetch, XHR, WebSocket, Beacon, EventSource, Worker
+     LAYER 3 — SAFE NETWORK API WRAPPER
+     Hanya izinkan `fetch` ke 3 URL teman lu, blokir sisanya.
+     (MODIFIED: Tidak lagi membekukan fetch 100%)
   ══════════════════════════════════════════════════════ */
   (function blockNetworkAPIs() {
     var BLOCKED = function() { throw new Error("[SECURITY] Network API blocked by policy."); };
     var BLOCKED_ASYNC = function() { return Promise.reject(new Error("[SECURITY] Network API blocked.")); };
 
-    if (global.fetch)         { try { global.fetch         = BLOCKED_ASYNC; Object.freeze(global.fetch);         } catch(e){} }
+    if (global.fetch) {
+      var _originalFetch = global.fetch;
+      try {
+        global.fetch = function(resource, options) {
+          var url = typeof resource === 'string' ? resource : (resource && resource.url ? resource.url : '');
+          
+          // WHITELIST API TEMAN LU (Ganti URL ini)
+          if (url.indexOf('https://api1.teman.com') === 0 ||
+              url.indexOf('https://api2.teman.com') === 0 ||
+              url.indexOf('https://api3.teman.com') === 0) {
+            return _originalFetch.apply(this, arguments);
+          }
+          return BLOCKED_ASYNC();
+        };
+        Object.freeze(global.fetch);
+      } catch(e){}
+    }
+
     if (global.XMLHttpRequest){ try { global.XMLHttpRequest = BLOCKED;       Object.freeze(global.XMLHttpRequest); } catch(e){} }
     if (global.WebSocket)     { try { global.WebSocket      = BLOCKED;       Object.freeze(global.WebSocket);      } catch(e){} }
     if (global.EventSource)   { try { global.EventSource    = BLOCKED;       Object.freeze(global.EventSource);    } catch(e){} }
@@ -602,8 +584,6 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
     if (global.navigator && global.navigator.serviceWorker) {
       try { global.navigator.serviceWorker.register = BLOCKED_ASYNC; } catch(e){}
     }
-    // Blokir dynamic import
-    // (CSP worker-src none + script-src nonce sudah cover ini)
   })();
 
   /* ══════════════════════════════════════════════════════
@@ -638,7 +618,7 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
       dataProto:   /data\s*:/gi,
       vbProto:     /vbscript\s*:/gi,
       cssExpr:     /expression\s*\(/gi,
-      htmlCmt:     /<!--[\s\S]*?-->/g,
+      htmlCmt:     //g,
       pathTraversal:/\.{2,}[/\\]/g,
       nullByte:    /\x00/g,
       ctrlChars:   /[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]/g,
@@ -1129,6 +1109,81 @@ footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
       }
     });
   }, 1000);
+
+  /* ══════════════════════════════════════════════════════
+     LAYER 21 — MULTI-API DATA RETRIEVAL (SAFE DOM)
+     Hanya menggunakan API DOM (createElement/textContent)
+     karena Layer 0 memblokir innerHTML.
+  ══════════════════════════════════════════════════════ */
+  (function initLiveStreams() {
+    var apis = [
+      { id: 'node-alpha', name: 'TARGET_SERVER_01', url: 'https://api1.teman.com/data' },
+      { id: 'node-beta',  name: 'TARGET_SERVER_02', url: 'https://api2.teman.com/status' },
+      { id: 'node-gamma', name: 'TARGET_SERVER_03', url: 'https://api3.teman.com/logs' }
+    ];
+
+    var container = document.getElementById('api-grid-container');
+    if (!container) return;
+
+    var uiNodes = {};
+
+    apis.forEach(function(api) {
+      // Bikin Card Element
+      var card = document.createElement('div');
+      card.className = 'api-card';
+
+      // Judul Card
+      var titleBox = document.createElement('div');
+      titleBox.style.fontWeight = 'bold';
+      titleBox.style.marginBottom = '10px';
+
+      // Status Bulat Merah/Hijau
+      var statusInd = document.createElement('span');
+      statusInd.className = 'api-status-indicator';
+
+      var titleText = document.createTextNode(api.name);
+
+      titleBox.appendChild(statusInd);
+      titleBox.appendChild(titleText);
+
+      // Area Output API
+      var contentBox = document.createElement('div');
+      contentBox.className = 'api-content';
+      contentBox.textContent = 'INITIALIZING SECURE HANDSHAKE...';
+
+      // Gabungin ke container
+      card.appendChild(titleBox);
+      card.appendChild(contentBox);
+      container.appendChild(card);
+
+      // Simpan referensi DOM buat update nanti
+      uiNodes[api.id] = { status: statusInd, content: contentBox };
+    });
+
+    function fetchData() {
+      apis.forEach(function(api) {
+        var ui = uiNodes[api.id];
+        // Panggil global.fetch (Sudah di-whitelist di Layer 3)
+        global.fetch(api.url)
+          .then(function(res) {
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.text(); // Pakai text() biar aman dari XSS payload di JSON
+          })
+          .then(function(data) {
+            ui.status.className = 'api-status-indicator online';
+            ui.content.textContent = data; // Safe DOM injection, no innerHTML
+          })
+          .catch(function(err) {
+            ui.status.className = 'api-status-indicator offline';
+            ui.content.textContent = "CONNECTION FAILED\nERR: " + err.message;
+          });
+      });
+    }
+
+    // Tunggu sistem stabil baru ambil data, update tiap 30 dtk
+    setTimeout(fetchData, 2000);
+    setInterval(fetchData, 30000);
+  })();
 
 })(window);
 </script>
