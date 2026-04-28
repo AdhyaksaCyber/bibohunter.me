@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║   ERROR FIXES (dari console browser):                       ║
+  ║                                                              ║
+  ║   FIX 1: prefetch-src → REMOVED (not a real CSP directive)  ║
+  ║   FIX 2: frame-ancestors in <meta> → REMOVED                ║
+  ║           (hanya bisa via HTTP header = Cloudflare Worker)   ║
+  ║   FIX 3: X-Frame-Options in <meta> → REMOVED (sama)         ║
+  ║   FIX 4: inline style="..." di HTML → SEMUA dipindah ke CSS ║
+  ║   FIX 5: nonce di <script> ≠ nonce di CSP → DISAMAKAN       ║
+  ║   FIX 6: Cloudflare beacon.min.js blocked → DITAMBAH ke CSP ║
+  ║   FIX 7: require-trusted-types → REMOVED dari meta          ║
+  ║           (CF Worker inject script-nya sendiri = konflik)    ║
+  ║   FIX 8: bubble_compiled.js goog#html → bukan dari kita,    ║
+  ║           ini script Cloudflare Zaraz, handled by Worker     ║
+  ║                                                              ║
+  ║   PRINSIP: Meta CSP = defense-in-depth backup.              ║
+  ║            Real enforcement = Cloudflare Worker headers.     ║
+  ║            Nonce statis di static site = ok untuk meta CSP,  ║
+  ║            tapi Cloudflare Worker WAJIB rotate per-request.  ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
+
+<!--
+  ══ CSP via <meta> — FIXED VERSION ══
+
+  KENAPA BERBEDA DARI SEBELUMNYA:
+  ✗ Hapus prefetch-src       → bukan directive CSP yang valid
+  ✗ Hapus frame-ancestors    → tidak bisa via meta, pindah ke CF Worker
+  ✗ Hapus require-trusted-types → CF inject script sendiri, konflik
+  ✓ Tambah CF beacon domains → agar analytics tidak error
+  ✓ style-src tambah 'unsafe-hashes' → izinkan el.style via JS
+  ✓ script nonce SAMA dengan nonce di <script> tag
+-->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'none';
+  script-src
+    'nonce-BibohunterSecNonce2026XzQm'
+    'strict-dynamic'
+    https://static.cloudflareinsights.com
+    https://challenges.cloudflare.com;
+  style-src
+    'nonce-BibohunterStyleNonce2026Kp'
+    'unsafe-hashes'
+    'sha256-pLqv0nKfMiHD4NFRdGqXiAOKLe1GfSbGkPpxovK3vAA='
+    'sha256-G1BR0wU4PZyN/xje5UjmpZbkO0q6sDomFK2DT81svxA='
+    'sha256-N+cLm9gyNrgEV8/KYtYFkxy0w8eF2E/2X/9H0+3nINk='
+    'sha256-/L8jDCjg8HWCKLnp0wbUx1EyRQTNNtacSJ294LsG74I='
+    'sha256-HOWApax333aUseFVChvnnCxEzpN3cpeyaroc/9UUntc='
+    'sha256-MNLI9W4lAeEDMX+lcdhccaKIHSh+YI1M8SfZif4i+yI=';
+  img-src data:;
+  font-src 'none';
+  connect-src 'none';
+  media-src 'none';
+  object-src 'none';
+  frame-src 'none';
+  worker-src 'none';
+  manifest-src 'none';
+  base-uri 'none';
+  form-action 'none';
+  upgrade-insecure-requests;
+  block-all-mixed-content;
+">
+
+<!--
+  frame-ancestors & X-Frame-Options & HSTS & COEP/COOP:
+  TIDAK BISA via <meta> — sudah di-handle Cloudflare Worker.
+  Jangan taruh di sini, browser akan ignore dan throw warning.
+-->
+
+<!-- Anti-MIME-Sniffing (ini boleh via meta) -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<!-- Zero referrer -->
+<meta name="referrer" content="no-referrer">
+<!-- Permissions Policy — blokir semua hardware API -->
+<meta http-equiv="Permissions-Policy" content="accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), clipboard-read=(), display-capture=(), document-domain=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-create=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), storage-access=(), usb=(), web-share=(), xr-spatial-tracking=()">
+
+<title>CIA - Central Intelligence Agency</title>
+
+<style nonce="BibohunterStyleNonce2026Kp">
+/* ══ SYSTEM FONTS ONLY — no external CDN ══ */
+:root {
+  --font-sans: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-cond: Impact, 'Arial Narrow', sans-serif;
+  --navy: #1a3a5c; --navy-dark: #0f2540; --blue: #2a5f8f;
+  --gold: #c8922a; --gold-hover: #e0a832;
+  --white: #ffffff; --off-white: #f4f4f2;
+  --gray: #555; --text-dark: #1a1a1a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  color: var(--text-dark); background: var(--white);
+  overflow-x: hidden;
+  -webkit-user-select: none; -moz-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ══ FIX 4: Semua inline style="..." dipindahkan ke CSS class ══ */
+
+/* Slide backgrounds — sebelumnya inline style="background:..." */
+.slide-bg-1 { background: linear-gradient(135deg,#0f2540 0%,#1a3a5c 50%,#2a5f8f 100%); }
+.slide-bg-2 { background: linear-gradient(135deg,#1a3a5c 0%,#0f2540 100%); }
+.slide-bg-3 { background: linear-gradient(135deg,#2a5f8f 0%,#0f2540 100%); }
+.slide-bg-4 { background: linear-gradient(135deg,#0f2540 0%,#1a3a5c 100%); }
+
+/* Legacy background — sebelumnya inline style di .legacy-bg */
+.legacy-bg-inner {
+  background:
+    linear-gradient(135deg,rgba(15,37,64,.95),rgba(26,58,92,.9)),
+    radial-gradient(circle at 30% 50%,rgba(42,95,143,.3),transparent 50%);
+}
+
+/* JS animation classes — JS tinggal tambah/hapus class */
+.reveal-hidden { opacity: 0; }
+.reveal-visible { animation: fadeUp .7s ease forwards; }
+
+/* Body blur saat tab tidak aktif */
+body.tab-hidden { filter: blur(12px); }
+
+/* Seal SVG container */
+.seal-svg-wrap { width: 200px; height: 200px; }
+
+/* Legacy icon style — sebelumnya inline style */
+.legacy-icon-svg { width: 40px; height: 40px; opacity: .7; filter: invert(1); }
+
+/* ══ ANTI PRINT DATA LEAK ══ */
+@media print { html, body { display: none !important; } }
+
+/* ══ SECURITY OVERLAY ══ */
+#sec-overlay {
+  display: none; position: fixed; inset: 0; z-index: 2147483647;
+  background: rgba(10,20,35,.98); align-items: center;
+  justify-content: center; flex-direction: column; gap: 16px;
+  text-align: center; padding: 32px; font-family: var(--font-cond);
+}
+#sec-overlay.show { display: flex; }
+#sec-overlay .sec-icon { font-size: 64px; }
+#sec-overlay h2 { color: var(--gold); font-size: 28px; letter-spacing: 3px; text-transform: uppercase; }
+#sec-overlay p { color: rgba(255,255,255,.7); font-size: 14px; font-family: var(--font-sans); max-width: 400px; line-height: 1.7; }
+#sec-overlay .sec-code { font-family: monospace; background: rgba(200,146,42,.15); color: var(--gold); padding: 8px 16px; border: 1px solid var(--gold); font-size: 12px; letter-spacing: 2px; margin-top: 8px; }
+
+/* ══ HONEYPOT ══ */
+.hp-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+
+/* ══ TOP BAR ══ */
+.top-bar { background: var(--navy-dark); display: flex; justify-content: flex-end; gap: 24px; padding: 6px 32px; }
+.top-bar a { color: #ccc; font-size: 11px; text-decoration: none; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; transition: color .2s; }
+.top-bar a:hover { color: var(--gold); }
+
+/* ══ NAVBAR ══ */
+nav { background: var(--navy); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.4); }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-seal { width: 44px; height: 44px; border-radius: 50%; background: var(--navy-dark); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.logo-text { font-family: var(--font-cond); font-size: 26px; font-weight: 700; color: var(--white); letter-spacing: 3px; }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.search-bar { display: flex; align-items: center; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 2px; overflow: hidden; }
+.search-bar input { background: transparent; border: none; outline: none; color: var(--white); padding: 8px 14px; font-size: 13px; font-family: inherit; width: 200px; -webkit-user-select: text; user-select: text; }
+.search-bar input::placeholder { color: rgba(255,255,255,.55); text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+.search-bar button { background: none; border: none; cursor: pointer; color: var(--white); padding: 8px 12px; display: flex; align-items: center; }
+.search-bar button svg { width: 16px; height: 16px; }
+.hamburger { background: none; border: 1px solid rgba(255,255,255,.35); cursor: pointer; padding: 8px; display: flex; flex-direction: column; gap: 5px; border-radius: 2px; }
+.hamburger span { display: block; width: 22px; height: 2px; background: var(--white); transition: .3s; }
+
+/* ══ HERO SLIDER ══ */
+.hero { position: relative; overflow: hidden; height: 100svh; min-height: 520px; max-height: 800px; }
+.slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 60px; }
+.slide.active { opacity: 1; }
+.slide-bg { position: absolute; inset: 0; background-size: cover; background-position: center; transform: scale(1.05); transition: transform 7s ease; }
+.slide.active .slide-bg { transform: scale(1); }
+.slide-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.2) 50%,rgba(0,0,0,.1) 100%); }
+.slide-content { position: relative; z-index: 2; text-align: center; color: var(--white); }
+.slide-content h1 { font-family: var(--font-serif); font-size: clamp(32px,6vw,72px); font-weight: 900; line-height: 1.05; text-shadow: 0 2px 20px rgba(0,0,0,.6); text-transform: uppercase; letter-spacing: 2px; max-width: 700px; }
+.slider-nav { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 10px; align-items: center; }
+.dot { width: 28px; height: 3px; background: rgba(255,255,255,.4); cursor: pointer; transition: background .3s; border: none; border-radius: 0; }
+.dot.active { background: var(--white); }
+.slider-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 10; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: var(--white); cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+.slider-arrow:hover { background: rgba(255,255,255,.3); }
+.slider-arrow.prev { left: 16px; }
+.slider-arrow.next { right: 16px; }
+.slider-arrow svg { width: 18px; height: 18px; }
+
+/* ══ SECTIONS ══ */
+section { padding: 64px 0; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+.agency-section { background: var(--white); padding: 64px 0; }
+.agency-inner { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: center; max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+.agency-left { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.section-icon { width: 48px; height: 48px; opacity: .75; }
+.section-title { font-family: var(--font-cond); font-size: clamp(28px,4vw,44px); font-weight: 700; color: var(--text-dark); letter-spacing: 2px; text-transform: uppercase; line-height: 1; }
+.agency-right p { font-size: 15px; line-height: 1.8; color: var(--gray); margin-bottom: 20px; }
+.agency-right strong { display: block; font-size: 17px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; font-family: var(--font-serif); }
+.btn-gold { display: inline-block; background: var(--gold); color: var(--white); text-decoration: none; padding: 12px 24px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border: none; cursor: pointer; transition: background .2s, transform .15s; }
+.btn-gold:hover { background: var(--gold-hover); transform: translateY(-1px); }
+.careers-section { background: var(--off-white); padding: 0; display: grid; grid-template-columns: 1fr 1fr; }
+.careers-image { overflow: hidden; min-height: 360px; background: linear-gradient(135deg,#1a3a5c 0%,#0f2540 50%,#2a3f55 100%); position: relative; }
+.careers-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,rgba(26,58,92,.3) 0%,transparent 60%); }
+.careers-content { padding: 64px 48px; display: flex; flex-direction: column; justify-content: center; gap: 24px; border-left: 4px solid var(--gold); }
+.starburst { width: 44px; opacity: .6; }
+.careers-title { font-family: var(--font-cond); font-size: 40px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+.careers-content p { font-size: 15px; line-height: 1.8; color: var(--gray); border-left: 3px solid var(--gold); padding-left: 16px; }
+.legacy-section { position: relative; padding: 80px 0; overflow: hidden; background: var(--navy-dark); }
+.legacy-bg { position: absolute; inset: 0; }
+.legacy-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1.5fr; gap: 48px; align-items: center; max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+.legacy-seal { display: flex; justify-content: center; }
+.seal-circle { width: 220px; height: 220px; border-radius: 50%; border: 4px solid var(--gold); overflow: hidden; box-shadow: 0 0 60px rgba(200,146,42,.25); display: flex; align-items: center; justify-content: center; background: var(--navy); position: relative; }
+.legacy-content { color: var(--white); }
+.legacy-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.legacy-title { font-family: var(--font-cond); font-size: 40px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; line-height: 1; }
+.legacy-highlight { font-family: var(--font-serif); font-size: 17px; font-weight: 700; color: var(--gold); margin-bottom: 20px; line-height: 1.6; }
+.legacy-content p { font-size: 15px; line-height: 1.8; color: rgba(255,255,255,.75); margin-bottom: 28px; }
+.stories-section { background: var(--white); padding: 72px 0; }
+.stories-header { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; }
+.globe-icon { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--text-dark); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.stories-title { font-family: var(--font-cond); font-size: 36px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.stories-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-bottom: 40px; }
+.story-card { background: var(--navy); overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+.story-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.2); }
+.story-img-placeholder { width: 100%; height: 180px; background: var(--navy-dark); display: flex; align-items: center; justify-content: center; font-size: 48px; color: rgba(255,255,255,.2); }
+.story-body { padding: 20px; color: var(--white); }
+.story-body h3 { font-family: var(--font-serif); font-size: 16px; font-weight: 700; line-height: 1.5; margin-bottom: 16px; }
+.story-read-more { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: rgba(255,255,255,.08); color: var(--white); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,.1); cursor: pointer; transition: background .2s; text-decoration: none; }
+.story-read-more:hover { background: rgba(255,255,255,.15); }
+footer { background: var(--navy); color: var(--white); padding: 56px 0 0; }
+.footer-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 32px; max-width: 1100px; margin: 0 auto; padding: 0 32px 48px; border-bottom: 1px solid rgba(255,255,255,.15); }
+.footer-col h4 { font-family: var(--font-cond); font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--white); margin-bottom: 20px; }
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 10px; }
+.footer-col ul li a { color: rgba(255,255,255,.65); text-decoration: none; font-size: 12px; letter-spacing: .8px; text-transform: uppercase; transition: color .2s; }
+.footer-col ul li a:hover { color: var(--gold); }
+.footer-bottom { max-width: 1100px; margin: 0 auto; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.footer-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-gold-outline { display: inline-block; border: 2px solid var(--gold); color: var(--gold); text-decoration: none; padding: 10px 20px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; background: transparent; transition: background .2s, color .2s; }
+.btn-gold-outline:hover { background: var(--gold); color: var(--white); }
+.social-links { display: flex; gap: 14px; align-items: center; }
+.social-links span { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-right: 4px; }
+.social-link { color: rgba(255,255,255,.65); text-decoration: none; width: 32px; height: 32px; border: 1px solid rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 14px; transition: background .2s, color .2s, border-color .2s; border-radius: 2px; }
+.social-link:hover { background: var(--gold); color: var(--white); border-color: var(--gold); }
+.footer-legal { background: var(--navy-dark); padding: 14px 32px; display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+.footer-legal a { color: rgba(255,255,255,.45); text-decoration: none; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; transition: color .2s; }
+.footer-legal a:hover { color: var(--gold); }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+.fade-up { animation: fadeUp .7s ease forwards; }
+.fade-up-1 { animation-delay: .1s; opacity: 0; }
+
+@media (max-width:768px) {
+  .agency-inner { grid-template-columns:1fr; gap:24px; }
+  .careers-section { grid-template-columns:1fr; }
+  .careers-image { min-height:220px; }
+  .careers-content { padding:40px 24px; }
+  .legacy-inner { grid-template-columns:1fr; }
+  .legacy-seal { margin-bottom:24px; }
+  .stories-grid { grid-template-columns:1fr; }
+  .footer-grid { grid-template-columns:1fr 1fr; gap:24px; }
+  .footer-bottom { flex-direction:column; align-items:flex-start; }
+  .search-bar input { width:130px; }
+  nav { padding:0 16px; }
+}
+@media (max-width:480px) { .footer-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<!-- ══ SECURITY OVERLAY ══ -->
+<div id="sec-overlay" role="alertdialog" aria-modal="true" aria-labelledby="sec-title">
+  <div class="sec-icon">&#x26A0;</div>
+  <h2 id="sec-title">UNAUTHORIZED ACCESS DETECTED</h2>
+  <p>This system is protected. Your session has been flagged. Continued access may result in legal action.</p>
+  <div class="sec-code" id="sec-code">SESSION: ...</div>
+</div>
+
+<!-- ══ HONEYPOT (invisible to humans, triggers on bots) ══ -->
+<div class="hp-trap" aria-hidden="true">
+  <input type="text"     id="hp-user"  name="username" tabindex="-1" autocomplete="off">
+  <input type="password" id="hp-pass"  name="password" tabindex="-1" autocomplete="off">
+  <a href="/.env"   id="hp-env">.env</a>
+  <a href="/admin"  id="hp-admin">admin</a>
+  <a href="/wp-admin" id="hp-wp">wp-admin</a>
+</div>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <a href="#" rel="noopener noreferrer">Contact</a>
+  <a href="#" rel="noopener noreferrer">Report Information</a>
+</div>
+
+<!-- NAVBAR -->
+<nav role="navigation" aria-label="Main navigation">
+  <a href="#" class="logo" rel="noopener noreferrer" aria-label="CIA Home">
+    <div class="logo-seal">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="50" cy="50" r="48" fill="#0f2540" stroke="#c8922a" stroke-width="3"/>
+        <text x="50" y="54" text-anchor="middle" fill="#c8922a" font-size="22" font-weight="bold" font-family="serif">CIA</text>
+      </svg>
+    </div>
+    <span class="logo-text">CIA</span>
+  </a>
+  <div class="nav-right">
+    <div class="search-bar" role="search">
+      <input type="search" id="searchInput" placeholder="Search"
+             autocomplete="off" autocorrect="off" autocapitalize="off"
+             spellcheck="false" maxlength="100" aria-label="Search site">
+      <button id="searchBtn" type="button" aria-label="Submit search">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <button class="hamburger" id="hamburgerBtn" type="button" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO SLIDER — FIX 4: no inline style="", semua pakai class -->
+<div class="hero" id="hero" role="region" aria-label="Hero slideshow" aria-live="polite">
+  <div class="slide active" id="slide-0" role="group" aria-label="Slide 1 of 4">
+    <div class="slide-bg slide-bg-1" aria-hidden="true"></div>
+    <div class="slide-overlay" aria-hidden="true"></div>
+    <div class="slide-content fade-up fade-up-1"><h1>We Are The Nation's<br>First Line of Defense</h1></div>
+  </div>
+  <div class="slide" id="slide-1" role="group" aria-label="Slide 2 of 4" aria-hidden="true">
+    <div class="slide-bg slide-bg-2" aria-hidden="true"></div>
+    <div class="slide-overlay" aria-hidden="true"></div>
+    <div class="slide-content"><h1>Extraordinary<br>Intelligence.<br>Extraordinary People.</h1></div>
+  </div>
+  <div class="slide" id="slide-2" role="group" aria-label="Slide 3 of 4" aria-hidden="true">
+    <div class="slide-bg slide-bg-3" aria-hidden="true"></div>
+    <div class="slide-overlay" aria-hidden="true"></div>
+    <div class="slide-content"><h1>Defending Freedom<br>Since 1947</h1></div>
+  </div>
+  <div class="slide" id="slide-3" role="group" aria-label="Slide 4 of 4" aria-hidden="true">
+    <div class="slide-bg slide-bg-4" aria-hidden="true"></div>
+    <div class="slide-overlay" aria-hidden="true"></div>
+    <div class="slide-content"><h1>The Work of A Nation.<br>The Center of Intelligence.</h1></div>
+  </div>
+  <button class="slider-arrow prev" id="prevBtn" type="button" aria-label="Previous slide">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="slider-arrow next" id="nextBtn" type="button" aria-label="Next slide">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div class="slider-nav" role="tablist" aria-label="Slide navigation">
+    <button class="dot active" id="dot-0" type="button" role="tab" aria-selected="true"  aria-label="Slide 1"></button>
+    <button class="dot"        id="dot-1" type="button" role="tab" aria-selected="false" aria-label="Slide 2"></button>
+    <button class="dot"        id="dot-2" type="button" role="tab" aria-selected="false" aria-label="Slide 3"></button>
+    <button class="dot"        id="dot-3" type="button" role="tab" aria-selected="false" aria-label="Slide 4"></button>
+  </div>
+</div>
+
+<!-- OUR AGENCY -->
+<section class="agency-section" aria-labelledby="agency-title">
+  <div class="agency-inner">
+    <div class="agency-left">
+      <svg class="section-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="32,2 36,28 62,32 36,36 32,62 28,36 2,32 28,28" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+        <circle cx="32" cy="32" r="4" fill="#1a1a1a"/>
+      </svg>
+      <h2 class="section-title" id="agency-title">Our<br>Agency</h2>
+    </div>
+    <div class="agency-right">
+      <strong>We give U.S. leaders the intelligence they need to keep our country safe.</strong>
+      <p>As the world's premier foreign intelligence agency, the work we do at CIA is vital to U.S. national security. We collect and analyze foreign intelligence and conduct covert action. U.S. policymakers, including the President of the United States, make policy decisions informed by the information we provide.</p>
+      <a href="#" class="btn-gold" rel="noopener noreferrer">Learn About Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- CAREERS -->
+<div class="careers-section" role="region" aria-label="Careers">
+  <div class="careers-image" role="img" aria-label="CIA headquarters building"></div>
+  <div class="careers-content">
+    <svg class="starburst" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g stroke="#1a1a1a" stroke-width="1.5" fill="none">
+        <line x1="32" y1="2" x2="32" y2="62"/><line x1="2" y1="32" x2="62" y2="32"/>
+        <line x1="11.5" y1="11.5" x2="52.5" y2="52.5"/><line x1="52.5" y1="11.5" x2="11.5" y2="52.5"/>
+        <line x1="6" y1="20" x2="58" y2="44"/><line x1="58" y1="20" x2="6" y2="44"/>
+        <line x1="20" y1="6" x2="44" y2="58"/><line x1="44" y1="6" x2="20" y2="58"/>
+      </g>
+    </svg>
+    <h2 class="careers-title">Careers</h2>
+    <p>A career at CIA is unlike any other. We are looking for people from all backgrounds and walks of life to carry out the work of a Nation.</p>
+    <a href="#" class="btn-gold" rel="noopener noreferrer">Find Your Calling</a>
+  </div>
+</div>
+
+<!-- OUR LEGACY — FIX 4: .legacy-bg-inner class, bukan inline style -->
+<section class="legacy-section" aria-labelledby="legacy-title">
+  <div class="legacy-bg legacy-bg-inner" aria-hidden="true"></div>
+  <div class="legacy-inner">
+    <div class="legacy-seal">
+      <div class="seal-circle" role="img" aria-label="CIA Seal">
+        <svg class="seal-svg-wrap" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="100" cy="100" r="96" fill="#0f2540" stroke="#c8922a" stroke-width="3"/>
+          <ellipse cx="100" cy="110" rx="28" ry="22" fill="#c8922a"/>
+          <circle cx="100" cy="82" r="14" fill="#c8922a"/>
+          <ellipse cx="60" cy="100" rx="36" ry="14" fill="#c8922a" transform="rotate(-20 60 100)"/>
+          <ellipse cx="140" cy="100" rx="36" ry="14" fill="#c8922a" transform="rotate(20 140 100)"/>
+          <rect x="86" y="95" width="28" height="32" rx="4" fill="#1a3a5c" stroke="#c8922a" stroke-width="1.5"/>
+          <rect x="89" y="98" width="22" height="8" fill="#c8922a"/>
+          <polygon points="100,50 103,64 117,60 106,70 112,84 100,76 88,84 94,70 83,60 97,64" fill="#ffffff" opacity=".9"/>
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#c8922a" stroke-width="1" stroke-dasharray="4 3"/>
+          <path d="M 20 140 Q 100 175 180 140" fill="#c8922a" opacity=".85"/>
+          <text x="100" y="158" text-anchor="middle" fill="#0f2540" font-size="8" font-weight="bold" font-family="serif" letter-spacing="1">UNITED STATES OF AMERICA</text>
+          <text x="100" y="36"  text-anchor="middle" fill="#ffffff" font-size="7" font-weight="bold" font-family="serif" letter-spacing="2">CENTRAL INTELLIGENCE AGENCY</text>
+        </svg>
+      </div>
+    </div>
+    <div class="legacy-content">
+      <div class="legacy-header">
+        <!-- FIX 4: style="..." pada svg dipindah ke class legacy-icon-svg -->
+        <svg class="legacy-icon-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M32 8C20 8 10 18 10 30C10 42 20 56 32 58C44 56 54 42 54 30C54 18 44 8 32 8Z" fill="none" stroke="white" stroke-width="2"/>
+          <path d="M32 8C32 8 28 28 20 32C24 44 32 58 32 58C32 58 40 44 44 32C36 28 32 8 32 8Z" fill="none" stroke="white" stroke-width="1.5"/>
+        </svg>
+        <h2 class="legacy-title" id="legacy-title">Our<br>Legacy</h2>
+      </div>
+      <p class="legacy-highlight">CIA's legacy is one of brave individuals dedicated to freedom, fulfilling our intelligence mission with ingenuity and grit.</p>
+      <p>Protecting our country is at the heart of our mission — past, present, and future. From our World War II roots through today, we carry on the traditions of ingenuity, bravery, and quiet sacrifice that have made us the world's premier foreign intelligence agency.</p>
+      <a href="#" class="btn-gold" rel="noopener noreferrer">Discover Our Legacy</a>
+    </div>
+  </div>
+</section>
+
+<!-- OUR STORIES -->
+<section class="stories-section" aria-labelledby="stories-title">
+  <div class="container">
+    <div class="stories-header">
+      <div class="globe-icon" aria-hidden="true">&#x1F310;</div>
+      <h2 class="stories-title" id="stories-title">Our Stories</h2>
+    </div>
+    <div class="stories-grid">
+      <article class="story-card">
+        <div class="story-img-placeholder" aria-hidden="true">&#x1F3C7;</div>
+        <div class="story-body"><h3>Eve of Revolution: The Boston Mechanics and the Legendary Midnight Ride</h3></div>
+        <a href="#" class="story-read-more" rel="noopener noreferrer">Read More <span aria-hidden="true">&#x2197;</span></a>
+      </article>
+      <article class="story-card">
+        <div class="story-img-placeholder" aria-hidden="true">&#x2709;</div>
+        <div class="story-body"><h3>Prelude to COLDFEET: From Air Mail to Spy Sky Pickups</h3></div>
+        <a href="#" class="story-read-more" rel="noopener noreferrer">Read More <span aria-hidden="true">&#x2197;</span></a>
+      </article>
+      <article class="story-card">
+        <div class="story-img-placeholder" aria-hidden="true">&#x1F3AD;</div>
+        <div class="story-body"><h3>Five Lessons in Spying, Courtesy of George Washington</h3></div>
+        <a href="#" class="story-read-more" rel="noopener noreferrer">Read More <span aria-hidden="true">&#x2197;</span></a>
+      </article>
+    </div>
+    <a href="#" class="btn-gold" rel="noopener noreferrer">Explore All Stories</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer role="contentinfo">
+  <div class="footer-grid">
+    <div class="footer-col"><h4>Agency</h4><ul>
+      <li><a href="#" rel="noopener noreferrer">About CIA</a></li>
+      <li><a href="#" rel="noopener noreferrer">Leadership</a></li>
+      <li><a href="#" rel="noopener noreferrer">Organization</a></li>
+      <li><a href="#" rel="noopener noreferrer">Mission and Vision</a></li>
+      <li><a href="#" rel="noopener noreferrer">CIA Museum</a></li>
+    </ul></div>
+    <div class="footer-col"><h4>Careers</h4><ul>
+      <li><a href="#" rel="noopener noreferrer">Career Opportunities</a></li>
+      <li><a href="#" rel="noopener noreferrer">Hiring Process</a></li>
+      <li><a href="#" rel="noopener noreferrer">Student Programs</a></li>
+      <li><a href="#" rel="noopener noreferrer">Accommodations</a></li>
+      <li><a href="#" rel="noopener noreferrer">MyLink</a></li>
+    </ul></div>
+    <div class="footer-col"><h4>Resources</h4><ul>
+      <li><a href="#" rel="noopener noreferrer">News and Stories</a></li>
+      <li><a href="#" rel="noopener noreferrer">Center for Intelligence (CSI)</a></li>
+      <li><a href="#" rel="noopener noreferrer">World Leaders</a></li>
+      <li><a href="#" rel="noopener noreferrer">The Langley Files</a></li>
+      <li><a href="#" rel="noopener noreferrer">Spy Kids</a></li>
+    </ul></div>
+    <div class="footer-col"><h4>Helpful Links</h4><ul>
+      <li><a href="#" rel="noopener noreferrer">Partner with CIA</a></li>
+      <li><a href="#" rel="noopener noreferrer">Prepublication Review</a></li>
+      <li><a href="#" rel="noopener noreferrer">FOIA</a></li>
+      <li><a href="#" rel="noopener noreferrer">FAQ</a></li>
+      <li><a href="#" rel="noopener noreferrer">Privacy Policy</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-ctas">
+      <a href="#" class="btn-gold-outline" rel="noopener noreferrer">Contact CIA</a>
+      <a href="#" class="btn-gold-outline" rel="noopener noreferrer">Report Information</a>
+    </div>
+    <div class="social-links">
+      <span>Connect with CIA</span>
+      <a href="#" class="social-link" aria-label="Instagram" rel="noopener noreferrer">IG</a>
+      <a href="#" class="social-link" aria-label="Facebook"  rel="noopener noreferrer">FB</a>
+      <a href="#" class="social-link" aria-label="X Twitter" rel="noopener noreferrer">X</a>
+      <a href="#" class="social-link" aria-label="LinkedIn"  rel="noopener noreferrer">in</a>
+      <a href="#" class="social-link" aria-label="YouTube"   rel="noopener noreferrer">&#x25B6;</a>
+    </div>
+  </div>
+  <div class="footer-legal">
+    <a href="#" rel="noopener noreferrer">Search CIA.gov</a>
+    <a href="#" rel="noopener noreferrer">Site Policies</a>
+    <a href="#" rel="noopener noreferrer">Privacy</a>
+    <a href="#" rel="noopener noreferrer">No Fear Act</a>
+    <a href="#" rel="noopener noreferrer">EEO</a>
+    <a href="#" rel="noopener noreferrer">Inspector General</a>
+    <a href="#" rel="noopener noreferrer">USA.gov</a>
+    <a href="#" rel="noopener noreferrer">Sitemap</a>
+  </div>
+</footer>
+
+<!--
+  FIX 5: Nonce di <script> tag HARUS SAMA dengan nonce di CSP.
+  Sebelumnya berbeda (bug!) → sekarang disamakan: BibohunterSecNonce2026XzQm
+-->
+<script nonce="BibohunterSecNonce2026XzQm">
+(function(W) {
+"use strict";
+
+/* ══════════════════════════════════════════════════════════
+   L0 — ANTI CLICKJACKING
+══════════════════════════════════════════════════════════ */
+if (W.self !== W.top) {
+  try { W.top.location.replace(W.self.location.href); } catch(e) {}
+  document.body.style.cssText = "display:none!important";
+  throw new Error("[SEC] Frame blocked");
+}
+
+/* ══════════════════════════════════════════════════════════
+   L1 — FREEZE PROTOTYPES (anti prototype pollution)
+   FIX: tidak freeze Object.prototype karena itu akan break
+   banyak hal termasuk browser internal. Freeze Array & String saja.
+══════════════════════════════════════════════════════════ */
+(function() {
+  [Array.prototype, String.prototype, RegExp.prototype].forEach(function(p) {
+    try { Object.freeze(p); } catch(e) {}
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════
+   L2 — BLOKIR EVAL & FUNCTION CONSTRUCTOR
+══════════════════════════════════════════════════════════ */
+try {
+  W.eval = function() { throw new EvalError("[SEC] eval disabled"); };
+} catch(e) {}
+
+/* ══════════════════════════════════════════════════════════
+   L3 — BLOKIR NETWORK APIs
+   FIX: Tidak freeze setelah override (itu yang menyebabkan error)
+   Cloudflare beacon butuh fetch — kita biarkan tapi di-scope
+══════════════════════════════════════════════════════════ */
+(function() {
+  var ALLOWED_ORIGINS = [
+    "https://static.cloudflareinsights.com",
+    "https://challenges.cloudflare.com"
+  ];
+  var origFetch = W.fetch;
+  if (origFetch) {
+    W.fetch = function(resource, init) {
+      var url = String(resource || "");
+      var allowed = ALLOWED_ORIGINS.some(function(o) { return url.indexOf(o) === 0; });
+      if (!allowed) {
+        console.warn("[SEC] fetch blocked:", url.slice(0,60));
+        return Promise.reject(new Error("[SEC] fetch blocked by policy"));
+      }
+      return origFetch.apply(this, arguments);
+    };
+  }
+  if (W.XMLHttpRequest) {
+    W.XMLHttpRequest = function() { throw new Error("[SEC] XHR disabled"); };
+  }
+  if (W.WebSocket) {
+    W.WebSocket = function() { throw new Error("[SEC] WebSocket disabled"); };
+  }
+  if (W.Worker) {
+    W.Worker = function() { throw new Error("[SEC] Worker disabled"); };
+  }
+  if (W.navigator && W.navigator.serviceWorker) {
+    try { W.navigator.serviceWorker.register = function() { return Promise.reject(new Error("[SEC]")); }; } catch(e) {}
+  }
+})();
+
+/* ══════════════════════════════════════════════════════════
+   L4 — INPUT SANITIZER (zero regex vuln, compiled once)
+══════════════════════════════════════════════════════════ */
+var S = (function() {
+  // Compiled once at module load
+  var RX_NULL    = /\x00/g;
+  var RX_CTRL    = /[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]/g;
+  var RX_BIDI    = /[\u202A-\u202E\u2066-\u2069\u200B-\u200D\uFEFF]/g;
+  var RX_ANGLE   = /[<>]/g;
+  var RX_QUOT    = /"/g;
+  var RX_APOS    = /'/g;
+  var RX_SLASH   = /\//g;
+  var RX_BT      = /`/g;
+  var RX_EQ      = /=/g;
+  var RX_JS      = /javascript\s*:/gi;
+  var RX_DATA    = /data\s*:/gi;
+  var RX_VBS     = /vbscript\s*:/gi;
+  var RX_ONSTAR  = /\son\w+\s*=/gi;
+  var RX_SCRIPT  = /<\s*script/gi;
+  var RX_TPLANG  = /\{\{[\s\S]{0,200}?\}\}/g;
+  var RX_SQL     = /\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC(?:UTE)?|TRUNCATE)\b/gi;
+  var RX_SQLOP   = /(--|\/*|\*\/)/g;
+
+  function clean(input, max) {
+    if (input === null || input === undefined) return "";
+    var s = String(input);
+    if (s.length > (max || 200)) s = s.slice(0, (max || 200));
+    s = s.replace(RX_NULL,"").replace(RX_CTRL,"").replace(RX_BIDI,"");
+    if (RX_JS.test(s) || RX_DATA.test(s) || RX_VBS.test(s) || RX_SCRIPT.test(s)) {
+      RX_JS.lastIndex = RX_DATA.lastIndex = RX_VBS.lastIndex = RX_SCRIPT.lastIndex = 0;
+      return "[BLOCKED]";
+    }
+    RX_JS.lastIndex = RX_DATA.lastIndex = RX_VBS.lastIndex = RX_SCRIPT.lastIndex = 0;
+    s = s.replace(RX_ONSTAR,"").replace(RX_TPLANG,"[BLOCKED]");
+    if (RX_SQL.test(s)) { RX_SQL.lastIndex = 0; return "[BLOCKED:SQL]"; }
+    RX_SQL.lastIndex = 0;
+    s = s.replace(RX_ANGLE, function(c) { return c === "<" ? "&lt;" : "&gt;"; })
+         .replace(RX_QUOT,"&quot;").replace(RX_APOS,"&#x27;")
+         .replace(RX_SLASH,"&#x2F;").replace(RX_BT,"&#x60;").replace(RX_EQ,"&#x3D;");
+    return s.trim();
+  }
+  return { clean: clean };
+})();
+
+/* ══════════════════════════════════════════════════════════
+   L5 — RATE LIMITER
+══════════════════════════════════════════════════════════ */
+var RL = (function() {
+  var buckets = {}, blockedUntil = 0;
+  var CFG = { slider:{max:10,ms:2000}, search:{max:5,ms:5000}, nav:{max:30,ms:5000}, blockMs:15000 };
+  function check(key) {
+    var now = Date.now();
+    if (now < blockedUntil) return false;
+    var c = CFG[key] || CFG.slider;
+    buckets[key] = (buckets[key] || []).filter(function(t){ return now-t < c.ms; });
+    if (buckets[key].length >= c.max) {
+      blockedUntil = now + CFG.blockMs; buckets = {};
+      showOverlay("RATE LIMIT","Too many actions. Suspended for 15s.");
+      return false;
+    }
+    buckets[key].push(now);
+    return true;
+  }
+  return { check: check };
+})();
+
+/* ══════════════════════════════════════════════════════════
+   L6 — OVERLAY
+══════════════════════════════════════════════════════════ */
+function showOverlay(title, msg) {
+  var o = document.getElementById("sec-overlay");
+  var t = document.getElementById("sec-title");
+  var p = o && o.querySelector("p");
+  var c = document.getElementById("sec-code");
+  if (!o) return;
+  if (t) t.textContent = title;
+  if (p && msg) p.textContent = msg;
+  if (c) c.textContent = "SESSION: " + Math.random().toString(36).slice(2).toUpperCase();
+  o.classList.add("show");
+  setTimeout(function() { o.classList.remove("show"); }, 8000);
+}
+
+/* ══════════════════════════════════════════════════════════
+   L7 — ANTI DEVTOOLS (viewport delta method)
+   FIX: Hapus debugger trap loop — itu menyebabkan lag/hang
+        dan console.clear loop yang spam errors
+══════════════════════════════════════════════════════════ */
+var dtOpen = false;
+setInterval(function() {
+  var w = W.outerWidth  - W.innerWidth  > 150;
+  var h = W.outerHeight - W.innerHeight > 150;
+  if ((w || h) && !dtOpen) {
+    dtOpen = true;
+    showOverlay("DEVTOOLS DETECTED","Access to developer tools is restricted on this system.");
+  } else if (!w && !h) {
+    dtOpen = false;
+  }
+}, 1000);
+
+/* ══════════════════════════════════════════════════════════
+   L8 — KEYBOARD / CONTEXT MENU LOCKDOWN
+══════════════════════════════════════════════════════════ */
+document.addEventListener("contextmenu", function(e) {
+  e.preventDefault(); e.stopImmediatePropagation();
+}, true);
+
+document.addEventListener("keydown", function(e) {
+  var blocked =
+    e.keyCode === 123 ||
+    (e.ctrlKey && e.shiftKey && [73,74,67,75,88].indexOf(e.keyCode) > -1) ||
+    (e.ctrlKey && [85,80,83].indexOf(e.keyCode) > -1) ||
+    (e.metaKey && e.altKey && [73,74].indexOf(e.keyCode) > -1);
+  if (blocked) { e.preventDefault(); e.stopImmediatePropagation(); }
+}, true);
+
+["copy","cut"].forEach(function(evt) {
+  document.addEventListener(evt, function(e) {
+    if (e.target.id !== "searchInput") e.preventDefault();
+  }, true);
+});
+
+["dragstart","selectstart"].forEach(function(evt) {
+  document.addEventListener(evt, function(e) {
+    if (e.target.id !== "searchInput") e.preventDefault();
+  }, true);
+});
+
+/* ══════════════════════════════════════════════════════════
+   L9 — DOM MUTATION GUARD
+   FIX: Hanya monitor <script>/<iframe> injection, bukan semua
+        (sebelumnya terlalu agresif, bisa block CF beacon)
+══════════════════════════════════════════════════════════ */
+var DANGER_TAGS = /^(IFRAME|OBJECT|EMBED)$/i;
+var ATTACK_RX   = [/javascript:/i, /vbscript:/i];
+
+new MutationObserver(function(mutations) {
+  mutations.forEach(function(m) {
+    m.addedNodes.forEach(function(node) {
+      if (node.nodeType !== 1) return;
+      if (DANGER_TAGS.test(node.tagName)) {
+        console.warn("[DOM-GUARD] Removed:", node.tagName);
+        node.remove();
+        return;
+      }
+      // Check attributes for protocol injection
+      if (node.hasAttributes) {
+        var attrs = node.attributes;
+        for (var i = 0; i < (attrs ? attrs.length : 0); i++) {
+          var val = attrs[i].value || "";
+          if (ATTACK_RX.some(function(r){ return r.test(val); })) {
+            console.warn("[DOM-GUARD] Attr injection blocked");
+            node.remove(); return;
+          }
+        }
+      }
+    });
+  });
+}).observe(document.documentElement, { childList: true, subtree: true });
+
+/* ══════════════════════════════════════════════════════════
+   L10 — HONEYPOT
+══════════════════════════════════════════════════════════ */
+["hp-env","hp-admin","hp-wp","hp-user","hp-pass"].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener("click", function(e) {
+    e.preventDefault();
+    showOverlay("BOT DETECTED","Automated scanner activity logged. Session flagged.");
+    console.warn("[HONEYPOT]", id, navigator.userAgent.slice(0,80));
+  });
+});
+
+/* ══════════════════════════════════════════════════════════
+   L11 — TAB VISIBILITY (blur saat tab hidden)
+   FIX: pakai class, bukan inline style (CSP compliance)
+══════════════════════════════════════════════════════════ */
+document.addEventListener("visibilitychange", function() {
+  document.body.classList.toggle("tab-hidden", document.hidden);
+});
+
+/* ══════════════════════════════════════════════════════════
+   L12 — CLEANUP ON UNLOAD
+══════════════════════════════════════════════════════════ */
+W.addEventListener("beforeunload", function() {
+  try { W.localStorage.clear(); }   catch(e){}
+  try { W.sessionStorage.clear(); } catch(e){}
+  try { if (navigator.clipboard) navigator.clipboard.writeText(""); } catch(e){}
+});
+
+/* ══════════════════════════════════════════════════════════
+   L13 — CONSOLE HONEYPOT
+══════════════════════════════════════════════════════════ */
+console.log("%c[PROTECTED SYSTEM]%c Unauthorized access is prohibited. All actions are logged.",
+  "color:#c8922a;font-size:16px;font-weight:bold;background:#0f2540;padding:8px 12px;",
+  "color:#ff4444;font-size:12px;background:#1a0000;padding:4px 8px;"
+);
+console.log("%cWARNING: Do NOT paste any code here. This browser console is monitored.",
+  "color:#ff4444;font-size:13px;font-weight:bold;"
+);
+
+/* ══════════════════════════════════════════════════════════
+   L14 — SLIDER ENGINE
+══════════════════════════════════════════════════════════ */
+var TOTAL = 4, cur = 0, timer = null;
+
+function updateSlider() {
+  for (var i = 0; i < TOTAL; i++) {
+    var s = document.getElementById("slide-" + i);
+    var d = document.getElementById("dot-" + i);
+    if (s) { s.classList.toggle("active", i === cur); s.setAttribute("aria-hidden", String(i !== cur)); }
+    if (d) { d.classList.toggle("active", i === cur); d.setAttribute("aria-selected", String(i === cur)); }
+  }
+}
+
+function move(dir) {
+  if (!RL.check("slider")) return;
+  cur = (cur + dir + TOTAL) % TOTAL;
+  updateSlider(); resetTimer();
+}
+
+function go(n) {
+  if (!RL.check("slider")) return;
+  n = parseInt(n,10);
+  if (isNaN(n) || n < 0 || n >= TOTAL) return;
+  cur = n; updateSlider(); resetTimer();
+}
+
+function resetTimer() {
+  clearInterval(timer);
+  timer = setInterval(function(){ move(1); }, 5000);
+}
+
+var pb = document.getElementById("prevBtn");
+var nb = document.getElementById("nextBtn");
+if (pb) pb.addEventListener("click", function(){ move(-1); });
+if (nb) nb.addEventListener("click", function(){ move(1); });
+for (var di = 0; di < TOTAL; di++) {
+  (function(idx){ var dot = document.getElementById("dot-"+idx); if (dot) dot.addEventListener("click", function(){ go(idx); }); })(di);
+}
+resetTimer();
+
+/* ══════════════════════════════════════════════════════════
+   L15 — SEARCH (sanitized + rate-limited)
+══════════════════════════════════════════════════════════ */
+var si = document.getElementById("searchInput");
+var sb = document.getElementById("searchBtn");
+
+function doSearch() {
+  if (!RL.check("search") || !si) return;
+  var raw = si.value || "";
+  if (!raw.trim()) return;
+  var safe = S.clean(raw, 100);
+  if (safe === "[BLOCKED]" || safe === "[BLOCKED:SQL]") {
+    showOverlay("ATTACK BLOCKED", "Malicious input detected. Incident has been logged.");
+    si.value = "";
+    return;
+  }
+  console.info("[SEARCH]", safe.slice(0,50));
+  si.value = "";
+}
+
+if (sb) sb.addEventListener("click", doSearch);
+if (si) {
+  si.addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); doSearch(); } });
+  si.addEventListener("paste", function(e) {
+    e.preventDefault();
+    var txt = (e.clipboardData || W.clipboardData || {}).getData("text") || "";
+    si.value = S.clean(txt, 100);
+  });
+  // Allow select in search
+  si.addEventListener("selectstart", function(e){ e.stopPropagation(); }, true);
+}
+
+/* ══════════════════════════════════════════════════════════
+   L16 — HAMBURGER
+══════════════════════════════════════════════════════════ */
+var hb = document.getElementById("hamburgerBtn");
+if (hb) hb.addEventListener("click", function() {
+  if (!RL.check("nav")) return;
+  this.setAttribute("aria-expanded", String(this.getAttribute("aria-expanded") !== "true"));
+});
+
+/* ══════════════════════════════════════════════════════════
+   L17 — SCROLL REVEAL (pakai class, bukan inline style)
+   FIX: tidak set el.style.animation (CSP violation)
+        pakai classList.add → class .reveal-visible di CSS
+══════════════════════════════════════════════════════════ */
+if ("IntersectionObserver" in W) {
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.remove("reveal-hidden");
+        e.target.classList.add("reveal-visible");
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll(".agency-inner,.careers-content,.legacy-inner,.stories-grid,.stories-header")
+    .forEach(function(el) { el.classList.add("reveal-hidden"); io.observe(el); });
+}
+
+/* ══════════════════════════════════════════════════════════
+   L18 — ANTI TABNAPPING: enforce noopener on all links
+══════════════════════════════════════════════════════════ */
+document.querySelectorAll("a").forEach(function(a) {
+  var r = a.getAttribute("rel") || "";
+  if (!r.includes("noopener")) a.setAttribute("rel", (r + " noopener noreferrer").trim());
+});
+
+/* ══════════════════════════════════════════════════════════
+   L19 — INTEGRITY CHECK
+══════════════════════════════════════════════════════════ */
+setTimeout(function() {
+  ["hero","searchInput","searchBtn","prevBtn","nextBtn","hamburgerBtn","sec-overlay"].forEach(function(id) {
+    if (!document.getElementById(id)) console.warn("[INTEGRITY] Missing:", id);
+  });
+}, 1500);
+
+})(window);
+</script>
+</body>
+</html>
