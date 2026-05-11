@@ -1,804 +1,811 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIA - Central Intelligence Agency | bibohunter.me Elite</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultron Bimbel - Bimbingan CPNS SKD Terbaik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-<!-- 🛡️ ULTRA CSP v4.0 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-AdhyaksaUltraCIA2026v4Xz9mK7pQv2wR8tF3nB5jH1L9zC4yG6uI8oP0sQ2wE4rT6yU8iO0pA2sD4fG6hJ8kL0mN2qP4rS6tU8vW0xY2z' 'strict-dynamic' https://static.cloudflareinsights.com https://challenges.cloudflare.com https://*.cloudflare.com; style-src 'nonce-AdhyaksaUltraCIAStyle2026v4Kp9mX7vQ2wR8tF3nB5jH1L9zC4yG6uI8oP0sQ2wE4rT6yU8iO0pA2sD4fG6hJ8kL0mN2qP4rS6tU8vW0xY2z' 'unsafe-inline' 'unsafe-hashes'; img-src data: blob: https:; font-src data:; connect-src https://static.cloudflareinsights.com https://challenges.cloudflare.com 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src blob: 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="X-Frame-Options" content="DENY">
-<meta name="referrer" content="strict-origin-when-cross-origin">
+        :root {
+            --navy: #0f1e3c;
+            --navy2: #162a52;
+            --gold: #c8873a;
+            --gold-light: #e8a85a;
+            --silver: #8fa8c8;
+            --white: #f5f8ff;
+            --text-muted: #a0b4cc;
+            --green: #22c55e;
+            --card-bg: #162240;
+            --border: rgba(200,135,58,0.25);
+        }
 
-<!-- PWA + PERFORMANCE -->
-<link rel="manifest" href="data:application/manifest+json,{}">
-<meta name="theme-color" content="#1f2e4d">
-<meta name="color-scheme" content="dark light">
+        html { scroll-behavior: smooth; }
 
-<style nonce="AdhyaksaUltraCIAStyle2026v4Kp9mX7vQ2wR8tF3nB5jH1L9zC4yG6uI8oP0sQ2wE4rT6yU8iO0pA2sD4fG6hJ8kL0mN2qP4rS6tU8vW0xY2z">
-:root {
-  --cia-navy: #1f2e4d;
-  --cia-navy-dark: #16213e;
-  --cia-blue: #2e4a7a;
-  --cia-gold: #d4a017;
-  --cia-white: #ffffff;
-  --cia-offwhite: #f8f9fa;
-  --cia-gray: #6c757d;
-  --cia-dark: #212529;
-  --glow: 0 0 20px rgba(212, 160, 23, 0.4);
-}
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--navy);
+            color: var(--white);
+            overflow-x: hidden;
+        }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 80px; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.6; color: var(--cia-dark); background: var(--cia-white);
-  overflow-x: hidden; -webkit-font-smoothing: antialiased;
-}
+        /* ── BG PATTERN ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 20% 30%, rgba(200,135,58,0.07) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 70%, rgba(22,130,200,0.07) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
 
-/* ULTRA SECURITY */
-#ultra-alert { 
-  position: fixed; inset: 0; z-index: 999999; 
-  background: rgba(31,46,77,0.98); color: var(--cia-white); 
-  display: none; place-items: center; font-family: 'Courier New', monospace;
-  backdrop-filter: blur(20px); text-align: center; padding: 2rem;
-}
-#ultra-alert.show { display: grid; }
-#ultra-alert h2 { color: var(--cia-gold); font-size: 2.5rem; margin-bottom: 1rem; }
-#ultra-alert p { font-size: 1.2rem; max-width: 600px; margin-bottom: 1rem; }
-#ultra-session { 
-  background: rgba(212,160,23,0.2); color: var(--cia-gold); 
-  padding: 1rem 2rem; border: 2px solid var(--cia-gold); 
-  font-size: 1.1rem; letter-spacing: 2px; border-radius: 8px;
-}
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
 
-/* TOP NAV */
-.top-nav { 
-  background: var(--cia-navy-dark); padding: 0.5rem 2rem; 
-  display: flex; justify-content: flex-end; gap: 2rem; 
-  font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;
-}
-.top-nav a { 
-  color: rgba(255,255,255,0.8); text-decoration: none; 
-  text-transform: uppercase; transition: color 0.3s;
-}
-.top-nav a:hover { color: var(--cia-gold); }
+        /* ── NAV ── */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15,30,60,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 20px;
+        }
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; }
+        .nav-logo img { height: 42px; object-fit: contain; }
+        .nav-links { display: flex; gap: 28px; }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--gold); }
+        .nav-cta {
+            background: var(--gold);
+            color: var(--navy);
+            padding: 9px 22px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+            white-space: nowrap;
+        }
+        .nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
 
-/* MAIN NAV */
-.main-nav { 
-  background: var(--cia-navy); padding: 0 2rem; height: 4rem; 
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 2.125rem; z-index: 1000; box-shadow: 0 2px 20px rgba(0,0,0,0.3);
-}
-.logo { 
-  display: flex; align-items: center; gap: 0.75rem; 
-  color: var(--cia-white); text-decoration: none; font-weight: 700;
-}
-.logo-icon { 
-  width: 2.5rem; height: 2.5rem; background: var(--cia-navy-dark); 
-  border-radius: 50%; border: 2px solid var(--cia-gold); 
-  display: grid; place-items: center; font-size: 1.3rem; font-weight: bold;
-}
-.logo-text { font-size: 1.6rem; letter-spacing: 2px; }
+        /* ── HERO ── */
+        .hero {
+            padding: 80px 0 70px;
+            text-align: center;
+            position: relative;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(200,135,58,0.15);
+            border: 1px solid var(--border);
+            color: var(--gold);
+            padding: 7px 18px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+        .hero-badge span { font-size: 1rem; }
 
-.search-container { 
-  display: flex; background: rgba(255,255,255,0.1); 
-  border-radius: 4px; overflow: hidden; transition: all 0.3s;
-}
-.search-container:focus-within { box-shadow: var(--glow); }
-.search-input { 
-  background: transparent; border: none; outline: none; 
-  color: var(--cia-white); padding: 0.75rem 1rem; font-size: 0.9rem;
-  min-width: 200px;
-}
-.search-input::placeholder { color: rgba(255,255,255,0.6); opacity: 1; }
-.search-btn { 
-  background: rgba(212,160,23,0.2); border: none; color: var(--cia-white); 
-  padding: 0.75rem 1rem; cursor: pointer; transition: background 0.3s;
-}
-.search-btn:hover { background: var(--cia-gold); }
+        .hero h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 9vw, 7rem);
+            line-height: 1;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .hero h1 .line1 { color: var(--white); }
+        .hero h1 .line2 {
+            color: var(--gold);
+            text-shadow: 0 0 40px rgba(200,135,58,0.4);
+        }
 
-.hamburger { 
-  display: none; flex-direction: column; gap: 4px; 
-  background: none; border: 1px solid rgba(255,255,255,0.3); 
-  padding: 0.5rem; border-radius: 4px; cursor: pointer;
-}
-.hamburger span { 
-  width: 1.5rem; height: 2px; background: var(--cia-white); 
-  transition: 0.3s;
-}
+        .hero-sub {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 16px auto 36px;
+            line-height: 1.7;
+        }
+        .hero-sub strong { color: var(--white); }
 
-/* HERO */
-.hero { 
-  height: 100vh; min-height: 600px; max-height: 900px; 
-  position: relative; overflow: hidden;
-}
-.hero-slide { 
-  position: absolute; inset: 0; opacity: 0; 
-  transition: opacity 1s ease-in-out; display: grid; 
-  place-items: center; text-align: center; padding-bottom: 5rem;
-}
-.hero-slide.active { opacity: 1; }
-.hero-bg { 
-  position: absolute; inset: 0; background-size: cover; 
-  background-position: center; will-change: transform;
-}
-.hero-overlay { 
-  position: absolute; inset: 0; 
-  background: linear-gradient(transparent 0%, rgba(0,0,0,0.8) 50%);
-}
-.hero-content h1 { 
-  font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; 
-  color: var(--cia-white); line-height: 1.1; max-width: 800px;
-  text-shadow: 0 4px 20px rgba(0,0,0,0.8); letter-spacing: 1px;
-  margin-bottom: 1rem;
-}
-.hero-content p { 
-  font-size: 1.3rem; color: rgba(255,255,255,0.9); 
-  max-width: 600px; margin: 0 auto 2rem;
-}
+        .hero-btns {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: var(--navy);
+            padding: 15px 36px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 1rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 6px 30px rgba(200,135,58,0.35);
+        }
+        .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 10px 40px rgba(200,135,58,0.5); }
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            padding: 15px 36px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.25s;
+        }
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-.slider-controls { 
-  position: absolute; bottom: 3rem; left: 50%; 
-  transform: translateX(-50%); display: flex; gap: 1rem; 
-  align-items: center;
-}
-.slider-dot { 
-  width: 2rem; height: 3px; background: rgba(255,255,255,0.5); 
-  border: none; border-radius: 2px; cursor: pointer; 
-  transition: all 0.3s;
-}
-.slider-dot.active, .slider-dot:hover { background: var(--cia-gold); }
-.slider-arrow { 
-  position: absolute; top: 50%; transform: translateY(-50%); 
-  background: rgba(255,255,255,0.2); color: var(--cia-white); 
-  border: none; width: 3rem; height: 3rem; border-radius: 50%; 
-  cursor: pointer; display: grid; place-items: center; 
-  transition: all 0.3s; backdrop-filter: blur(10px);
-}
-.slider-arrow:hover { background: var(--cia-gold); }
-.prev { left: 2rem; }
-.next { right: 2rem; }
+        /* ── SCORE HERO CARD ── */
+        .score-hero {
+            margin: 60px 0;
+            background: var(--card-bg);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            padding: 36px 40px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            position: relative;
+            overflow: hidden;
+        }
+        .score-hero::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(200,135,58,0.15), transparent 70%);
+        }
+        .score-badge-big {
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 16px;
+            padding: 20px 30px;
+            text-align: center;
+            min-width: 140px;
+        }
+        .score-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 4rem;
+            color: var(--navy);
+            line-height: 1;
+        }
+        .score-label { font-weight: 800; font-size: 0.8rem; color: var(--navy); text-transform: uppercase; }
+        .score-info { flex: 1; min-width: 200px; }
+        .score-info h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; }
+        .score-info p { color: var(--text-muted); line-height: 1.6; }
+        .score-info .highlight { color: var(--gold); font-weight: 700; }
 
-/* SECTIONS */
-.section { padding: 6rem 0; }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        /* ── STATS ── */
+        .stats { padding: 60px 0; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: transform 0.25s, border-color 0.25s;
+        }
+        .stat-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+        .stat-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.2rem;
+            color: var(--gold);
+            line-height: 1;
+        }
+        .stat-desc { color: var(--text-muted); font-size: 0.9rem; margin-top: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
 
-.about-grid { 
-  display: grid; grid-template-columns: 1fr 2fr; gap: 4rem; 
-  align-items: center;
-}
-.about-icon { 
-  width: 4rem; height: 4rem; color: var(--cia-navy); 
-  stroke-width: 2; stroke: currentColor; fill: none;
-}
-.section-title { 
-  font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 700; 
-  line-height: 1.1; margin-bottom: 1rem; color: var(--cia-navy);
-}
-.section-subtitle { 
-  font-size: 1.3rem; font-weight: 600; color: var(--cia-navy); 
-  margin-bottom: 2rem;
-}
-.section-text { 
-  font-size: 1.1rem; line-height: 1.8; color: var(--cia-gray); 
-  margin-bottom: 2rem;
-}
-.btn { 
-  display: inline-block; background: var(--cia-gold); 
-  color: var(--cia-navy); padding: 1rem 2rem; 
-  text-decoration: none; font-weight: 600; 
-  border-radius: 4px; transition: all 0.3s; 
-  letter-spacing: 0.5px; text-transform: uppercase;
-  font-size: 0.9rem;
-}
-.btn:hover { 
-  background: #e6b923; transform: translateY(-2px); 
-  box-shadow: var(--glow);
-}
+        /* ── SECTION TITLE ── */
+        .sec-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .sec-title h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        .sec-title p { color: var(--text-muted); font-size: 1rem; }
+        .sec-title .accent { color: var(--gold); }
 
-.careers { 
-  background: var(--cia-offwhite); display: grid; 
-  grid-template-columns: 1fr 1fr; min-height: 500px;
-}
-.careers-image { 
-  background: linear-gradient(135deg, var(--cia-navy) 0%, var(--cia-navy-dark) 100%);
-  position: relative; overflow: hidden;
-}
-.careers-image::before { 
-  content: ''; position: absolute; inset: 0; 
-  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><pattern id='grain' width='100' height='100' patternUnits='userSpaceOnUse'><circle cx='25' cy='25' r='1' fill='rgba(255,255,255,0.1)'/><circle cx='75' cy='75' r='1.5' fill='rgba(255,255,255,0.05)'/></pattern></defs><rect width='100' height='100' fill='url(%23grain)'/></svg>") repeat;
-}
-.careers-content { 
-  padding: 4rem; display: flex; flex-direction: column; 
-  justify-content: center; gap: 2rem; border-left: 4px solid var(--cia-gold);
-}
-.careers-title { font-size: 3rem; font-weight: 700; color: var(--cia-navy); }
+        /* ── DIFFERENTIATORS ── */
+        .diff { padding: 70px 0; background: var(--navy2); }
+        .diff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 24px;
+        }
+        .diff-card {
+            background: var(--navy);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 30px 24px;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .diff-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s;
+        }
+        .diff-card:hover::after { transform: scaleX(1); }
+        .diff-card:hover { transform: translateY(-5px); border-color: var(--gold); }
+        .diff-icon { font-size: 2.4rem; margin-bottom: 14px; }
+        .diff-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 10px; color: var(--white); }
+        .diff-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
 
-.stories-grid { 
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
-  gap: 2rem; margin: 4rem 0;
-}
-.story-card { 
-  background: var(--cia-navy); color: var(--cia-white); 
-  border-radius: 12px; overflow: hidden; cursor: pointer; 
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-.story-card:hover { 
-  transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-.story-image { 
-  height: 200px; background: var(--cia-navy-dark); 
-  display: grid; place-items: center; font-size: 3rem; opacity: 0.3;
-}
-.story-content { padding: 2rem; }
-.story-title { 
-  font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; 
-  line-height: 1.4;
-}
-.story-link { 
-  color: var(--cia-gold); font-weight: 600; text-decoration: none; 
-  font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;
-}
+        /* ── TRICKS ── */
+        .tricks { padding: 70px 0; }
+        .tricks-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .trick-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+            transition: border-color 0.25s, transform 0.25s;
+        }
+        .trick-item:hover { border-color: var(--gold); transform: translateY(-3px); }
+        .trick-num {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: var(--navy);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .trick-body h4 { font-weight: 800; margin-bottom: 6px; font-size: 1rem; }
+        .trick-body p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; }
 
-.legacy { 
-  background: var(--cia-navy); color: var(--cia-white); 
-  position: relative; overflow: hidden; padding: 8rem 0;
-}
-.legacy::before { 
-  content: ''; position: absolute; inset: 0; 
-  background: radial-gradient(circle at 30% 20%, rgba(212,160,23,0.1) 0%, transparent 50%);
-}
-.legacy-container { 
-  position: relative; display: grid; grid-template-columns: 1fr 2fr; gap: 4rem;
-}
-.seal { 
-  justify-self: center; width: 250px; height: 250px; 
-  border-radius: 50%; border: 4px solid var(--cia-gold); 
-  background: var(--cia-navy-dark); display: grid; place-items: center;
-  box-shadow: var(--glow);
-}
+        /* ── ALUMNI ── */
+        .alumni { padding: 70px 0; background: var(--navy2); }
+        .alumni-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+        .alumni-card {
+            background: var(--navy);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 28px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s;
+        }
+        .alumni-card.featured { border-color: var(--gold); }
+        .alumni-card:hover { transform: translateY(-5px); box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        .alumni-lolos {
+            display: inline-block;
+            background: rgba(34,197,94,0.15);
+            color: var(--green);
+            border: 1px solid rgba(34,197,94,0.3);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+        .alumni-score {
+            position: absolute;
+            top: 24px; right: 24px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: var(--navy);
+            border-radius: 10px;
+            padding: 8px 14px;
+            text-align: center;
+        }
+        .alumni-score .s-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; line-height: 1; display: block; }
+        .alumni-score .s-lbl { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+        .alumni-name { font-size: 1.3rem; font-weight: 900; margin-bottom: 5px; }
+        .alumni-pos { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 10px; }
+        .alumni-breakdown {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .alumni-breakdown span {
+            background: rgba(200,135,58,0.12);
+            border: 1px solid rgba(200,135,58,0.3);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        .alumni-breakdown span strong { color: var(--gold); }
+        .alumni-quote {
+            border-left: 3px solid var(--gold);
+            padding-left: 16px;
+            font-style: italic;
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 0.92rem;
+        }
 
-.footer { 
-  background: var(--cia-navy); color: var(--cia-white); padding: 4rem 0 0;
-}
-.footer-grid { 
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-  gap: 3rem; max-width: 1200px; margin: 0 auto 3rem; padding: 0 2rem;
-}
-.footer-section h3 { 
-  font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; 
-  letter-spacing: 1px; text-transform: uppercase;
-}
-.footer-section ul { list-style: none; }
-.footer-section li { margin-bottom: 0.75rem; }
-.footer-section a { 
-  color: rgba(255,255,255,0.7); text-decoration: none; 
-  font-size: 0.9rem; transition: color 0.3s;
-}
-.footer-section a:hover { color: var(--cia-gold); }
+        /* ── MENTOR ── */
+        .mentor { padding: 70px 0; }
+        .mentor-box {
+            background: var(--card-bg);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 50px 40px;
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+        .mentor-photo-wrap {
+            flex-shrink: 0;
+        }
+        .mentor-photo {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            box-shadow: 0 0 30px rgba(200,135,58,0.35);
+        }
+        .mentor-text h3 { font-size: 1.6rem; font-weight: 900; margin-bottom: 12px; }
+        .mentor-text p { color: var(--text-muted); line-height: 1.7; max-width: 600px; }
+        .mentor-text .highlight { color: var(--gold); font-weight: 700; }
+        .mentor-stats { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+        .mentor-stat { text-align: center; }
+        .mentor-stat .val { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--gold); }
+        .mentor-stat .lbl { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
 
-.footer-bottom { 
-  border-top: 1px solid rgba(255,255,255,0.1); padding: 2rem; 
-  text-align: center; max-width: 1200px; margin: 0 auto;
-}
-.social { display: flex; justify-content: center; gap: 1rem; margin: 1rem 0; }
-.social a { 
-  width: 2.5rem; height: 2.5rem; border: 1px solid rgba(255,255,255,0.3); 
-  border-radius: 50%; display: grid; place-items: center; 
-  color: rgba(255,255,255,0.8); text-decoration: none; transition: all 0.3s;
-}
-.social a:hover { border-color: var(--cia-gold); color: var(--cia-gold); background: rgba(255,255,255,0.1); }
+        /* ── FASILITAS ── */
+        .fasilitas-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        .fasilitas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .fasilitas-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--navy);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            transition: border-color 0.25s, transform 0.25s;
+        }
+        .fasilitas-item:hover { border-color: var(--gold); transform: translateY(-3px); }
+        .fas-icon { font-size: 1.8rem; flex-shrink: 0; }
+        .fas-text { color: var(--white); font-weight: 700; font-size: 0.95rem; line-height: 1.5; }
+        .catatan-box {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            background: rgba(200,135,58,0.08);
+            border: 1px dashed var(--gold);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-top: 10px;
+        }
+        .catatan-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+        .catatan-box p { color: var(--text-muted); font-size: 0.93rem; line-height: 1.7; }
+        .catatan-box p strong { color: var(--white); }
 
-.footer-legal { 
-  background: var(--cia-navy-dark); padding: 1.5rem 2rem; 
-  text-align: center; font-size: 0.8rem; letter-spacing: 1px;
-}
-.footer-legal a { 
-  color: rgba(255,255,255,0.6); text-decoration: none; 
-  margin: 0 1rem; transition: color 0.3s;
-}
-.footer-legal a:hover { color: var(--cia-gold); }
+        /* ── CTA FINAL ── */
+        .final-cta {
+            padding: 90px 0;
+            text-align: center;
+        }
+        .final-cta h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+        .final-cta p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 520px;
+            margin: 0 auto 36px;
+        }
 
-/* ANIMATIONS */
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-.fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; }
+        /* ── WA FLOAT ── */
+        .wa-float {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            z-index: 999;
+        }
+        .wa-btn {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 30px rgba(37,211,102,0.5);
+            text-decoration: none;
+            animation: waPulse 2.5s ease-in-out infinite;
+            transition: transform 0.25s;
+        }
+        .wa-btn:hover { transform: scale(1.12); }
+        .wa-btn svg { width: 36px; height: 36px; fill: white; }
+        @keyframes waPulse {
+            0%,100% { box-shadow: 0 6px 30px rgba(37,211,102,0.4); }
+            50% { box-shadow: 0 6px 50px rgba(37,211,102,0.7); }
+        }
 
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.float { animation: float 3s ease-in-out infinite; }
+        /* ── FOOTER ── */
+        footer {
+            background: var(--navy2);
+            border-top: 1px solid var(--border);
+            padding: 28px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+        footer strong { color: var(--gold); }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .top-nav { padding: 0.5rem 1rem; gap: 1rem; font-size: 0.75rem; }
-  .main-nav { padding: 0 1rem; }
-  .hamburger { display: flex; }
-  .search-container { display: none; }
-  .about-grid, .legacy-container { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
-  .careers { grid-template-columns: 1fr; }
-  .careers-content { padding: 3rem 2rem; border-left: none; border-top: 4px solid var(--cia-gold); }
-  .stories-grid { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; }
-}
+        /* ── HAMBURGER MOBILE NAV ── */
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+        .hamburger span { display: block; width: 24px; height: 2px; background: var(--white); border-radius: 2px; transition: all 0.3s; }
 
-@media (max-width: 480px) {
-  .hero-content h1 { font-size: 2.5rem; }
-  .section { padding: 4rem 0; }
-}
-</style>
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .nav-links, .nav-cta { display: none; }
+            .hamburger { display: flex; }
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%; left: 0; right: 0;
+                background: rgba(15,30,60,0.98);
+                padding: 20px;
+                gap: 16px;
+                border-bottom: 1px solid var(--border);
+            }
+            .nav-links.open + .nav-cta { display: block; margin: 0 20px 16px; }
+            nav { position: relative; }
+            .hero { padding: 50px 0 40px; }
+            .score-hero { flex-direction: column; gap: 24px; padding: 28px 24px; }
+            .mentor-box { padding: 32px 24px; }
+            .fasilitas-box { padding: 28px 20px; }
+            .wa-float { bottom: 18px; right: 18px; }
+        }
+
+        /* ── SCROLL REVEAL ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+    </style>
 </head>
 <body>
 
-<!-- 🛡️ ULTRA SECURITY ALERT -->
-<div id="ultra-alert">
-  <h2>🚨 ULTRA DEFENSE ACTIVATED</h2>
-  <p>Advanced threat detection triggered. All activities logged to AdhyaksaCyber Intelligence Network.</p>
-  <div id="ultra-session">SESSION: CIA-ULTRA-ADHYAKSA-SEC</div>
-</div>
-
-<!-- HONEYPOTS (hidden) -->
-<div style="position:fixed;left:-9999px;top:-9999px">
-  <input id="hp-admin" type="text">
-  <input id="hp-pass" type="password">
-  <a id="hp-env" href="/.env"></a>
-  <canvas id="hp-canvas"></canvas>
-</div>
-
-<!-- TOP NAV -->
-<div class="top-nav">
-  <a href="#contact">Contact CIA</a>
-  <a href="#report">Report Information</a>
-  <a href="#ethics">Ethics Hotline</a>
-</div>
-
-<!-- MAIN NAV -->
-<nav class="main-nav" role="navigation">
-  <a href="#" class="logo" aria-label="CIA Home">
-    <div class="logo-icon">CIA</div>
-    <span class="logo-text">Central Intelligence Agency</span>
-  </a>
-  <div class="search-container" role="search">
-    <input class="search-input" id="search" placeholder="Search CIA.gov..." aria-label="Search">
-    <button class="search-btn" id="search-btn" aria-label="Search">🔍</button>
-  </div>
-  <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
-    <span></span><span></span><span></span>
-  </button>
+<!-- NAV -->
+<nav>
+    <div class="nav-inner">
+        <div class="nav-logo">
+            <img src="LOGO_BIMBEL.png" alt="Ultron Bimbel">
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="#keunggulan">Keunggulan</a>
+            <a href="#alumni">Alumni</a>
+            <a href="#mentor">Mentor</a>
+        </div>
+        <a href="#" class="nav-cta" onclick="openWA();return false;">Daftar Sekarang</a>
+        <div class="hamburger" id="hamburger" onclick="toggleNav()">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
 </nav>
 
-<!-- HERO SLIDER -->
-<section class="hero" role="banner">
-  <div class="hero-slide active" data-slide="0">
-    <div class="hero-bg" style="background: linear-gradient(135deg, var(--cia-navy) 0%, var(--cia-blue) 100%);"></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1>We are the Nation's first line of defense.</h1>
-      <p>Providing the President and policymakers with the intelligence they need to keep our country safe.</p>
-    </div>
-  </div>
-  
-  <div class="hero-slide" data-slide="1">
-    <div class="hero-bg" style="background: linear-gradient(135deg, var(--cia-navy-dark) 0%, var(--cia-navy) 100%);"></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1>Extraordinary service for extraordinary times.</h1>
-      <p>Extraordinary Intelligence. Extraordinary People.</p>
-    </div>
-  </div>
-  
-  <div class="hero-slide" data-slide="2">
-    <div class="hero-bg" style="background: linear-gradient(135deg, var(--cia-blue) 0%, var(--cia-navy-dark) 100%);"></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1>Defending freedom since 1947.</h1>
-      <p>The work of a nation. The center of intelligence.</p>
-    </div>
-  </div>
-  
-  <div class="hero-slide" data-slide="3">
-    <div class="hero-bg" style="background: linear-gradient(135deg, var(--cia-navy) 0%, var(--cia-navy-dark) 100%);"></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1>Your mission. Our technology.</h1>
-      <p>AdhyaksaCyber + CIA = Unbreakable Intelligence</p>
-    </div>
-  </div>
-  
-  <div class="hero-slide" data-slide="4">
-    <div class="hero-bg" style="background: linear-gradient(135deg, var(--cia-gold) 0%, var(--cia-blue) 50%, var(--cia-navy) 100%);"></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1>bibohunter.me Elite Defense</h1>
-      <p>Military-grade security for the world's premier intelligence agency</p>
-    </div>
-  </div>
-
-  <!-- Controls -->
-  <button class="slider-arrow prev" id="prev" aria-label="Previous slide">‹</button>
-  <button class="slider-arrow next" id="next" aria-label="Next slide">›</button>
-  <div class="slider-controls" role="tablist">
-    <button class="slider-dot active" data-slide="0" role="tab" aria-selected="true" aria-label="Slide 1"></button>
-    <button class="slider-dot" data-slide="1" role="tab" aria-selected="false" aria-label="Slide 2"></button>
-    <button class="slider-dot" data-slide="2" role="tab" aria-selected="false" aria-label="Slide 3"></button>
-    <button class="slider-dot" data-slide="3" role="tab" aria-selected="false" aria-label="Slide 4"></button>
-    <button class="slider-dot" data-slide="4" role="tab" aria-selected="false" aria-label="Slide 5"></button>
-  </div>
-</section>
-
-<!-- ABOUT -->
-<section class="section about fade-in-up">
-  <div class="container">
-    <div class="about-grid">
-      <svg class="about-icon" viewBox="0 0 64 64">
-        <path d="M32 4L12 20v24l20 16 20-16V20z" stroke-linejoin="round"/>
-        <circle cx="32" cy="32" r="8"/>
-      </svg>
-      <div>
-        <h2 class="section-title">Our Agency</h2>
-        <p class="section-subtitle">We are the Nation's first line of defense</p>
-        <p class="section-text">We collect and analyze foreign intelligence and conduct covert action as the Nation's first line of defense. We provide objective intelligence to inform the President and policymakers.</p>
-        <a href="#" class="btn">Learn About CIA</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CAREERS -->
-<section class="section careers">
-  <div class="careers-image"></div>
-  <div class="careers-content fade-in-up">
-    <svg viewBox="0 0 48 48" style="width:3rem;height:3rem;color:var(--cia-gold);">
-      <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"/>
-      <path d="M24 8v16l8 8" stroke="currentColor" stroke-width="3" fill="none"/>
-    </svg>
-    <h2 class="careers-title">Careers @ CIA</h2>
-    <p class="section-text">A career at CIA is more than a job. It’s a way of life that calls for dedication, patriotism and commitment.</p>
-    <a href="#" class="btn">Explore Careers</a>
-  </div>
-</section>
-
-<!-- LEGACY -->
-<section class="section legacy fade-in-up">
-  <div class="container">
-    <div class="legacy-container">
-      <div class="seal float">
-        <svg viewBox="0 0 200 200">
-          <circle cx="100" cy="100" r="90" fill="#16213e" stroke="#d4a017" stroke-width="4"/>
-          <circle cx="100" cy="100" r="70" fill="none" stroke="#d4a017" stroke-width="2" stroke-dasharray="5,5"/>
-          <text x="100" y="105" text-anchor="middle" fill="#d4a017" font-size="24" font-weight="bold" font-family="serif">CIA</text>
-        </svg>
-      </div>
-      <div>
-        <h2 class="section-title">Our Legacy</h2>
-        <p class="section-subtitle" style="color: rgba(255,255,255,0.9);">75+ years of service to the Nation</p>
-        <p class="section-text" style="color: rgba(255,255,255,0.8);">CIA's legacy is one of brave individuals dedicated to freedom, fulfilling our intelligence mission with ingenuity and grit.</p>
-        <a href="#" class="btn" style="background: var(--cia-gold); color: var(--cia-navy);">Our History</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- STORIES -->
-<section class="section fade-in-up">
-  <div class="container">
-    <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">Our Stories</h2>
-    <div class="stories-grid">
-      <article class="story-card fade-in-up">
-        <div class="story-image">🗽</div>
-        <div class="story-content">
-          <h3 class="story-title">Eve of Revolution: The Boston Mechanics</h3>
-          <a href="#" class="story-link">Read More →</a>
+<!-- HERO -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-badge reveal"><span>🏆</span> Bimbingan CPNS Terpercaya</div>
+        <h1 class="reveal">
+            <span class="line1">LOLOS CPNS</span><br>
+            <span class="line2">BUKAN KEBERUNTUNGAN</span>
+        </h1>
+        <p class="hero-sub reveal">
+            Bimbingan intensif SKD dengan <strong>trik eksklusif</strong>, mentor yang pernah raih skor <strong>470 SKD</strong>, dan metode terbukti lulus.
+        </p>
+        <div class="hero-btns reveal">
+            <a href="#" class="btn-gold" onclick="openWA();return false;">💬 Konsultasi via WhatsApp</a>
+            <a href="#alumni" class="btn-outline">Lihat Alumni Lulus</a>
         </div>
-      </article>
-      
-      <article class="story-card fade-in-up" style="animation-delay: 0.1s">
-        <div class="story-image">✈️</div>
-        <div class="story-content">
-          <h3 class="story-title">Prelude to COLDFEET: Spy Sky Pickups</h3>
-          <a href="#" class="story-link">Read More →</a>
-        </div>
-      </article>
-      
-      <article class="story-card fade-in-up" style="animation-delay: 0.2s">
-        <div class="story-image">📜</div>
-        <div class="story-content">
-          <h3 class="story-title">Five Lessons in Spying from George Washington</h3>
-          <a href="#" class="story-link">Read More →</a>
-        </div>
-      </article>
     </div>
-    <div style="text-align: center; margin-top: 3rem;">
-      <a href="#" class="btn">All Stories</a>
+</section>
+
+<!-- SCORE HERO CARD -->
+<div class="container">
+    <div class="score-hero reveal">
+        <div class="score-badge-big">
+            <div class="score-num">470</div>
+            <div class="score-label">Skor SKD</div>
+        </div>
+        <div class="score-info">
+            <h3>🎯 Mentor Kami Pernah Raih Skor 470 SKD!</h3>
+            <p>Bukan teori belaka — mentor kami pernah merasakan langsung duduk di ujian CPNS dan meraih skor SKD <span class="highlight">470/550</span>. Trik, strategi, dan pengalaman nyata langsung diajarkan ke kamu.</p>
+        </div>
     </div>
-  </div>
+</div>
+
+<!-- STATS -->
+<section class="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card reveal">
+                <div class="stat-num" data-target="2">2</div>
+                <div class="stat-desc">Alumni Lulus (Batch Pertama)</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-num">470</div>
+                <div class="stat-desc">Skor SKD Tertinggi Mentor</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-num">24/7</div>
+                <div class="stat-desc">Konsultasi via WA</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-num">100%</div>
+                <div class="stat-desc">Trik Eksklusif SKD</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- KEUNGGULAN -->
+<section class="diff" id="keunggulan">
+    <div class="container">
+        <div class="sec-title reveal">
+            <h2>Kenapa <span class="accent">Berbeda</span> dari Bimbel Lain?</h2>
+            <p>Bukan sekadar belajar soal — kami ajarkan cara berpikir dan strategi yang tepat</p>
+        </div>
+        <div class="diff-grid">
+            <div class="diff-card reveal">
+                <div class="diff-icon">🧠</div>
+                <div class="diff-title">Trik Ngerjain SKD Eksklusif</div>
+                <div class="diff-desc">Setiap subtipe soal TWK, TIU, TKP punya polanya sendiri. Kami ajarkan shortcut dan pendekatan yang tidak diajarkan di tempat lain.</div>
+            </div>
+            <div class="diff-card reveal">
+                <div class="diff-icon">🏅</div>
+                <div class="diff-title">Mentor Berpengalaman Nyata</div>
+                <div class="diff-desc">Mentor kami bukan hanya akademisi — mereka pernah ikut CPNS dan meraih skor 470. Pengalaman nyata = solusi nyata.</div>
+            </div>
+            <div class="diff-card reveal">
+                <div class="diff-icon">🎯</div>
+                <div class="diff-title">Simulasi CAT Persis Aslinya</div>
+                <div class="diff-desc">Try out kami dirancang mengikuti sistem CAT BKN yang sesungguhnya — termasuk tekanan waktu dan urutan soal yang mirip.</div>
+            </div>
+            <div class="diff-card reveal">
+                <div class="diff-icon">💬</div>
+                <div class="diff-title">Grup Belajar Aktif</div>
+                <div class="diff-desc">Komunitas WhatsApp yang aktif 24/7. Tanya kapan saja, jawab langsung dari mentor dan sesama peserta.</div>
+            </div>
+            <div class="diff-card reveal">
+                <div class="diff-icon">📊</div>
+                <div class="diff-title">Analisis Hasil Personal</div>
+                <div class="diff-desc">Setiap try out dianalisis secara personal — kamu tahu persis kelemahan mana yang harus diperbaiki.</div>
+            </div>
+            <div class="diff-card reveal">
+                <div class="diff-icon">📱</div>
+                <div class="diff-title">Fleksibel Online</div>
+                <div class="diff-desc">Bisa ikut bimbingan kapan saja dan di mana saja via online. Menyesuaikan jadwal kamu.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ALUMNI -->
+<section class="alumni" id="alumni">
+    <div class="container">
+        <div class="sec-title reveal">
+            <h2>Alumni <span class="accent">Lulus</span> Kami</h2>
+            <p>Batch pertama — 2 peserta berhasil lolos CPNS 2024</p>
+        </div>
+        <div class="alumni-grid">
+            <div class="alumni-card featured reveal">
+                <div class="alumni-score">
+                    <span class="s-num">428</span>
+                    <span class="s-lbl">SKD</span>
+                </div>
+                <div class="alumni-lolos">✓ LOLOS CPNS</div>
+                <h3 class="alumni-name">Hilarry Sri Rizky</h3>
+                <p class="alumni-pos">Formasi Pemerintah Provinsi Sumatera Barat</p>
+                <div class="alumni-breakdown">
+                    <span>TWK <strong>90</strong></span>
+                    <span>TIU <strong>135</strong></span>
+                    <span>TKP <strong>203</strong></span>
+                </div>
+                <blockquote class="alumni-quote">
+                    "Bimbingan dari Ultron benar-benar membantu saya memahami pola soal dan strategi menjawab. Alhamdulillah berhasil lolos CPNS 2024!"
+                </blockquote>
+            </div>
+            <div class="alumni-card reveal">
+                <div class="alumni-score">
+                    <span class="s-num">395</span>
+                    <span class="s-lbl">SKD</span>
+                </div>
+                <div class="alumni-lolos">✓ LOLOS CPNS</div>
+                <h3 class="alumni-name">Nolvi Elisia</h3>
+                <p class="alumni-pos">Formasi Apoteker — Kejaksaan RI</p>
+                <div class="alumni-breakdown">
+                    <span>TWK <strong>75</strong></span>
+                    <span>TIU <strong>110</strong></span>
+                    <span>TKP <strong>205</strong></span>
+                </div>
+                <blockquote class="alumni-quote">
+                    "Materi lengkap, pengajar sabar dan detail banget. Grup diskusinya aktif, jadi belajar terasa lebih ringan dan termotivasi. Alhamdulillah langsung lolos!"
+                </blockquote>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MENTOR -->
+<section class="mentor" id="mentor">
+    <div class="container">
+        <div class="sec-title reveal">
+            <h2>Tentang <span class="accent">Mentor</span> Kami</h2>
+        </div>
+        <div class="mentor-box reveal">
+            <div class="mentor-photo-wrap">
+                <img src="SKD_BAGUS.jpeg" alt="Bagus Iqbal Baehaky" class="mentor-photo">
+            </div>
+            <div class="mentor-text">
+                <h3>Bagus Iqbal Baehaky</h3>
+                <p>Mentor Ultron Bimbel bukan hanya paham teori — mereka pernah duduk di kursi yang sama dengan kamu, mengerjakan soal yang sama, dan meraih hasil nyata. Skor SKD <span class="highlight">470/550</span> bukan klaim sembarangan, itu bukti konkret dari metode yang kami ajarkan.</p>
+                <div class="mentor-stats">
+                    <div class="mentor-stat">
+                        <div class="val">470</div>
+                        <div class="lbl">Skor SKD Mentor</div>
+                    </div>
+                    <div class="mentor-stat">
+                        <div class="val">3</div>
+                        <div class="lbl">Subtipe SKD Dikuasai</div>
+                    </div>
+                    <div class="mentor-stat">
+                        <div class="val">2+</div>
+                        <div class="lbl">Tahun Pengalaman</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FASILITAS -->
+        <div class="fasilitas-box reveal">
+            <div class="sec-title" style="margin-bottom:30px">
+                <h2>Fasilitas <span class="accent">Bimbel</span></h2>
+            </div>
+            <div class="fasilitas-grid">
+                <div class="fasilitas-item">
+                    <div class="fas-icon">📝</div>
+                    <div class="fas-text">Tryout yang relevan dan mengikuti sistem CAT BKN</div>
+                </div>
+                <div class="fasilitas-item">
+                    <div class="fas-icon">📚</div>
+                    <div class="fas-text">E-book materi SKD lengkap</div>
+                </div>
+                <div class="fasilitas-item">
+                    <div class="fas-icon">📂</div>
+                    <div class="fas-text">FR (Frequent Review) SKD tahun-tahun sebelumnya</div>
+                </div>
+                <div class="fasilitas-item">
+                    <div class="fas-icon">🌟</div>
+                    <div class="fas-text">Tips jalur langit, tips mental, dan tips belajar yang benar</div>
+                </div>
+                <div class="fasilitas-item">
+                    <div class="fas-icon">💬</div>
+                    <div class="fas-text">Konsultasi lewat grup maupun privat sampai tuntas</div>
+                </div>
+            </div>
+            <div class="catatan-box">
+                <span class="catatan-icon">📌</span>
+                <p><strong>Catatan:</strong> Pembelajaran dilakukan secara <strong>belajar mandiri</strong> melalui e-book yang disediakan — bukan melalui Zoom atau sesi live. Belajar kapan saja, di mana saja, sesuai ritme kamu.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+    <div class="container">
+        <h2 class="reveal">RAIH SKOR SKD TERBAIK<br><span style="color:var(--gold)">BERSAMA ULTRON BIMBEL</span></h2>
+        <p class="reveal">Jangan belajar sendirian. Bergabunglah sekarang dan dapatkan bimbingan langsung dari mentor berpengalaman.</p>
+        <a href="#" class="btn-gold reveal" onclick="openWA();return false;">💬 Hubungi Kami via WhatsApp Sekarang</a>
+    </div>
 </section>
 
 <!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-grid">
-    <div class="footer-section">
-      <h3>Agency</h3>
-      <ul>
-        <li><a href="#">About CIA</a></li>
-        <li><a href="#">Organization</a></li>
-        <li><a href="#">Leadership</a></li>
-        <li><a href="#">Mission</a></li>
-        <li><a href="#">CIA Museum</a></li>
-      </ul>
+<footer>
+    <div class="container">
+        <p>&copy; 2026 <strong>Ultron Bimbel & Les Privat</strong> · Ambon, Maluku · Semua hak dilindungi</p>
     </div>
-    
-    <div class="footer-section">
-      <h3>Careers</h3>
-      <ul>
-        <li><a href="#">Career Opportunities</a></li>
-        <li><a href="#">Student Programs</a></li>
-        <li><a href="#">Hiring Process</a></li>
-        <li><a href="#">Benefits</a></li>
-        <li><a href="#">MyLINK</a></li>
-      </ul>
-    </div>
-    
-    <div class="footer-section">
-      <h3>Library</h3>
-      <ul>
-        <li><a href="#">Publications</a></li>
-        <li><a href="#">Center for the Study of Intelligence</a></li>
-        <li><a href="#">World Factbook</a></li>
-        <li><a href="#">Library Catalog</a></li>
-        <li><a href="#">FOIA</a></li>
-      </ul>
-    </div>
-    
-    <div class="footer-section">
-      <h3>Doing Business</h3>
-      <ul>
-        <li><a href="#">Partner with CIA</a></li>
-        <li><a href="#">Contracting</a></li>
-        <li><a href="#">Doing Business with CIA</a></li>
-        <li><a href="#">Vendor Info</a></li>
-        <li><a href="#">Small Business</a></li>
-      </ul>
-    </div>
-  </div>
-  
-  <div class="footer-bottom">
-    <div>
-      <a href="#" class="btn" style="background: transparent; color: var(--cia-gold); border: 2px solid var(--cia-gold);">Contact CIA</a>
-    </div>
-    <div class="social">
-      <a href="#" aria-label="Facebook">f</a>
-      <a href="#" aria-label="Twitter">𝕏</a>
-      <a href="#" aria-label="YouTube">▶</a>
-      <a href="#" aria-label="Flickr">f</a>
-      <a href="#" aria-label="Instagram">i</a>
-    </div>
-  </div>
-  
-  <div class="footer-legal">
-    <a href="#">Accessibility</a>
-    <a href="#">FOIA</a>
-    <a href="#">NoFEAR</a>
-    <a href="#">Privacy</a>
-    <a href="#">Site Policies</a>
-    <a href="#">USA.gov</a>
-    <a href="#">Inspector General</a>
-  </div>
 </footer>
 
-<script nonce="AdhyaksaUltraCIA2026v4Xz9mK7pQv2wR8tF3nB5jH1L9zC4yG6uI8oP0sQ2wE4rT6yU8iO0pA2sD4fG6hJ8kL0mN2qP4rS6tU8vW0xY2z">
-(() => {
-  "use strict";
+<!-- WA FLOAT -->
+<div class="wa-float">
+    <a href="#" class="wa-btn" onclick="openWA();return false;" title="Chat WhatsApp">
+        <svg viewBox="0 0 32 32">
+            <path d="M16 0C7.164 0 0 7.164 0 16c0 2.813.729 5.454 2.005 7.74L.057 31.26l7.752-2.033C10.036 30.486 12.926 32 16 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm0 29.333c-2.547 0-4.906-.708-6.933-1.937l-.5-.292-5.167 1.354 1.38-5.042-.32-.518C2.76 20.84 2 18.48 2 16 2 8.28 8.28 2 16 2s14 6.28 14 14-6.28 13.333-14 13.333zm7.693-9.927c-.42-.21-2.487-1.227-2.873-1.367-.387-.14-.667-.21-.947.21-.28.42-1.087 1.367-1.333 1.647-.247.28-.493.315-.913.105-.42-.21-1.773-.653-3.38-2.087-1.25-1.113-2.093-2.487-2.34-2.907-.247-.42-.027-.647.183-.857.187-.187.42-.49.63-.735.21-.245.28-.42.42-.7.14-.28.07-.525-.035-.735-.105-.21-.947-2.28-1.297-3.12-.34-.817-.687-.707-.947-.72-.245-.012-.525-.015-.805-.015s-.735.105-1.12.525c-.385.42-1.47 1.437-1.47 3.507s1.505 4.067 1.715 4.347c.21.28 2.96 4.52 7.17 6.34 1.002.433 1.785.693 2.395.887.995.315 1.905.27 2.62.163.8-.12 2.487-.998 2.833-1.96.347-.963.347-1.787.245-1.96-.105-.175-.385-.28-.805-.49z"/>
+        </svg>
+    </a>
+</div>
 
-  // 🛡️ ULTRA SECURITY LAYER 1: FRAME BUSTER
-  if (window.self !== window.top) {
-    document.body.innerHTML = '<div id="ultra-alert" style="display:grid;place-items:center;height:100vh;background:#1f2e4d;color:white;font-family:monospace"><h1>🚫 FRAME BLOCKED</h1><p>Clickjacking attempt detected</p></div>';
-    throw new Error("Frame execution blocked");
-  }
-
-  // 🛡️ ULTRA SECURITY LAYER 2: DISABLE DEV TOOLS
-  let devtools = { open: false };
-  setInterval(() => {
-    const widthDiff = window.outerWidth - window.innerWidth > 200;
-    const heightDiff = window.outerHeight - window.innerHeight > 200;
-    if ((widthDiff || heightDiff) && !devtools.open) {
-      devtools.open = true;
-      showUltraAlert("🔍 DEVTOOLS DETECTED", "Developer tools prohibited on classified systems");
-    } else if (!widthDiff && !heightDiff) {
-      devtools.open = false;
+<script>
+    const WA = '6289516626256';
+    function openWA() {
+        const msg = encodeURIComponent('Halo Ultron Bimbel! Saya tertarik dengan program bimbingan CPNS SKD. Bisa info lebih lanjut?');
+        window.open(`https://wa.me/${WA}?text=${msg}`, '_blank');
     }
-  }, 500);
 
-  // 🛡️ ULTRA SECURITY LAYER 3: KEYBOARD LOCKDOWN
-  document.addEventListener('keydown', e => {
-    if (e.keyCode === 123 || // F12
-        (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
-        (e.ctrlKey && e.shiftKey && e.keyCode === 74) || // Ctrl+Shift+J
-        (e.ctrlKey && e.keyCode === 85)) { // Ctrl+U
-      e.preventDefault();
-      showUltraAlert("⌨️ KEYBLOCK", "Unauthorized key sequence intercepted");
+    // Mobile nav
+    function toggleNav() {
+        document.getElementById('navLinks').classList.toggle('open');
     }
-  }, true);
 
-  // 🛡️ ULTRA SECURITY LAYER 4: HONEYPOT TRAPS
-  ['hp-admin', 'hp-pass', 'hp-env', 'hp-canvas'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('focus', () => {
-        showUltraAlert("🕵️ HONEYPOT", "Automated scanner detected. IP logged.");
-        console.warn(`[ULTRA-HP] ${id} triggered`);
-      });
-    }
-  });
-
-  // 🛡️ ULTRA SECURITY LAYER 5: CONTEXT MENU BLOCK
-  document.addEventListener('contextmenu', e => e.preventDefault());
-
-  // 🔥 SLIDER FUNCTIONALITY (CIA-EXACT)
-  const slides = document.querySelectorAll('.hero-slide');
-  const dots = document.querySelectorAll('.slider-dot');
-  const prevBtn = document.getElementById('prev');
-  const nextBtn = document.getElementById('next');
-  let currentSlide = 0;
-  let slideInterval;
-
-  function showSlide(index) {
-    slides.forEach((slide, i) => {
-      slide.classList.toggle('active', i === index);
-      slide.setAttribute('aria-hidden', i !== index);
-    });
-    dots.forEach((dot, i) => {
-      dot.classList.toggle('active', i === index);
-      dot.setAttribute('aria-selected', i === index);
-    });
-    currentSlide = index;
-  }
-
-  function nextSlide() {
-    showSlide((currentSlide + 1) % slides.length);
-  }
-
-  function prevSlide() {
-    showSlide((currentSlide + slides.length - 1) % slides.length);
-  }
-
-  prevBtn.addEventListener('click', prevSlide);
-  nextBtn.addEventListener('click', nextSlide);
-
-  dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => showSlide(index));
-  });
-
-  // Auto-slide
-  function startSlideShow() {
-    slideInterval = setInterval(nextSlide, 6000);
-  }
-  function stopSlideShow() {
-    clearInterval(slideInterval);
-  }
-  document.querySelector('.hero').addEventListener('mouseenter', stopSlideShow);
-  document.querySelector('.hero').addEventListener('mouseleave', startSlideShow);
-  startSlideShow();
-
-  // 🔥 SEARCH FUNCTIONALITY (CIA-STYLE)
-  const searchInput = document.getElementById('search');
-  const searchBtn = document.getElementById('search-btn');
-  
-  function performSearch() {
-    const query = searchInput.value.trim();
-    if (query) {
-      // Sanitize input
-      const cleanQuery = query.replace(/[<>\"']/g, '');
-      console.log(`🔍 CIA Search: "${cleanQuery}"`);
-      // Simulate search (CIA-style)
-      alert(`Searching CIA.gov for: "${cleanQuery}"\n\nResults loading... (Demo)`);
-      searchInput.value = '';
-    }
-  }
-
-  searchBtn.addEventListener('click', performSearch);
-  searchInput.addEventListener('keypress', e => {
-    if (e.key === 'Enter') performSearch();
-  });
-
-  // 🔥 MOBILE MENU
-  const hamburger = document.getElementById('hamburger');
-  hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('open');
-    hamburger.setAttribute('aria-expanded', hamburger.classList.contains('open'));
-  });
-
-  // 🔥 SCROLL ANIMATIONS
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('animate');
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
-
-  // 🔥 STORY CARD INTERACTIONS
-  document.querySelectorAll('.story-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const title = card.querySelector('.story-title').textContent;
-      console.log(`📖 Story clicked: ${title}`);
-      alert(`Opening story: ${title}\n\nFull article loading... (CIA-style)`);
-    });
-  });
-
-  // 🛡️ ULTRA SECURITY LAYER 6: ALERT SYSTEM
-  function showUltraAlert(title, message) {
-    const alertEl = document.getElementById('ultra-alert');
-    const sessionEl = document.getElementById('ultra-session');
-    document.getElementById('ultra-alert').querySelector('h2').textContent = title;
-    document.querySelector('#ultra-alert p').textContent = message;
-    sessionEl.textContent = `SESSION: CIA-ULTRA-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-    alertEl.classList.add('show');
-    setTimeout(() => alertEl.classList.remove('show'), 5000);
-  }
-
-  // 🛡️ ULTRA SECURITY LAYER 7: FINGERPRINT RESISTANCE
-  if (HTMLCanvasElement.prototype.getContext) {
-    const originalGetContext = HTMLCanvasElement.prototype.getContext;
-    HTMLCanvasElement.prototype.getContext = () => null;
-  }
-
-  // 🛡️ ULTRA SECURITY LAYER 8: RATE LIMITING
-  let clickCount = 0;
-  const rateLimit = () => {
-    clickCount++;
-    if (clickCount > 20) {
-      showUltraAlert('⚡ RATE LIMITED', 'Too many requests. Access temporarily restricted.');
-      return false;
-    }
-    setTimeout(() => clickCount--, 1000);
-    return true;
-  };
-
-  // Apply rate limiting to interactive elements
-  document.querySelectorAll('button, a, .story-card').forEach(el => {
-    el.addEventListener('click', e => {
-      if (!rateLimit()) e.preventDefault();
-    });
-  });
-
-  // 🔥 PERFECT RESPONSIVE HAMBURGER
-  const style = document.createElement('style');
-  style.textContent = `
-    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
-    .hamburger.open span:nth-child(2) { opacity: 0; }
-    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(6px, -5px); }
-    @media (max-width: 768px) {
-      .search-container { display: none !important; }
-    }
-  `;
-  document.head.appendChild(style);
-
-  // 🛡️ CIA-EXACT CONSOLE BANNER
-  console.log('%c🔒 CIA Ultra-Secure System %c Protected by AdhyaksaCyber bibohunter.me', 
-    'background:#1f2e4d;color:#d4a017;font-size:16px;font-weight:bold;padding:12px 20px;border-radius:8px;',
-    'color:#6c757d;font-size:12px;padding:8px;'
-  );
-  console.log('%c⚠️  All console activity logged to CIA security operations center', 
-    'color:#dc3545;font-weight:bold;font-size:13px;'
-  );
-
-  // 🔥 PWA INSTALL PROMPT (CIA-style)
-  let deferredPrompt;
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-  });
-
-})();
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach((e, i) => {
+            if (e.isIntersecting) {
+                e.target.style.transitionDelay = (i % 4) * 0.08 + 's';
+                e.target.classList.add('visible');
+                obs.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+    revealEls.forEach(el => obs.observe(el));
 </script>
-
 </body>
 </html>
