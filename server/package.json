@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "tsx watch src/local-dev.ts",
     "build": "wrangler deploy --dry-run --outdir=dist",
-    "preview": "node dist/local-prod.js",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "preview": "wrangler preview"
   },
   "dependencies": {
     "@hono/node-server": "^1.11.0",
