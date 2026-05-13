@@ -1,18 +1,10 @@
-name = "ultron-bimbel-api"
+name = "bibohunter"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
-# D1 Database binding
 [[d1_databases]]
 binding = "DB"
 database_name = "ultron-db"
-database_id = "YOUR_D1_DATABASE_ID"
-
-# R2 Storage binding
-[[r2_buckets]]
-binding = "R2"
-bucket_name = "ultron-files"
 
 [vars]
-JWT_SECRET = "ultron-super-secret-key-change-this-in-production"
-ENVIRONMENT = "production"
+JWT_SECRET = "ultron-super-secret-key-2025"
