@@ -16,6 +16,8 @@
   --red-bg: #fef2f2;
   --blue: #3b82f6;
   --blue-bg: rgba(59, 130, 246, 0.08);
+  --radius: 12px;
+  --shadow: 0 2px 14px rgba(15, 30, 60, 0.08);
 }
 
 [data-theme="dark"] {
@@ -43,7 +45,14 @@ body {
   background: var(--bg);
   color: var(--text);
   transition: background 0.3s, color 0.3s;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Add Nunito font */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
