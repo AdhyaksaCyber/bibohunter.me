@@ -15,7 +15,13 @@ function PrivateRoute({ children, allowedRoles }) {
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>Loading...</div>;
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg)' }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
