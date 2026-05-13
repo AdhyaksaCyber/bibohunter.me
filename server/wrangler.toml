@@ -2,17 +2,17 @@ name = "ultron-bimbel-api"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
+# D1 Database binding
 [[d1_databases]]
 binding = "DB"
 database_name = "ultron-db"
 database_id = "YOUR_D1_DATABASE_ID"
 
+# R2 Storage binding
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "ultron-files"
 
-[env.production]
-vars = { ENVIRONMENT = "production" }
-
-[env.preview]
-vars = { ENVIRONMENT = "preview" }
+[vars]
+JWT_SECRET = "ultron-super-secret-key-change-this-in-production"
+ENVIRONMENT = "production"
