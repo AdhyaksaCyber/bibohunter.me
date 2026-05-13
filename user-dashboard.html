@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Dashboard — Ultron Bimbel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4ff;--bg2:#e6ecf8;--surface:#fff;--surface2:#f6f9ff;
+  --border:#cdd8ef;--text:#0f1e3c;--muted:#6b7ea8;--muted2:#9aaac8;
+  --gold:#b8711e;--gold-l:#d4893a;--gold-pale:#fef3e2;
+  --navy:#0d1b35;
+  --green:#15803d;--green-bg:#f0fdf4;
+  --red:#dc2626;--red-bg:#fef2f2;--red-b:rgba(220,38,38,.22);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,.08);
+  --sh:0 2px 14px rgba(15,30,60,.08);--sh-md:0 6px 28px rgba(15,30,60,.13);--sh-lg:0 12px 46px rgba(15,30,60,.18);
+  --r:14px;
+}
+[data-theme="dark"]{
+  --bg:#0a1628;--bg2:#0f1e3c;--surface:#162240;--surface2:#1a2a50;
+  --border:rgba(200,135,58,.2);--text:#f0f4ff;--muted:#8aa0c0;--muted2:#607090;
+  --gold:#d4893a;--gold-pale:rgba(200,135,58,.1);
+  --green:#22c55e;--green-bg:rgba(34,197,94,.08);
+  --red:#f87171;--red-bg:rgba(220,38,38,.1);--red-b:rgba(248,113,113,.22);
+  --sh:0 2px 14px rgba(0,0,0,.35);--sh-md:0 6px 28px rgba(0,0,0,.4);--sh-lg:0 12px 46px rgba(0,0,0,.55);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+
+/* SESSION BANNER */
+.sbanner{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:var(--navy);padding:9px 24px;font-weight:800;font-size:.86rem;text-align:center;animation:sd .3s ease}
+.sbanner.show{display:block}
+@keyframes sd{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+
+/* TOPBAR */
+.topbar{
+  background:var(--surface);border-bottom:1.5px solid var(--border);
+  padding:0 28px;height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:var(--sh);position:sticky;top:0;z-index:100;
+  transition:background .3s,border-color .3s;
+}
+.tl{display:flex;align-items:center;gap:14px}
+.t-brand{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;color:var(--gold);letter-spacing:2px;text-decoration:none}
+.t-bdg{background:var(--gold-pale);color:var(--gold);border:1px solid rgba(184,113,30,.32);border-radius:6px;font-size:.65rem;font-weight:900;padding:2px 8px;text-transform:uppercase;letter-spacing:1px}
+.tr{display:flex;align-items:center;gap:10px}
+.tico{width:37px;height:37px;background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.95rem;transition:all .2s}
+.tico:hover{border-color:var(--gold)}
+.tusr{display:flex;align-items:center;gap:9px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:6px 14px 6px 8px;cursor:pointer;transition:border-color .2s}
+.tusr:hover{border-color:var(--gold)}
+.tav{width:28px;height:28px;background:linear-gradient(135deg,var(--gold),var(--gold-l));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:900;color:var(--navy);flex-shrink:0}
+.tun{font-size:.83rem;font-weight:800}
+.tsub{font-size:.66rem;color:var(--muted2)}
+.btnout{background:var(--red-bg);border:1.5px solid var(--red-b);color:var(--red);border-radius:9px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer;transition:all .2s}
+.btnout:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* MAIN CONTENT */
+.main{max-width:1100px;margin:0 auto;padding:32px 24px}
+
+/* WELCOME BANNER */
+.welcome{
+  background:linear-gradient(135deg,var(--navy),#1a3060);
+  border-radius:var(--r);padding:32px 36px;
+  margin-bottom:28px;position:relative;overflow:hidden;
+  box-shadow:var(--sh-md);
+}
+.welcome::after{
+  content:'';position:absolute;right:-60px;top:-60px;
+  width:260px;height:260px;
+  background:radial-gradient(circle,rgba(200,135,58,.15) 0%,transparent 65%);
+  pointer-events:none;
+}
+.welcome::before{
+  content:'';position:absolute;left:-40px;bottom:-80px;
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(59,130,246,.1) 0%,transparent 65%);
+  pointer-events:none;
+}
+.w-top{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.w-av{
+  width:54px;height:54px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:900;color:var(--navy);flex-shrink:0;
+  box-shadow:0 4px 14px rgba(184,113,30,.4);
+}
+.w-title{font-family:'Bebas Neue',sans-serif;font-size:1.85rem;color:#fff;letter-spacing:1px;line-height:1}
+.w-sub{font-size:.84rem;color:rgba(255,255,255,.55);margin-top:3px}
+.w-meta{display:flex;gap:14px;flex-wrap:wrap}
+.w-chip{
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:8px;padding:7px 14px;
+  font-size:.77rem;font-weight:700;color:rgba(255,255,255,.7);
+  display:flex;align-items:center;gap:6px;
+}
+.w-chip .wc-val{color:#fff;font-weight:900;font-family:monospace;font-size:.73rem}
+
+/* STAT GRID */
+.srow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.sc{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:22px 20px;
+  display:flex;align-items:center;gap:15px;
+  box-shadow:var(--sh);transition:transform .2s,border-color .2s;
+}
+.sc:hover{transform:translateY(-3px);border-color:var(--gold)}
+.sci{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0}
+.sci.g{background:var(--gold-pale)}.sci.gr{background:var(--green-bg)}.sci.b{background:var(--blue-bg)}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--text);line-height:1}
+.sl{font-size:.73rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-top:3px}
+
+/* GRID 2 COL */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.g3{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:28px}
+
+/* CARD */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;transition:background .3s,border-color .3s}
+.ch{padding:16px 22px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ct{font-size:.97rem;font-weight:900}.cs{font-size:.79rem;color:var(--muted);margin-top:2px}
+.cb{padding:20px 22px}
+
+/* MATERI LIST */
+.mat-list{display:flex;flex-direction:column;gap:10px}
+.mat-item{
+  display:flex;align-items:center;gap:13px;
+  padding:13px 15px;
+  background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:10px;cursor:pointer;transition:all .2s;
+}
+.mat-item:hover{border-color:var(--gold);background:var(--gold-pale)}
+.mat-ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.mat-ico.twk{background:#fef3e2}.mat-ico.tiu{background:var(--blue-bg)}.mat-ico.tkp{background:var(--green-bg)}
+.mat-name{font-weight:800;font-size:.9rem}
+.mat-desc{font-size:.75rem;color:var(--muted);margin-top:2px}
+.mat-arr{margin-left:auto;color:var(--muted);font-size:.9rem;transition:transform .2s}
+.mat-item:hover .mat-arr{transform:translateX(4px);color:var(--gold)}
+
+/* PROGRESS BARS */
+.prog-list{display:flex;flex-direction:column;gap:14px}
+.prog-item .prog-top{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.82rem;font-weight:700}
+.prog-item .prog-pct{color:var(--gold);font-weight:900}
+.prog-bar{height:7px;background:var(--border);border-radius:10px;overflow:hidden}
+.prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--gold),var(--gold-l));transition:width .8s cubic-bezier(.23,1,.32,1)}
+
+/* ACTIVITY LOG */
+.act-list{display:flex;flex-direction:column;gap:0}
+.act-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.act-dot.ok{background:var(--green)}.act-dot.warn{background:#f59e0b}.act-dot.info{background:var(--blue)}
+.act-body{flex:1}
+.act-title{font-size:.84rem;font-weight:800}
+.act-time{font-size:.72rem;color:var(--muted2);margin-top:2px}
+
+/* SESSION DETAIL CARD */
+.ses-rows{display:flex;flex-direction:column;gap:0}
+.ses-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);font-size:.84rem}
+.ses-row:last-child{border-bottom:none}
+.ses-k{color:var(--muted);font-weight:700}
+.ses-v{font-weight:800;text-align:right;font-family:monospace;font-size:.78rem;word-break:break-all;max-width:260px}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:900}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;display:block}
+.badge.ok{background:var(--green-bg);color:var(--green)}.badge.ok::before{background:var(--green)}
+.badge.warn{background:#fef9ec;color:#b45309}.badge.warn::before{background:#f59e0b}
+
+/* PROFILE AVATAR */
+.prof-av{
+  width:76px;height:76px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:2rem;font-weight:900;color:var(--navy);
+  margin:0 auto 14px;
+  box-shadow:0 6px 22px rgba(184,113,30,.3);
+}
+.prof-name{text-align:center;font-size:1.05rem;font-weight:900}
+.prof-role{text-align:center;font-size:.78rem;color:var(--muted);margin-top:4px}
+.prof-uid{text-align:center;font-family:monospace;font-size:.7rem;color:var(--muted2);margin-top:6px;cursor:pointer;transition:color .2s}
+.prof-uid:hover{color:var(--gold)}
+.prof-divider{border:none;border-top:1.5px solid var(--border);margin:16px 0}
+.prof-row{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:9px}
+.prof-k{color:var(--muted);font-weight:700}
+.prof-v{font-weight:800}
+
+/* TOASTS */
+.tw{position:fixed;bottom:22px;right:22px;z-index:9000;display:flex;flex-direction:column;gap:9px}
+.tst{background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:12px 17px;font-size:.84rem;font-weight:700;box-shadow:var(--sh-md);display:flex;align-items:center;gap:9px;animation:ti .3s cubic-bezier(.23,1,.32,1) both;max-width:300px}
+.tst.lv{animation:to .3s ease forwards}
+.tst.success{border-left:4px solid var(--green)}.tst.error{border-left:4px solid var(--red)}.tst.info{border-left:4px solid var(--gold)}
+@keyframes ti{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:translateX(0)}}
+@keyframes to{to{opacity:0;transform:translateX(22px)}}
+
+/* RESPONSIVE */
+@media(max-width:900px){.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}.srow{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.srow{grid-template-columns:1fr}.main{padding:20px 14px}.welcome{padding:24px 20px}.w-title{font-size:1.45rem}}
+</style>
+</head>
+<body>
+
+<div class="sbanner" id="sb">⚠️ Sesi berakhir dalam <span id="scd"></span> detik. Klik di mana saja untuk perpanjang.</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tl">
+    <a href="/" class="t-brand">Ultron Bimbel</a>
+    <span class="t-bdg">Dashboard</span>
+  </div>
+  <div class="tr">
+    <div class="tico" onclick="toggleTheme()" id="thBtn" title="Ganti tema">🌙</div>
+    <div class="tusr" id="usrInfo">
+      <div class="tav" id="tav">U</div>
+      <div>
+        <div class="tun" id="tun">User</div>
+        <div class="tsub" id="tRole">—</div>
+      </div>
+    </div>
+    <button class="btnout" onclick="doLogout()">Keluar</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- WELCOME BANNER -->
+  <div class="welcome">
+    <div class="w-top">
+      <div class="w-av" id="wAv">U</div>
+      <div>
+        <div class="w-title" id="wName">Selamat Datang!</div>
+        <div class="w-sub" id="wSub">Dashboard siswa Ultron Bimbel</div>
+      </div>
+    </div>
+    <div class="w-meta">
+      <div class="w-chip">🆔 UUID: <span class="wc-val" id="wUUID" title="Klik untuk salin" style="cursor:pointer" onclick="copyText(document.getElementById('wUUID').textContent)">—</span></div>
+      <div class="w-chip">🔑 Session: <span class="wc-val" id="wSID">—</span></div>
+      <div class="w-chip">⏰ Sesi aktif: <span class="wc-val" id="wExp">—</span></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="srow">
+    <div class="sc"><div class="sci g">📚</div><div><div class="sn">3</div><div class="sl">Materi Tersedia</div></div></div>
+    <div class="sc"><div class="sci gr">✅</div><div><div class="sn" id="stDone">0</div><div class="sl">Latihan Selesai</div></div></div>
+    <div class="sc"><div class="sci b">🏆</div><div><div class="sn" id="stScore">—</div><div class="sl">Rata-rata Skor</div></div></div>
+  </div>
+
+  <!-- MATERI + PROGRESS -->
+  <div class="g3">
+    <div class="card">
+      <div class="ch"><div><div class="ct">📚 Materi SKD</div><div class="cs">Pilih materi untuk mulai belajar</div></div></div>
+      <div class="cb">
+        <div class="mat-list">
+          <div class="mat-item" onclick="toast('Fitur ini segera tersedia!','info')">
+            <div class="mat-ico twk">🧠</div>
+            <div><div class="mat-name">Tes Wawasan Kebangsaan (TWK)</div><div class="mat-desc">UUD, Pancasila, NKRI, Bhinneka Tunggal Ika</div></div>
+            <span class="mat-arr">→</span>
+          </div>
+          <div class="mat-item" onclick="toast('Fitur ini segera tersedia!','info')">
+            <div class="mat-ico tiu">🔢</div>
+            <div><div class="mat-name">Tes Intelegensia Umum (TIU)</div><div class="mat-desc">Numerik, Verbal, Figural, Analogi</div></div>
+            <span class="mat-arr">→</span>
+          </div>
+          <div class="mat-item" onclick="toast('Fitur ini segera tersedia!','info')">
+            <div class="mat-ico tkp">💼</div>
+            <div><div class="mat-name">Tes Karakteristik Pribadi (TKP)</div><div class="mat-desc">Kepribadian, Etika, Pelayanan Publik</div></div>
+            <span class="mat-arr">→</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="card">
+      <div class="ch"><div class="ct">📊 Progress Belajar</div></div>
+      <div class="cb">
+        <div class="prog-list">
+          <div class="prog-item">
+            <div class="prog-top"><span>TWK</span><span class="prog-pct">45%</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:45%"></div></div>
+          </div>
+          <div class="prog-item">
+            <div class="prog-top"><span>TIU</span><span class="prog-pct">30%</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:30%"></div></div>
+          </div>
+          <div class="prog-item">
+            <div class="prog-top"><span>TKP</span><span class="prog-pct">60%</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY + PROFILE -->
+  <div class="g2">
+
+    <!-- ACTIVITY -->
+    <div class="card">
+      <div class="ch"><div class="ct">🕐 Aktivitas Terbaru</div></div>
+      <div class="cb">
+        <div class="act-list" id="actList"></div>
+      </div>
+    </div>
+
+    <!-- PROFILE / SESSION -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <!-- Profile Card -->
+      <div class="card">
+        <div class="ch"><div class="ct">👤 Profil Akun</div></div>
+        <div class="cb">
+          <div class="prof-av" id="profAv">U</div>
+          <div class="prof-name" id="profName">—</div>
+          <div class="prof-role" id="profRole">—</div>
+          <div class="prof-uid" id="profUID" title="Klik untuk salin UUID" onclick="copyText(document.getElementById('profUID').dataset.uuid)">—</div>
+          <hr class="prof-divider">
+          <div class="prof-row"><span class="prof-k">Status</span><span class="prof-v"><span class="badge ok">Aktif</span></span></div>
+          <div class="prof-row"><span class="prof-k">Login</span><span class="prof-v" id="profLogin">—</span></div>
+          <div class="prof-row"><span class="prof-k">Sesi Berakhir</span><span class="prof-v" id="profExp">—</span></div>
+        </div>
+      </div>
+
+      <!-- Session Security Card -->
+      <div class="card">
+        <div class="ch"><div class="ct">🔒 Keamanan Sesi</div></div>
+        <div class="cb">
+          <div class="ses-rows">
+            <div class="ses-row"><span class="ses-k">Session ID</span><span class="ses-v" id="secSID">—</span></div>
+            <div class="ses-row"><span class="ses-k">Status</span><span class="ses-v"><span class="badge ok">Terautentikasi</span></span></div>
+            <div class="ses-row"><span class="ses-k">Auto-extend</span><span class="ses-v"><span class="badge ok">Aktif</span></span></div>
+            <div class="ses-row"><span class="ses-k">Durasi Maks.</span><span class="ses-v">30 menit</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOASTS -->
+<div class="tw" id="tw"></div>
+
+<script>
+/* ════════════════════════════════════════
+   USER AUTH GUARD
+   Supports both 'ub_tok' (admin session) and 'ub_utok' (user session)
+════════════════════════════════════════ */
+(function authGuard(){
+  /* Check user token first, then admin token (admins can also view dashboard) */
+  let tok=null;
+  for(const key of['ub_utok','ub_tok']){
+    try{
+      const raw=sessionStorage.getItem(key);
+      if(!raw)continue;
+      const t=JSON.parse(atob(raw));
+      if(t&&t.user&&t.exp>Date.now()){tok=t;break;}
+    }catch(e){}
+  }
+  if(!tok){
+    sessionStorage.setItem('ub_msg','Silakan login untuk mengakses dashboard.');
+    window.location.replace('/login');
+    return;
+  }
+  window.__SESSION=tok;
+})();
+
+/* ════════════════════════════════════════
+   UTILITIES
+════════════════════════════════════════ */
+function esc(s){const d=document.createElement('div');d.appendChild(document.createTextNode(String(s)));return d.innerHTML;}
+function tfmt(ts){return new Date(ts).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function copyText(t){
+  navigator.clipboard.writeText(t).then(()=>toast('Disalin ke clipboard','info')).catch(()=>toast('Gagal menyalin','error'));
+}
+
+/* ════════════════════════════════════════
+   THEME
+════════════════════════════════════════ */
+const savedTh=localStorage.getItem('ub_th')||'light';
+document.documentElement.setAttribute('data-theme',savedTh);
+function toggleTheme(){
+  const t=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('ub_th',t);
+  document.getElementById('thBtn').textContent=t==='light'?'🌙':'☀️';
+}
+(function(){
+  const t=savedTh;
+  document.getElementById('thBtn').textContent=t==='light'?'🌙':'☀️';
+})();
+
+/* ════════════════════════════════════════
+   ACTIVITY LOG
+════════════════════════════════════════ */
+const activities=[];
+function addActivity(title,type='info'){
+  activities.unshift({title,type,time:new Date().toLocaleTimeString('id-ID')});
+  if(activities.length>10)activities.pop();
+  renderActivity();
+}
+function renderActivity(){
+  const el=document.getElementById('actList');
+  if(!activities.length){
+    el.innerHTML='<div style="color:var(--muted);font-size:.84rem;padding:8px 0">Belum ada aktivitas.</div>';return;
+  }
+  el.innerHTML=activities.map(a=>`
+    <div class="act-item">
+      <div class="act-dot ${a.type}"></div>
+      <div class="act-body">
+        <div class="act-title">${esc(a.title)}</div>
+        <div class="act-time">${esc(a.time)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+function init(){
+  const s=window.__SESSION;
+  const uname=s.user||'User';
+  const initial=uname[0].toUpperCase();
+  const sid=s.sid||'—';
+  /* Use user's UUID from session or generate one for display */
+  const uuid=s.uuid||('usr-'+crypto.randomUUID?.()?.slice(0,13)||Math.random().toString(36).slice(2,15));
+  if(!s.uuid)s.uuid=uuid; /* cache in session object */
+
+  /* Topbar */
+  document.getElementById('tav').textContent=initial;
+  document.getElementById('tun').textContent=uname;
+  document.getElementById('tRole').textContent=s.role||'User';
+
+  /* Welcome */
+  document.getElementById('wAv').textContent=initial;
+  document.getElementById('wName').textContent='Halo, '+uname+'!';
+  document.getElementById('wSub').textContent='Selamat belajar hari ini — semangat menuju SKD lulus 470!';
+  document.getElementById('wUUID').textContent=uuid;
+  document.getElementById('wUUID').dataset.uuid=uuid;
+  document.getElementById('wSID').textContent=sid.slice(0,12)+'…';
+  document.getElementById('wExp').textContent=new Date(s.exp).toLocaleTimeString('id-ID');
+
+  /* Profile */
+  document.getElementById('profAv').textContent=initial;
+  document.getElementById('profName').textContent=uname;
+  document.getElementById('profRole').textContent=(s.role||'user').charAt(0).toUpperCase()+(s.role||'user').slice(1);
+  document.getElementById('profUID').textContent='UUID: '+uuid.slice(0,18)+'…';
+  document.getElementById('profUID').dataset.uuid=uuid;
+  document.getElementById('profLogin').textContent=tfmt(s.ts||Date.now());
+  document.getElementById('profExp').textContent=tfmt(s.exp);
+
+  /* Security */
+  document.getElementById('secSID').textContent=sid.slice(0,16)+'…';
+
+  /* Stats placeholder */
+  document.getElementById('stDone').textContent=Math.floor(Math.random()*12)+1;
+  document.getElementById('stScore').textContent=(Math.floor(Math.random()*60)+310).toString();
+
+  /* Activity */
+  addActivity('Login berhasil — sesi dimulai','ok');
+  addActivity('Dashboard dimuat','info');
+
+  startSes();
+  renderActivity();
+}
+
+/* ════════════════════════════════════════
+   SESSION MANAGEMENT
+════════════════════════════════════════ */
+const SES_MIN=30,WARN_SEC=60;
+let sesIv=null;
+function startSes(){
+  ['click','keydown'].forEach(ev=>document.addEventListener(ev,refreshSes));
+  sesIv=setInterval(chkSes,5000);
+}
+function refreshSes(){
+  for(const key of['ub_utok','ub_tok']){
+    try{
+      const raw=sessionStorage.getItem(key);
+      if(!raw)continue;
+      const tok=JSON.parse(atob(raw));
+      if(!tok||!tok.user)continue;
+      tok.exp=Date.now()+(SES_MIN*60*1000);
+      sessionStorage.setItem(key,btoa(JSON.stringify(tok)));
+      window.__SESSION.exp=tok.exp;
+      document.getElementById('sb').classList.remove('show');
+      /* update exp display */
+      document.getElementById('wExp').textContent=new Date(tok.exp).toLocaleTimeString('id-ID');
+      document.getElementById('profExp').textContent=tfmt(tok.exp);
+      break;
+    }catch(e){}
+  }
+}
+function chkSes(){
+  try{
+    const rem=(window.__SESSION.exp-Date.now())/1000;
+    if(rem<=0){doLogout(true);return;}
+    if(rem<=WARN_SEC){
+      document.getElementById('sb').classList.add('show');
+      document.getElementById('scd').textContent=Math.ceil(rem);
+    } else {
+      document.getElementById('sb').classList.remove('show');
+    }
+  }catch(e){doLogout(true);}
+}
+function doLogout(auto=false){
+  clearInterval(sesIv);
+  ['click','keydown'].forEach(ev=>document.removeEventListener(ev,refreshSes));
+  if(auto)sessionStorage.setItem('ub_msg','Sesi berakhir. Silakan login kembali.');
+  ['ub_utok','ub_tok'].forEach(k=>sessionStorage.removeItem(k));
+  window.location.replace('/login');
+}
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+function toast(msg,type='info'){
+  const wrap=document.getElementById('tw');
+  const div=document.createElement('div');
+  div.className='tst '+type;
+  const ic={success:'✓',error:'✗',info:'ℹ'};
+  div.innerHTML='<span style="font-weight:900">'+(ic[type]||'i')+'</span><span>'+esc(msg)+'</span>';
+  wrap.appendChild(div);
+  setTimeout(()=>{div.classList.add('lv');setTimeout(()=>div.remove(),300);},3200);
+}
+
+/* ════════════════════════════════════════
+   BOOT
+════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
