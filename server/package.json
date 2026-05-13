@@ -1,0 +1,26 @@
+{
+  "name": "ultron-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/local-dev.ts",
+    "build": "wrangler deploy --dry-run --outdir=dist",
+    "preview": "node dist/local-prod.js",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.11.0",
+    "better-sqlite3": "^9.2.0",
+    "hono": "^4.0.0",
+    "jose": "^5.2.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231121.0",
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/node": "^20.10.0",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.0",
+    "wrangler": "^3.19.0"
+  }
+}
