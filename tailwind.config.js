@@ -18,6 +18,12 @@ export default {
         ink: '#1a1a2e',
         muted: '#6b7a99',
         muted2: '#8a96b0',
+        border: '#e8dcc8',
+        border2: '#d4c5a9',
+        green: {
+          DEFAULT: '#15803d',
+          bg: '#f0fdf4',
+        },
         dark: {
           bg: '#0a1628',
           bg2: '#0f1e3c',
