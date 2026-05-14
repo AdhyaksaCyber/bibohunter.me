@@ -1,0 +1,58 @@
+name = "ultron-bimbel"
+type = "service"
+main = "dist/worker.js"
+compatibility_date = "2024-01-01"
+
+env.production = { name = "ultron-bimbel-production" }
+env.staging = { name = "ultron-bimbel-staging" }
+
+[build]
+command = "npm run build"
+cwd = "."
+watch_paths = ["src/**/*.ts", "src/**/*.tsx"]
+
+[env.production.d1_databases]
+DB = { binding = "DB", database_name = "ultron-bimbel", database_id = "00000000-0000-0000-0000-000000000000" }
+
+[env.staging.d1_databases]
+DB = { binding = "DB", database_name = "ultron-bimbel-staging", database_id = "00000000-0000-0000-0000-000000000001" }
+
+[env.production.r2_buckets]
+R2 = { binding = "R2", bucket_name = "ultron-bimbel-production" }
+
+[env.staging.r2_buckets]
+R2 = { binding = "R2", bucket_name = "ultron-bimbel-staging" }
+
+[env.production.vars]
+ENVIRONMENT = "production"
+API_URL = "https://ultron-bimbel.workers.dev"
+FRONTEND_URL = "https://ultron-bimbel.pages.dev"
+JWT_EXPIRES_IN = "900"
+REFRESH_TOKEN_EXPIRES = "604800"
+MAX_LOGIN_ATTEMPT = "5"
+LOCK_DURATION_SEC = "60"
+MAX_UPLOAD_SIZE = "52428800"
+RATE_LIMIT_WINDOW = "900"
+RATE_LIMIT_MAX = "100"
+PASSWORD_MIN_LENGTH = "8"
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
+API_URL = "https://ultron-bimbel-staging.workers.dev"
+FRONTEND_URL = "https://ultron-bimbel-staging.pages.dev"
+JWT_EXPIRES_IN = "900"
+REFRESH_TOKEN_EXPIRES = "604800"
+MAX_LOGIN_ATTEMPT = "5"
+LOCK_DURATION_SEC = "60"
+MAX_UPLOAD_SIZE = "52428800"
+RATE_LIMIT_WINDOW = "900"
+RATE_LIMIT_MAX = "100"
+PASSWORD_MIN_LENGTH = "8"
+
+[[env.production.routes]]
+pattern = "ultron-bimbel.workers.dev/api/*"
+zone_id = ""
+
+[[env.staging.routes]]
+pattern = "ultron-bimbel-staging.workers.dev/api/*"
+zone_id = ""

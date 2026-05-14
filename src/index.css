@@ -1,0 +1,260 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design System Variables */
+:root {
+  --cream: #fdf8f0;
+  --cream2: #f5efe2;
+  --white: #ffffff;
+  --gold: #b8711e;
+  --gold-light: #d4893a;
+  --gold-pale: #fef3e2;
+  --navy: #0d1b35;
+  --navy2: #162040;
+  --ink: #1a1a2e;
+  --muted: #6b7a99;
+  --muted2: #8a96b0;
+  --green: #15803d;
+  --green-bg: #f0fdf4;
+  --border: #e8dcc8;
+  --border2: #d4c5a9;
+  --shadow: 0 2px 16px rgba(180, 130, 60, 0.12);
+  --shadow-lg: 0 8px 40px rgba(180, 130, 60, 0.18);
+  --radius: 14px;
+}
+
+[data-theme="dark"] {
+  --bg: #0a1628;
+  --bg2: #0f1e3c;
+  --surface: #162240;
+  --border: rgba(200, 135, 58, 0.2);
+  --text: #f0f4ff;
+  --muted: #8aa0c0;
+  --muted2: #607090;
+  --gold: #d4893a;
+  --gold-pale: rgba(200, 135, 58, 0.1);
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Paper Grain Texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+p {
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+/* Buttons */
+.btn {
+  @apply inline-flex items-center justify-center px-6 py-3 font-bold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold;
+}
+
+.btn-gold {
+  @apply bg-gradient-to-r from-gold to-gold-light text-white shadow-gold hover:shadow-gold-lg hover:-translate-y-0.5;
+}
+
+.btn-outline {
+  @apply border-2 border-border2 text-navy hover:border-gold hover:text-gold;
+}
+
+.btn-ghost {
+  @apply text-navy hover:bg-cream2 rounded-lg px-4 py-2;
+}
+
+/* Cards */
+.card {
+  @apply bg-white border border-border rounded-xl p-6 shadow transition-all duration-200 hover:shadow-lg;
+}
+
+/* Inputs */
+.input {
+  @apply w-full px-4 py-2 border border-border rounded-lg font-sans text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all;
+}
+
+.input-error {
+  @apply border-red-500 focus:ring-red-500;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Utility Classes */
+.container {
+  @apply max-w-6xl mx-auto px-6 relative z-10;
+}
+
+.section {
+  @apply py-16 md:py-24;
+}
+
+.glass {
+  @apply bg-white/80 backdrop-blur-md border border-white/20;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-light);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .card {
+    @apply bg-navy2 border-navy2;
+  }
+
+  .input {
+    @apply bg-navy2 border-navy2 text-white;
+  }
+}
+
+/* Loading States */
+@keyframes skeleton-loading {
+  0% {
+    background-color: rgba(200, 135, 58, 0.1);
+  }
+  50% {
+    background-color: rgba(200, 135, 58, 0.2);
+  }
+  100% {
+    background-color: rgba(200, 135, 58, 0.1);
+  }
+}
+
+.skeleton {
+  animation: skeleton-loading 2s infinite;
+}
+
+/* Focus Visible */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Responsive Typography */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+}
