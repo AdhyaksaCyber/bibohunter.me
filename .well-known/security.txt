@@ -1,0 +1,14 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+Contact: mailto:security@bibohunter.me
+Contact: https://bibohunter.me/security
+Expires: 2027-04-27T00:00:00.000Z
+Preferred-Languages: id, en
+Canonical: https://bibohunter.me/.well-known/security.txt
+Policy: https://bibohunter.me/security-policy
+Scope: https://bibohunter.me
+
+# Thank you for helping keep bibohunter.me secure!
+# If you discover a vulnerability, please report it responsibly.
+-----END PGP SIGNED MESSAGE-----

@@ -1,0 +1,13 @@
+name = "bibohunter"
+main = "src/index.ts"
+compatibility_date = "2024-11-12"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ultron-db"
+
+[vars]
+JWT_SECRET = "ultron-super-secret-key-2025"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }

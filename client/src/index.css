@@ -1,0 +1,58 @@
+:root {
+  --bg: #f0f4ff;
+  --bg2: #e6ecf8;
+  --surface: #fff;
+  --border: #cdd8ef;
+  --text: #0f1e3c;
+  --muted: #6b7ea8;
+  --muted2: #9aaac8;
+  --gold: #b8711e;
+  --gold-l: #d4893a;
+  --gold-pale: #fef3e2;
+  --navy: #0d1b35;
+  --green: #15803d;
+  --green-bg: #f0fdf4;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --blue: #3b82f6;
+  --blue-bg: rgba(59, 130, 246, 0.08);
+  --radius: 12px;
+  --shadow: 0 2px 14px rgba(15, 30, 60, 0.08);
+}
+
+[data-theme="dark"] {
+  --bg: #0a1628;
+  --bg2: #0f1e3c;
+  --surface: #162240;
+  --border: rgba(200, 135, 58, 0.2);
+  --text: #f0f4ff;
+  --muted: #8aa0c0;
+  --muted2: #607090;
+  --gold: #d4893a;
+  --gold-pale: rgba(200, 135, 58, 0.1);
+  --green: #22c55e;
+  --red: #f87171;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}

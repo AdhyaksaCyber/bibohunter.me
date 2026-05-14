@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Page Not Found | bibohunter.me</title>
+<!-- A06/A08 OWASP: SRI hash untuk CDN external -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: #0f2540;
+    color: #fff;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px;
+  }
+  .code {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(80px, 20vw, 160px);
+    color: #c8922a;
+    line-height: 1;
+    letter-spacing: 8px;
+  }
+  h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(18px, 4vw, 28px);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 16px 0 24px;
+    color: rgba(255,255,255,.85);
+  }
+  p { color: rgba(255,255,255,.55); font-size: 15px; margin-bottom: 36px; }
+  a {
+    display: inline-block;
+    background: #c8922a;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 28px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: background .2s;
+  }
+  a:hover { background: #e0a832; }
+</style>
+</head>
+<body>
+  <div class="code">404</div>
+  <h1>Page Not Found</h1>
+  <p>The page you're looking for doesn't exist or has been moved.</p>
+  <a href="/">Return to Homepage</a>
+</body>
+</html>
