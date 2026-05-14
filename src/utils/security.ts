@@ -1,8 +1,4 @@
 import * as jose from 'jose';
-import bcryptjs from 'bcryptjs';
-import validator from 'validator';
-import { sanitizeHtml } from 'sanitize-html';
-import DOMPurify from 'dompurify';
 import { z } from 'zod';
 
 // ──── JWT HANDLING ────
@@ -29,7 +25,6 @@ export class JWTManager {
       .setIssuedAt()
       .setExpirationTime(`${this.expiresIn}s`)
       .sign(this.secret);
-
     return token;
   }
 
@@ -37,51 +32,83 @@ export class JWTManager {
     try {
       const verified = await jose.jwtVerify(token, this.secret);
       return verified.payload as JWTPayload;
-    } catch (error) {
+    } catch {
       throw new Error('Invalid or expired token');
     }
   }
 }
 
-// ──── PASSWORD HASHING ────
+// ──── PASSWORD HASHING (Web Crypto API — Workers compatible) ────
 export class PasswordManager {
-  static async hash(password: string, rounds: number = 12): Promise<string> {
+  // Hash password menggunakan PBKDF2 (native Web Crypto, works in Workers)
+  static async hash(password: string, _rounds: number = 12): Promise<string> {
     if (!password || password.length < 8) {
       throw new Error('Password must be at least 8 characters');
     }
-    return bcryptjs.hash(password, rounds);
+
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(password),
+      'PBKDF2',
+      false,
+      ['deriveBits']
+    );
+
+    const derived = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+      keyMaterial,
+      256
+    );
+
+    const hashArray = new Uint8Array(derived);
+    const saltHex = Array.from(salt, b => b.toString(16).padStart(2, '0')).join('');
+    const hashHex = Array.from(hashArray, b => b.toString(16).padStart(2, '0')).join('');
+
+    return `pbkdf2:${saltHex}:${hashHex}`;
   }
 
-  static async compare(password: string, hash: string): Promise<boolean> {
-    return bcryptjs.compare(password, hash);
+  static async compare(password: string, stored: string): Promise<boolean> {
+    try {
+      // Support format lama bcryptjs (hash dimulai dengan $2) — always false (force reset)
+      if (stored.startsWith('$2')) {
+        return false;
+      }
+
+      const [, saltHex, hashHex] = stored.split(':');
+      const salt = new Uint8Array(saltHex.match(/.{2}/g)!.map(b => parseInt(b, 16)));
+
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(password),
+        'PBKDF2',
+        false,
+        ['deriveBits']
+      );
+
+      const derived = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+        keyMaterial,
+        256
+      );
+
+      const hashArray = new Uint8Array(derived);
+      const computedHex = Array.from(hashArray, b => b.toString(16).padStart(2, '0')).join('');
+
+      return computedHex === hashHex;
+    } catch {
+      return false;
+    }
   }
 
-  static isStrong(password: string): {
-    isStrong: boolean;
-    feedback: string[];
-  } {
+  static isStrong(password: string): { isStrong: boolean; feedback: string[] } {
     const feedback: string[] = [];
-
-    if (password.length < 8) {
-      feedback.push('Password harus minimal 8 karakter');
-    }
-    if (!/[A-Z]/.test(password)) {
-      feedback.push('Password harus mengandung huruf besar');
-    }
-    if (!/[a-z]/.test(password)) {
-      feedback.push('Password harus mengandung huruf kecil');
-    }
-    if (!/[0-9]/.test(password)) {
-      feedback.push('Password harus mengandung angka');
-    }
-    if (!/[!@#$%^&*]/.test(password)) {
-      feedback.push('Password harus mengandung karakter spesial (!@#$%^&*)');
-    }
-
-    return {
-      isStrong: feedback.length === 0,
-      feedback,
-    };
+    if (password.length < 8) feedback.push('Password harus minimal 8 karakter');
+    if (!/[A-Z]/.test(password)) feedback.push('Password harus mengandung huruf besar');
+    if (!/[a-z]/.test(password)) feedback.push('Password harus mengandung huruf kecil');
+    if (!/[0-9]/.test(password)) feedback.push('Password harus mengandung angka');
+    if (!/[!@#$%^&*]/.test(password)) feedback.push('Password harus mengandung karakter spesial (!@#$%^&*)');
+    return { isStrong: feedback.length === 0, feedback };
   }
 }
 
@@ -92,7 +119,7 @@ export class InputValidator {
   }
 
   static validateEmail(email: string): boolean {
-    return validator.isEmail(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   static validatePhoneNumber(phone: string): boolean {
@@ -113,33 +140,38 @@ export class InputValidator {
   }
 
   static sanitizeInput(input: string, maxLength: number = 1000): string {
-    let sanitized = validator.trim(input);
-    sanitized = validator.escape(sanitized);
-
+    let sanitized = input.trim();
+    // Escape HTML entities
+    sanitized = sanitized
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
     if (sanitized.length > maxLength) {
       sanitized = sanitized.substring(0, maxLength);
     }
-
     return sanitized;
   }
 }
 
-// ──── HTML SANITIZATION ────
+// ──── HTML SANITIZATION (Workers compatible — no DOM/Node deps) ────
+const ALLOWED_TAGS = ['b','i','em','strong','p','br','ul','ol','li','h1','h2','h3','h4','h5','h6','blockquote','a','code','pre'];
+
 export function sanitizeHtmlContent(html: string): string {
-  return sanitizeHtml(html, {
-    allowedTags: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'a', 'code', 'pre'],
-    allowedAttributes: {
-      a: ['href', 'title'],
-      code: ['class'],
-      pre: ['class'],
-    },
-    disallowedTagsMode: 'discard',
-  });
+  // Strip all tags except allowed ones
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<(\/?)([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g, (match, slash, tag) => {
+      if (ALLOWED_TAGS.includes(tag.toLowerCase())) {
+        return `<${slash}${tag.toLowerCase()}>`;
+      }
+      return '';
+    });
 }
 
-// Node.js environments don't have DOMPurify, use the server-side alternative
 export function sanitizeDOMContent(html: string): string {
-  // Use sanitize-html for Node.js/server environments
   return sanitizeHtmlContent(html);
 }
 
@@ -196,7 +228,7 @@ export const SECURE_HEADERS = {
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
 };
 
-// ──── RATE LIMITING ────
+// ──── RATE LIMITER ────
 export class RateLimiter {
   private attempts: Map<string, number[]> = new Map();
   private maxAttempts: number;
@@ -210,27 +242,17 @@ export class RateLimiter {
   isAllowed(key: string): boolean {
     const now = Date.now();
     const attempts = this.attempts.get(key) || [];
-
-    // Remove old attempts outside the window
-    const recentAttempts = attempts.filter((time) => now - time < this.windowMs);
-
-    if (recentAttempts.length >= this.maxAttempts) {
-      return false;
-    }
-
-    recentAttempts.push(now);
-    this.attempts.set(key, recentAttempts);
-
+    const recent = attempts.filter(t => now - t < this.windowMs);
+    if (recent.length >= this.maxAttempts) return false;
+    recent.push(now);
+    this.attempts.set(key, recent);
     return true;
   }
 
   getRemainingAttempts(key: string): number {
     const now = Date.now();
-    const attempts = this.attempts.get(key) || [];
-
-    const recentAttempts = attempts.filter((time) => now - time < this.windowMs);
-
-    return Math.max(0, this.maxAttempts - recentAttempts.length);
+    const recent = (this.attempts.get(key) || []).filter(t => now - t < this.windowMs);
+    return Math.max(0, this.maxAttempts - recent.length);
   }
 
   reset(key: string): void {
@@ -242,10 +264,10 @@ export class RateLimiter {
 export function generateCsrfToken(): string {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// ──── API ERROR RESPONSE ────
+// ──── API RESPONSES ────
 export interface ApiErrorResponse {
   success: false;
   error: string;
@@ -258,15 +280,9 @@ export function createErrorResponse(
   code: string = 'INTERNAL_ERROR',
   details?: Record<string, any>
 ): ApiErrorResponse {
-  return {
-    success: false,
-    error: message,
-    code,
-    details,
-  };
+  return { success: false, error: message, code, details };
 }
 
-// ──── API SUCCESS RESPONSE ────
 export interface ApiSuccessResponse<T> {
   success: true;
   data: T;
@@ -274,9 +290,5 @@ export interface ApiSuccessResponse<T> {
 }
 
 export function createSuccessResponse<T>(data: T, message?: string): ApiSuccessResponse<T> {
-  return {
-    success: true,
-    data,
-    message,
-  };
+  return { success: true, data, message };
 }
