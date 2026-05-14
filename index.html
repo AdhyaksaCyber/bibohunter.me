@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ultron Bimbel — Bimbingan CPNS SKD Terbaik</title>
+<link rel="canonical" href="https://bibohunter.me/">
+<link rel="icon" type="image/png" href="/public/logo.png">
+<link rel="apple-touch-icon" href="/public/logo.png">
 <meta name="description" content="Bimbingan intensif SKD CPNS dengan trik eksklusif. Mentor berpengalaman, skor SKD 470. Terbukti lolos CPNS 2024.">
 <meta name="robots" content="index, follow">
 <meta name="author" content="Ultron Bimbel">
@@ -12,13 +15,13 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Ultron Bimbel — Bimbingan CPNS SKD Terbaik">
 <meta property="og:description" content="Bimbingan intensif SKD dengan trik eksklusif. Mentor raih skor 470 SKD. Terbukti lolos CPNS 2024.">
-<meta property="og:image" content="https://bibohunter.me/LOGO_BIMBEL.png">
+<meta property="og:image" content="https://bibohunter.me/logo.png">
 <meta property="og:url" content="https://bibohunter.me/">
 <meta property="og:site_name" content="Ultron Bimbel">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Ultron Bimbel — Bimbingan CPNS SKD Terbaik">
 <meta name="twitter:description" content="Bimbingan intensif SKD CPNS, mentor skor 470, trik eksklusif.">
-<meta name="twitter:image" content="https://bibohunter.me/LOGO_BIMBEL.png">
+<meta name="twitter:image" content="https://bibohunter.me/logo.png">
 
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
@@ -100,6 +103,15 @@ nav{
   transition:color .2s;white-space:nowrap;
 }
 .nav-links a:hover{color:var(--gold);}
+.nav-login{
+  background:transparent;
+  color:var(--navy) !important;
+  border:2px solid var(--border2);
+  padding:7px 18px;border-radius:8px;
+  font-weight:800 !important;font-size:.86rem !important;
+  transition:all .2s !important;
+}
+.nav-login:hover{border-color:var(--gold) !important;color:var(--gold) !important;background:var(--gold-pale) !important;}
 .nav-cta{
   background:var(--navy);color:#fff;
   padding:9px 20px;border-radius:8px;
@@ -518,6 +530,10 @@ footer strong{color:var(--gold);}
     border-bottom:1.5px solid var(--border);z-index:200;
   }
   .nav-links.open a{font-size:1rem;color:var(--ink);}
+  .nav-links.open .nav-login{
+    border-color:var(--border2);padding:9px 18px;
+    text-align:center;
+  }
   .hero{padding:52px 0 44px;}
   .hero-btns{flex-direction:column;gap:10px;}
   .hero-btns a{width:100%;text-align:center;}
@@ -544,12 +560,13 @@ footer strong{color:var(--gold);}
 <nav>
   <div class="nav-inner">
     <div class="nav-logo">
-      <img src="LOGO_BIMBEL.png" alt="Ultron Bimbel">
+      <img src="/public/logo.png" alt="Ultron Bimbel">
     </div>
     <div class="nav-links" id="navLinks">
       <a href="#keunggulan">Keunggulan</a>
       <a href="#alumni">Alumni</a>
       <a href="#mentor">Mentor</a>
+      <a href="/login" class="nav-login">Login</a>
     </div>
     <a href="#" class="nav-cta" onclick="openWA();return false;">Daftar Sekarang</a>
     <div class="hamburger" id="hamburger" onclick="toggleNav()">
@@ -606,7 +623,7 @@ footer strong{color:var(--gold);}
         <p>Bukan teori belaka — mentor kami pernah merasakan langsung duduk di ujian CPNS dan meraih skor SKD <span class="hl">470/550</span>. Trik, strategi, dan pengalaman nyata langsung diajarkan ke kamu.</p>
       </div>
       <div class="ss-proof">
-        <img src="SKD_BAGUS.jpeg" alt="Bukti skor SKD mentor" loading="lazy">
+        <img src="/public/skd-bagus.jpeg" alt="Bukti skor SKD mentor" loading="lazy">
         <div class="ss-proof-overlay">
           <!-- blur baris nama + data pribadi (row pertama setelah header) -->
           <div class="blur-row row1"></div>
@@ -816,6 +833,10 @@ footer strong{color:var(--gold);}
   </a>
 </div>
 
+<!-- Root mount point for React (Vite) -->
+<div id="root"></div>
+<script type="module" src="/src/index.tsx"></script>
+
 <!-- Google Analytics GA4 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>
@@ -854,9 +875,8 @@ function openWA(){
   if(typeof gtag!=='undefined')gtag('event','wa_click',{event_category:'engagement'});
   if(typeof ttq!=='undefined')ttq.track('Contact');
 }
+function toggleNav(){$('#navLinks').toggleClass('open');}
 $(function(){
-  // Mobile nav
-  $('#hamburger').on('click',function(){$('#navLinks').toggleClass('open');});
   // Scroll reveal
   var revEls=document.querySelectorAll('.reveal');
   var obs=new IntersectionObserver(function(entries){
