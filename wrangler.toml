@@ -1,16 +1,15 @@
 name = "ultron-bimbel"
-type = "service"
 main = "dist/worker.js"
 compatibility_date = "2024-01-01"
+account_id = "eff59edef4a07d839795fa83e22d2eac"
 
 [build]
-command = "npm run build"
+command = "npm run build:frontend && npm run build:worker"
 cwd = "."
-watch_paths = ["src/**/*.ts", "src/**/*.tsx"]
 
 [vars]
 ENVIRONMENT = "development"
-API_URL = "http://localhost:8787"
+API_URL = "https://bibohunter.bagusiqbal18.workers.dev"
 FRONTEND_URL = "http://localhost:5173"
 JWT_EXPIRES_IN = "900"
 REFRESH_TOKEN_EXPIRES = "604800"
@@ -24,20 +23,24 @@ PASSWORD_MIN_LENGTH = "8"
 [[d1_databases]]
 binding = "DB"
 database_name = "ultron-bimbel-dev"
-database_id = "00000000-0000-0000-0000-000000000002"
+database_id = "6a6e5d92-167f-4abe-8443-17e7cf0df3ea"
 
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "ultron-bimbel-dev"
 
+# ============================================
+# PRODUCTION ENVIRONMENT
+# ============================================
 [env.production]
 name = "ultron-bimbel-production"
 
 [env.production.vars]
 ENVIRONMENT = "production"
-API_URL = "https://ultron-bimbel.workers.dev"
-FRONTEND_URL = "https://ultron-bimbel.pages.dev"
+API_URL = "https://bibohunter.bagusiqbal18.workers.dev"
+FRONTEND_URL = "https://bibohunter.me"
 JWT_EXPIRES_IN = "900"
+REFRESH_TOKEN_EXPIRES = "604800"
 MAX_LOGIN_ATTEMPT = "5"
 LOCK_DURATION_SEC = "60"
 MAX_UPLOAD_SIZE = "52428800"
@@ -48,20 +51,24 @@ PASSWORD_MIN_LENGTH = "8"
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "ultron-bimbel"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "6a6e5d92-167f-4abe-8443-17e7cf0df3ea"
 
 [[env.production.r2_buckets]]
 binding = "R2"
 bucket_name = "ultron-bimbel-production"
 
+# ============================================
+# STAGING ENVIRONMENT
+# ============================================
 [env.staging]
 name = "ultron-bimbel-staging"
 
 [env.staging.vars]
 ENVIRONMENT = "staging"
-API_URL = "https://ultron-bimbel-staging.workers.dev"
-FRONTEND_URL = "https://ultron-bimbel-staging.pages.dev"
+API_URL = "https://bibohunter.bagusiqbal18.workers.dev"
+FRONTEND_URL = "https://bibohunter.bagusiqbal18.workers.dev"
 JWT_EXPIRES_IN = "900"
+REFRESH_TOKEN_EXPIRES = "604800"
 MAX_LOGIN_ATTEMPT = "5"
 LOCK_DURATION_SEC = "60"
 MAX_UPLOAD_SIZE = "52428800"
@@ -72,7 +79,7 @@ PASSWORD_MIN_LENGTH = "8"
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "ultron-bimbel-staging"
-database_id = "00000000-0000-0000-0000-000000000001"
+database_id = "6a6e5d92-167f-4abe-8443-17e7cf0df3ea"
 
 [[env.staging.r2_buckets]]
 binding = "R2"
