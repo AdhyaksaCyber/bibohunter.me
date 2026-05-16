@@ -1,13 +1,19 @@
-name = "ultron-bimbel"
+name = "bibohunter"
 main = "dist/worker.js"
 compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
 account_id = "eff59edef4a07d839795fa83e22d2eac"
 
 [build]
 command = "npm run build:frontend && npm run build:worker"
 cwd = "."
+watch_dir = ["src/worker", "src/utils", "src/worker/routes"]
+
+[site]
+bucket = "dist/public"
 
 [vars]
+JWT_SECRET = "f2b62c2a163188a8040dbad8d1ad348d9ebe6cd10f8ff637dec51ae4d31d2ef5"
 ENVIRONMENT = "development"
 API_URL = "https://bibohunter.bagusiqbal18.workers.dev"
 FRONTEND_URL = "http://localhost:5173"
@@ -33,11 +39,19 @@ bucket_name = "ultron-bimbel-dev"
 # PRODUCTION ENVIRONMENT
 # ============================================
 [env.production]
-name = "ultron-bimbel-production"
+name = "bibohunter"
+workers_dev = false
+routes = [
+  { pattern = "bibohunter.me/*", zone_name = "bibohunter.me" }
+]
+
+[env.production.site]
+bucket = "dist/public"
 
 [env.production.vars]
+JWT_SECRET = "f2b62c2a163188a8040dbad8d1ad348d9ebe6cd10f8ff637dec51ae4d31d2ef5"
 ENVIRONMENT = "production"
-API_URL = "https://bibohunter.bagusiqbal18.workers.dev"
+API_URL = "https://bibohunter.me"
 FRONTEND_URL = "https://bibohunter.me"
 JWT_EXPIRES_IN = "900"
 REFRESH_TOKEN_EXPIRES = "604800"
@@ -62,11 +76,16 @@ bucket_name = "ultron-bimbel-production"
 # ============================================
 [env.staging]
 name = "ultron-bimbel-staging"
+workers_dev = true
+
+[env.staging.site]
+bucket = "dist/public"
 
 [env.staging.vars]
+JWT_SECRET = "f2b62c2a163188a8040dbad8d1ad348d9ebe6cd10f8ff637dec51ae4d31d2ef5"
 ENVIRONMENT = "staging"
-API_URL = "https://bibohunter.bagusiqbal18.workers.dev"
-FRONTEND_URL = "https://bibohunter.bagusiqbal18.workers.dev"
+API_URL = "https://ultron-bimbel-staging.bagusiqbal18.workers.dev"
+FRONTEND_URL = "https://ultron-bimbel-staging.bagusiqbal18.workers.dev"
 JWT_EXPIRES_IN = "900"
 REFRESH_TOKEN_EXPIRES = "604800"
 MAX_LOGIN_ATTEMPT = "5"
