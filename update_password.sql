@@ -1,0 +1,1 @@
+UPDATE users SET password = '$2a$12$cfwbXcHWi8zjDA9G0kx5ZOH3tYWSV9VZAuFEwupOnb5BrpUFO3Pgi' WHERE email = 'admin@bibohunter.me';

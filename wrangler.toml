@@ -13,7 +13,6 @@ watch_dir = ["src/worker", "src/utils", "src/worker/routes"]
 bucket = "dist/public"
 
 [vars]
-JWT_SECRET = "f2b62c2a163188a8040dbad8d1ad348d9ebe6cd10f8ff637dec51ae4d31d2ef5"
 ENVIRONMENT = "development"
 API_URL = "https://bibohunter.bagusiqbal18.workers.dev"
 FRONTEND_URL = "http://localhost:5173"
@@ -49,7 +48,6 @@ routes = [
 bucket = "dist/public"
 
 [env.production.vars]
-JWT_SECRET = "f2b62c2a163188a8040dbad8d1ad348d9ebe6cd10f8ff637dec51ae4d31d2ef5"
 ENVIRONMENT = "production"
 API_URL = "https://bibohunter.me"
 FRONTEND_URL = "https://bibohunter.me"
@@ -82,7 +80,6 @@ workers_dev = true
 bucket = "dist/public"
 
 [env.staging.vars]
-JWT_SECRET = "f2b62c2a163188a8040dbad8d1ad348d9ebe6cd10f8ff637dec51ae4d31d2ef5"
 ENVIRONMENT = "staging"
 API_URL = "https://ultron-bimbel-staging.bagusiqbal18.workers.dev"
 FRONTEND_URL = "https://ultron-bimbel-staging.bagusiqbal18.workers.dev"

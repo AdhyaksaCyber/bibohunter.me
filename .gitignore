@@ -51,3 +51,8 @@ pnpm-debug.log*
 .turbopack/
 .next/
 out/
+
+wrangler.toml.backup
+*.backup
+*.bak
+*.backup.full
