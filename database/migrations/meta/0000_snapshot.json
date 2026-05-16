@@ -1,8 +1,6 @@
 {
-  "version": "5",
+  "version": "6",
   "dialect": "sqlite",
-  "id": "c5d5ce69-633e-4534-bdd4-575a33ce0f69",
-  "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "activity_logs": {
       "name": "activity_logs",
@@ -106,19 +104,20 @@
         "activity_logs_user_id_users_id_fk": {
           "name": "activity_logs_user_id_users_id_fk",
           "tableFrom": "activity_logs",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "artikel": {
       "name": "artikel",
@@ -209,32 +208,33 @@
         "artikel_category_id_kategori_id_fk": {
           "name": "artikel_category_id_kategori_id_fk",
           "tableFrom": "artikel",
-          "tableTo": "kategori",
           "columnsFrom": [
             "category_id"
           ],
+          "tableTo": "kategori",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "artikel_created_by_users_id_fk": {
           "name": "artikel_created_by_users_id_fk",
           "tableFrom": "artikel",
-          "tableTo": "users",
           "columnsFrom": [
             "created_by"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "hasil_tryout": {
       "name": "hasil_tryout",
@@ -373,32 +373,33 @@
         "hasil_tryout_user_id_users_id_fk": {
           "name": "hasil_tryout_user_id_users_id_fk",
           "tableFrom": "hasil_tryout",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "hasil_tryout_tryout_id_tryout_id_fk": {
           "name": "hasil_tryout_tryout_id_tryout_id_fk",
           "tableFrom": "hasil_tryout",
-          "tableTo": "tryout",
           "columnsFrom": [
             "tryout_id"
           ],
+          "tableTo": "tryout",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "jawaban_soal": {
       "name": "jawaban_soal",
@@ -473,32 +474,33 @@
         "jawaban_soal_hasil_tryout_id_hasil_tryout_id_fk": {
           "name": "jawaban_soal_hasil_tryout_id_hasil_tryout_id_fk",
           "tableFrom": "jawaban_soal",
-          "tableTo": "hasil_tryout",
           "columnsFrom": [
             "hasil_tryout_id"
           ],
+          "tableTo": "hasil_tryout",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "jawaban_soal_soal_id_soal_id_fk": {
           "name": "jawaban_soal_soal_id_soal_id_fk",
           "tableFrom": "jawaban_soal",
-          "tableTo": "soal",
           "columnsFrom": [
             "soal_id"
           ],
+          "tableTo": "soal",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "kategori": {
       "name": "kategori",
@@ -579,7 +581,8 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "materi": {
       "name": "materi",
@@ -705,32 +708,33 @@
         "materi_category_id_kategori_id_fk": {
           "name": "materi_category_id_kategori_id_fk",
           "tableFrom": "materi",
-          "tableTo": "kategori",
           "columnsFrom": [
             "category_id"
           ],
+          "tableTo": "kategori",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "materi_uploaded_by_users_id_fk": {
           "name": "materi_uploaded_by_users_id_fk",
           "tableFrom": "materi",
-          "tableTo": "users",
           "columnsFrom": [
             "uploaded_by"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "permissions": {
       "name": "permissions",
@@ -768,7 +772,8 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "role_permissions": {
       "name": "role_permissions",
@@ -809,32 +814,33 @@
         "role_permissions_role_id_roles_id_fk": {
           "name": "role_permissions_role_id_roles_id_fk",
           "tableFrom": "role_permissions",
-          "tableTo": "roles",
           "columnsFrom": [
             "role_id"
           ],
+          "tableTo": "roles",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "role_permissions_permission_id_permissions_id_fk": {
           "name": "role_permissions_permission_id_permissions_id_fk",
           "tableFrom": "role_permissions",
-          "tableTo": "permissions",
           "columnsFrom": [
             "permission_id"
           ],
+          "tableTo": "permissions",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "roles": {
       "name": "roles",
@@ -879,7 +885,8 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "sessions": {
       "name": "sessions",
@@ -982,19 +989,20 @@
         "sessions_user_id_users_id_fk": {
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "settings": {
       "name": "settings",
@@ -1047,7 +1055,8 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "soal": {
       "name": "soal",
@@ -1172,19 +1181,20 @@
         "soal_tryout_id_tryout_id_fk": {
           "name": "soal_tryout_id_tryout_id_fk",
           "tableFrom": "soal",
-          "tableTo": "tryout",
           "columnsFrom": [
             "tryout_id"
           ],
+          "tableTo": "tryout",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "tryout": {
       "name": "tryout",
@@ -1298,19 +1308,20 @@
         "tryout_created_by_users_id_fk": {
           "name": "tryout_created_by_users_id_fk",
           "tableFrom": "tryout",
-          "tableTo": "users",
           "columnsFrom": [
             "created_by"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "uploads": {
       "name": "uploads",
@@ -1415,19 +1426,20 @@
         "uploads_uploaded_by_users_id_fk": {
           "name": "uploads_uploaded_by_users_id_fk",
           "tableFrom": "uploads",
-          "tableTo": "users",
           "columnsFrom": [
             "uploaded_by"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
     "users": {
       "name": "users",
@@ -1545,25 +1557,28 @@
         "users_role_id_roles_id_fk": {
           "name": "users_role_id_roles_id_fk",
           "tableFrom": "users",
-          "tableTo": "roles",
           "columnsFrom": [
             "role_id"
           ],
+          "tableTo": "roles",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     }
   },
   "enums": {},
   "_meta": {
-    "schemas": {},
     "tables": {},
     "columns": {}
-  }
+  },
+  "id": "c5d5ce69-633e-4534-bdd4-575a33ce0f69",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "views": {}
 }

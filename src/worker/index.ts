@@ -1,0 +1,1016 @@
+﻿import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { logger } from 'hono/logger'
+import { secureHeaders } from 'hono/secure-headers'
+import { HTTPException } from 'hono/http-exception'
+import { SignJWT, jwtVerify } from 'jose'
+import { drizzle } from 'drizzle-orm/d1'
+import { eq, and, sql, desc, lt } from 'drizzle-orm'
+import {
+  integer,
+  sqliteTable,
+  text,
+  real,
+  blob,
+} from 'drizzle-orm/sqlite-core'
+import { z } from 'zod'
+import bcrypt from 'bcryptjs'
+import { createId } from '@paralleldrive/cuid2'
+
+// ============================================================
+// ENV BINDINGS
+// ============================================================
+export interface Env {
+  DB: D1Database
+  R2: R2Bucket
+  JWT_SECRET: string
+  JWT_EXPIRES_IN: string
+  REFRESH_TOKEN_EXPIRES: string
+  MAX_LOGIN_ATTEMPT: string
+  LOCK_DURATION_SEC: string
+  MAX_UPLOAD_SIZE: string
+  RATE_LIMIT_WINDOW: string
+  RATE_LIMIT_MAX: string
+  PASSWORD_MIN_LENGTH: string
+  ENVIRONMENT: string
+  FRONTEND_URL: string
+}
+
+// ============================================================
+// DATABASE SCHEMA (Drizzle ORM)
+// ============================================================
+const users = sqliteTable('users', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  password: text('password').notNull(),
+  role: text('role', { enum: ['admin', 'student'] }).default('student').notNull(),
+  loginAttempts: integer('login_attempts').default(0).notNull(),
+  lockedUntil: integer('locked_until'),
+  lastLogin: integer('last_login'),
+  createdAt: integer('created_at').notNull(),
+  updatedAt: integer('updated_at').notNull(),
+})
+
+const sessions = sqliteTable('sessions', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id),
+  refreshToken: text('refresh_token').notNull().unique(),
+  expiresAt: integer('expires_at').notNull(),
+  createdAt: integer('created_at').notNull(),
+})
+
+const materials = sqliteTable('materials', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  description: text('description'),
+  category: text('category').notNull(),
+  fileKey: text('file_key'),
+  fileType: text('file_type'),
+  fileSize: integer('file_size'),
+  content: text('content'),
+  order: integer('order').default(0),
+  isPublished: integer('is_published', { mode: 'boolean' }).default(false),
+  createdBy: text('created_by').references(() => users.id),
+  createdAt: integer('created_at').notNull(),
+  updatedAt: integer('updated_at').notNull(),
+})
+
+const tryouts = sqliteTable('tryouts', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  description: text('description'),
+  category: text('category').notNull(),
+  duration: integer('duration').notNull(),
+  totalQuestions: integer('total_questions').default(0),
+  passingScore: real('passing_score').default(70),
+  isActive: integer('is_active', { mode: 'boolean' }).default(false),
+  startsAt: integer('starts_at'),
+  endsAt: integer('ends_at'),
+  createdBy: text('created_by').references(() => users.id),
+  createdAt: integer('created_at').notNull(),
+  updatedAt: integer('updated_at').notNull(),
+})
+
+const questions = sqliteTable('questions', {
+  id: text('id').primaryKey(),
+  tryoutId: text('tryout_id').notNull().references(() => tryouts.id),
+  text: text('text').notNull(),
+  options: text('options').notNull(), // JSON string
+  correctAnswer: text('correct_answer').notNull(),
+  explanation: text('explanation'),
+  order: integer('order').default(0),
+  createdAt: integer('created_at').notNull(),
+})
+
+const tryoutAttempts = sqliteTable('tryout_attempts', {
+  id: text('id').primaryKey(),
+  tryoutId: text('tryout_id').notNull().references(() => tryouts.id),
+  userId: text('user_id').notNull().references(() => users.id),
+  answers: text('answers'), // JSON string
+  score: real('score'),
+  totalCorrect: integer('total_correct'),
+  timeTaken: integer('time_taken'),
+  status: text('status', { enum: ['in_progress', 'completed', 'expired'] }).default('in_progress'),
+  startedAt: integer('started_at').notNull(),
+  completedAt: integer('completed_at'),
+})
+
+const userProgress = sqliteTable('user_progress', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id),
+  materialId: text('material_id').references(() => materials.id),
+  tryoutId: text('tryout_id').references(() => tryouts.id),
+  type: text('type', { enum: ['material_viewed', 'tryout_completed'] }).notNull(),
+  metadata: text('metadata'), // JSON
+  createdAt: integer('created_at').notNull(),
+})
+
+const rateLimits = sqliteTable('rate_limits', {
+  id: text('id').primaryKey(),
+  key: text('key').notNull().unique(),
+  count: integer('count').default(0),
+  resetAt: integer('reset_at').notNull(),
+})
+
+// ============================================================
+// HELPERS
+// ============================================================
+const now = () => Math.floor(Date.now() / 1000)
+
+const getJwtSecret = (secret: string) =>
+  new TextEncoder().encode(secret)
+
+async function signAccessToken(userId: string, role: string, secret: string, expiresIn: string) {
+  return new SignJWT({ sub: userId, role })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(`${expiresIn}s`)
+    .sign(getJwtSecret(secret))
+}
+
+async function verifyToken(token: string, secret: string) {
+  const { payload } = await jwtVerify(token, getJwtSecret(secret))
+  return payload as { sub: string; role: string; exp: number }
+}
+
+function jsonError(message: string, status = 400) {
+  return new Response(JSON.stringify({ success: false, error: message }), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
+}
+
+function jsonOk(data: unknown, status = 200) {
+  return new Response(JSON.stringify({ success: true, ...( typeof data === 'object' && data !== null ? data : { data }) }), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
+}
+
+// ============================================================
+// MIDDLEWARE: AUTH
+// ============================================================
+type Variables = {
+  userId: string
+  userRole: string
+  db: ReturnType<typeof drizzle>
+}
+
+async function authMiddleware(c: any, next: () => Promise<void>) {
+  const authHeader = c.req.header('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) {
+    return jsonError('Unauthorized: missing token', 401)
+  }
+  const token = authHeader.slice(7)
+  try {
+    const payload = await verifyToken(token, c.env.JWT_SECRET)
+    c.set('userId', payload.sub)
+    c.set('userRole', payload.role)
+    return await next()
+  } catch {
+    return jsonError('Unauthorized: invalid or expired token', 401)
+  }
+}
+
+function requireRole(...roles: string[]) {
+  return async (c: any, next: () => Promise<void>) => {
+    const role = c.get('userRole')
+    if (!roles.includes(role)) {
+      return jsonError('Forbidden: insufficient permissions', 403)
+    }
+    return await next()
+  }
+}
+
+// ============================================================
+// MIDDLEWARE: RATE LIMIT (D1-backed)
+// ============================================================
+async function rateLimitMiddleware(c: any, next: () => Promise<void>) {
+  const db = drizzle(c.env.DB)
+  const ip = c.req.header('CF-Connecting-IP') || 'unknown'
+  const path = new URL(c.req.url).pathname
+  const key = `${ip}:${path}`
+  const window = parseInt(c.env.RATE_LIMIT_WINDOW || '900')
+  const max = parseInt(c.env.RATE_LIMIT_MAX || '100')
+  const resetAt = now() + window
+
+  try {
+    const existing = await db.select().from(rateLimits).where(eq(rateLimits.key, key)).get()
+
+    if (!existing) {
+      await db.insert(rateLimits).values({ id: createId(), key, count: 1, resetAt })
+    } else if (existing.resetAt < now()) {
+      await db.update(rateLimits).set({ count: 1, resetAt }).where(eq(rateLimits.key, key))
+    } else {
+      const count = (existing.count || 0) + 1
+      if (count > max) {
+        return new Response(JSON.stringify({ success: false, error: 'Too many requests' }), {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': String(existing.resetAt - now()),
+          },
+        })
+      }
+      await db.update(rateLimits).set({ count }).where(eq(rateLimits.key, key))
+    }
+  } catch {
+    // Rate limit DB error â€” fail open
+  }
+  return await next()
+}
+
+// ============================================================
+// MIDDLEWARE: DB inject
+// ============================================================
+async function dbMiddleware(c: any, next: () => Promise<void>) {
+  c.set('db', drizzle(c.env.DB))
+  return await next()
+}
+
+// ============================================================
+// VALIDATION SCHEMAS
+// ============================================================
+const registerSchema = z.object({
+  name: z.string().min(2).max(100),
+  email: z.string().email(),
+  password: z.string().min(8).max(128),
+})
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+})
+
+const materialSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().optional(),
+  category: z.string().min(1),
+  content: z.string().optional(),
+  order: z.number().int().optional(),
+  isPublished: z.boolean().optional(),
+})
+
+const tryoutSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().optional(),
+  category: z.string().min(1),
+  duration: z.number().int().min(1),
+  passingScore: z.number().min(0).max(100).optional(),
+  isActive: z.boolean().optional(),
+  startsAt: z.number().int().optional(),
+  endsAt: z.number().int().optional(),
+})
+
+const questionSchema = z.object({
+  text: z.string().min(1),
+  options: z.array(z.object({ key: z.string(), value: z.string() })).min(2),
+  correctAnswer: z.string().min(1),
+  explanation: z.string().optional(),
+  order: z.number().int().optional(),
+})
+
+// ============================================================
+// APP SETUP
+// ============================================================
+const app = new Hono<{ Bindings: Env; Variables: Variables }>()
+
+// Global middleware
+app.use('*', logger())
+app.use('*', secureHeaders())
+app.use('*', async (c, next) => {
+  const origin = c.env.FRONTEND_URL || '*'
+  return cors({
+    origin,
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    exposeHeaders: ['X-Request-Id'],
+  })(c, next)
+})
+app.use('*', rateLimitMiddleware)
+app.use('*', dbMiddleware)
+
+// Global error handler
+app.onError((err, c) => {
+  console.error('[Worker Error]', err)
+  if (err instanceof HTTPException) {
+    return jsonError(err.message, err.status)
+  }
+  return jsonError('Internal server error', 500)
+})
+
+// ============================================================
+// HEALTH CHECK
+// ============================================================
+app.get('/health', (c) =>
+  c.json({
+    ok: true,
+    env: c.env.ENVIRONMENT,
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+  })
+)
+
+// ============================================================
+// AUTH ROUTES: /api/auth
+// ============================================================
+const auth = new Hono<{ Bindings: Env; Variables: Variables }>()
+
+// POST /api/auth/register
+auth.post('/register', async (c) => {
+  const body = await c.req.json()
+  const parsed = registerSchema.safeParse(body)
+  if (!parsed.success) return jsonError(parsed.error.issues[0].message)
+
+  const db = c.get('db')
+  const { name, email, password } = parsed.data
+  const minLen = parseInt(c.env.PASSWORD_MIN_LENGTH || '8')
+  if (password.length < minLen) return jsonError(`Password minimal ${minLen} karakter`)
+
+  const existing = await db.select().from(users).where(eq(users.email, email)).get()
+  if (existing) return jsonError('Email sudah terdaftar', 409)
+
+  const hashed = await bcrypt.hash(password, 12)
+  const id = createId()
+  const ts = now()
+
+  await db.insert(users).values({ id, name, email, password: hashed, createdAt: ts, updatedAt: ts })
+
+  return jsonOk({ message: 'Registrasi berhasil' }, 201)
+})
+
+// POST /api/auth/login
+auth.post('/login', async (c) => {
+  const body = await c.req.json()
+  const parsed = loginSchema.safeParse(body)
+  if (!parsed.success) return jsonError(parsed.error.issues[0].message)
+
+  const db = c.get('db')
+  const { email, password } = parsed.data
+  const maxAttempts = parseInt(c.env.MAX_LOGIN_ATTEMPT || '5')
+  const lockDuration = parseInt(c.env.LOCK_DURATION_SEC || '60')
+
+  const user = await db.select().from(users).where(eq(users.email, email)).get()
+  if (!user) return jsonError('Email atau password salah', 401)
+
+  if (user.lockedUntil && user.lockedUntil > now()) {
+    const remaining = user.lockedUntil - now()
+    return jsonError(`Akun terkunci. Coba lagi dalam ${remaining} detik`, 423)
+  }
+
+  const valid = await bcrypt.compare(password, user.password)
+  if (!valid) {
+    const attempts = (user.loginAttempts || 0) + 1
+    const locked = attempts >= maxAttempts ? now() + lockDuration : undefined
+    await db.update(users).set({
+      loginAttempts: attempts,
+      ...(locked ? { lockedUntil: locked } : {}),
+      updatedAt: now(),
+    }).where(eq(users.id, user.id))
+    return jsonError('Email atau password salah', 401)
+  }
+
+  // Reset attempts
+  await db.update(users).set({ loginAttempts: 0, lockedUntil: null, lastLogin: now(), updatedAt: now() })
+    .where(eq(users.id, user.id))
+
+  const accessToken = await signAccessToken(user.id, user.role, c.env.JWT_SECRET, c.env.JWT_EXPIRES_IN || '900')
+  const refreshToken = createId() + createId()
+  const refreshExpires = now() + parseInt(c.env.REFRESH_TOKEN_EXPIRES || '604800')
+
+  await db.insert(sessions).values({
+    id: createId(),
+    userId: user.id,
+    refreshToken,
+    expiresAt: refreshExpires,
+    createdAt: now(),
+  })
+
+  return jsonOk({
+    accessToken,
+    refreshToken,
+    expiresIn: parseInt(c.env.JWT_EXPIRES_IN || '900'),
+    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+  })
+})
+
+// POST /api/auth/refresh
+auth.post('/refresh', async (c) => {
+  const body = await c.req.json()
+  const { refreshToken } = body
+  if (!refreshToken) return jsonError('Refresh token diperlukan')
+
+  const db = c.get('db')
+  const session = await db.select().from(sessions).where(eq(sessions.refreshToken, refreshToken)).get()
+  if (!session || session.expiresAt < now()) {
+    return jsonError('Refresh token invalid atau expired', 401)
+  }
+
+  const user = await db.select().from(users).where(eq(users.id, session.userId)).get()
+  if (!user) return jsonError('User tidak ditemukan', 404)
+
+  const accessToken = await signAccessToken(user.id, user.role, c.env.JWT_SECRET, c.env.JWT_EXPIRES_IN || '900')
+  return jsonOk({ accessToken, expiresIn: parseInt(c.env.JWT_EXPIRES_IN || '900') })
+})
+
+// POST /api/auth/logout
+auth.post('/logout', authMiddleware, async (c) => {
+  const body = await c.req.json().catch(() => ({}))
+  const { refreshToken } = body
+  const db = c.get('db')
+  if (refreshToken) {
+    await db.delete(sessions).where(eq(sessions.refreshToken, refreshToken))
+  } else {
+    await db.delete(sessions).where(eq(sessions.userId, c.get('userId')))
+  }
+  return jsonOk({ message: 'Logout berhasil' })
+})
+
+// GET /api/auth/me
+auth.get('/me', authMiddleware, async (c) => {
+  const db = c.get('db')
+  const user = await db.select({
+    id: users.id, name: users.name, email: users.email,
+    role: users.role, lastLogin: users.lastLogin, createdAt: users.createdAt,
+  }).from(users).where(eq(users.id, c.get('userId'))).get()
+  if (!user) return jsonError('User tidak ditemukan', 404)
+  return jsonOk({ user })
+})
+
+// PUT /api/auth/change-password
+auth.put('/change-password', authMiddleware, async (c) => {
+  const body = await c.req.json()
+  const { oldPassword, newPassword } = body
+  if (!oldPassword || !newPassword) return jsonError('Password lama dan baru diperlukan')
+
+  const db = c.get('db')
+  const user = await db.select().from(users).where(eq(users.id, c.get('userId'))).get()
+  if (!user) return jsonError('User tidak ditemukan', 404)
+
+  const valid = await bcrypt.compare(oldPassword, user.password)
+  if (!valid) return jsonError('Password lama salah', 401)
+
+  const hashed = await bcrypt.hash(newPassword, 12)
+  await db.update(users).set({ password: hashed, updatedAt: now() }).where(eq(users.id, user.id))
+  await db.delete(sessions).where(eq(sessions.userId, user.id))
+
+  return jsonOk({ message: 'Password berhasil diubah. Silakan login ulang.' })
+})
+
+app.route('/api/auth', auth)
+
+// ============================================================
+// USER ROUTES: /api/users (admin only)
+// ============================================================
+const userRoutes = new Hono<{ Bindings: Env; Variables: Variables }>()
+userRoutes.use('*', authMiddleware)
+
+// GET /api/users â€” list all (admin)
+userRoutes.get('/', requireRole('admin'), async (c) => {
+  const db = c.get('db')
+  const page = parseInt(c.req.query('page') || '1')
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100)
+  const offset = (page - 1) * limit
+
+  const all = await db.select({
+    id: users.id, name: users.name, email: users.email,
+    role: users.role, lastLogin: users.lastLogin, createdAt: users.createdAt,
+  }).from(users).limit(limit).offset(offset).all()
+
+  const total = await db.select({ count: sql<number>`count(*)` }).from(users).get()
+  return jsonOk({ users: all, total: total?.count || 0, page, limit })
+})
+
+// GET /api/users/:id
+userRoutes.get('/:id', requireRole('admin'), async (c) => {
+  const db = c.get('db')
+  const user = await db.select({
+    id: users.id, name: users.name, email: users.email,
+    role: users.role, lastLogin: users.lastLogin, createdAt: users.createdAt,
+  }).from(users).where(eq(users.id, c.req.param('id'))).get()
+  if (!user) return jsonError('User tidak ditemukan', 404)
+  return jsonOk({ user })
+})
+
+// PUT /api/users/:id â€” update role (admin only)
+userRoutes.put('/:id', requireRole('admin'), async (c) => {
+  const body = await c.req.json()
+  const { name, role } = body
+  const db = c.get('db')
+  await db.update(users).set({
+    ...(name ? { name } : {}),
+    ...(role ? { role } : {}),
+    updatedAt: now(),
+  }).where(eq(users.id, c.req.param('id')))
+  return jsonOk({ message: 'User diperbarui' })
+})
+
+// DELETE /api/users/:id (admin only)
+userRoutes.delete('/:id', requireRole('admin'), async (c) => {
+  const db = c.get('db')
+  await db.delete(sessions).where(eq(sessions.userId, c.req.param('id')))
+  await db.delete(users).where(eq(users.id, c.req.param('id')))
+  return jsonOk({ message: 'User dihapus' })
+})
+
+app.route('/api/users', userRoutes)
+
+// ============================================================
+// MATERIAL ROUTES: /api/materials
+// ============================================================
+const materialRoutes = new Hono<{ Bindings: Env; Variables: Variables }>()
+
+// GET /api/materials â€” public list published
+materialRoutes.get('/', async (c) => {
+  const db = c.get('db')
+  const category = c.req.query('category')
+  const isAdmin = c.req.header('Authorization')
+    ? await verifyToken(c.req.header('Authorization')!.slice(7), c.env.JWT_SECRET)
+        .then(p => p.role === 'admin').catch(() => false)
+    : false
+
+  const all = await db.select().from(materials)
+    .where(
+      category
+        ? and(eq(materials.category, category), isAdmin ? undefined : eq(materials.isPublished, true))
+        : isAdmin ? undefined : eq(materials.isPublished, true)
+    )
+    .orderBy(materials.order, materials.createdAt)
+    .all()
+
+  return jsonOk({ materials: all })
+})
+
+// GET /api/materials/:id
+materialRoutes.get('/:id', async (c) => {
+  const db = c.get('db')
+  const material = await db.select().from(materials).where(eq(materials.id, c.req.param('id'))).get()
+  if (!material) return jsonError('Materi tidak ditemukan', 404)
+  if (!material.isPublished) {
+    const authHeader = c.req.header('Authorization')
+    if (!authHeader) return jsonError('Unauthorized', 401)
+    const payload = await verifyToken(authHeader.slice(7), c.env.JWT_SECRET).catch(() => null)
+    if (!payload || payload.role !== 'admin') return jsonError('Forbidden', 403)
+  }
+
+  // Track progress if user is authenticated
+  const authHeader = c.req.header('Authorization')
+  if (authHeader?.startsWith('Bearer ')) {
+    const payload = await verifyToken(authHeader.slice(7), c.env.JWT_SECRET).catch(() => null)
+    if (payload) {
+      await db.insert(userProgress).values({
+        id: createId(),
+        userId: payload.sub,
+        materialId: material.id,
+        type: 'material_viewed',
+        createdAt: now(),
+      }).catch(() => {})
+    }
+  }
+
+  return jsonOk({ material })
+})
+
+// POST /api/materials (admin)
+materialRoutes.post('/', authMiddleware, requireRole('admin'), async (c) => {
+  const body = await c.req.json()
+  const parsed = materialSchema.safeParse(body)
+  if (!parsed.success) return jsonError(parsed.error.issues[0].message)
+
+  const db = c.get('db')
+  const id = createId()
+  const ts = now()
+  await db.insert(materials).values({
+    id, ...parsed.data, createdBy: c.get('userId'), createdAt: ts, updatedAt: ts,
+  })
+  return jsonOk({ id, message: 'Materi dibuat' }, 201)
+})
+
+// PUT /api/materials/:id (admin)
+materialRoutes.put('/:id', authMiddleware, requireRole('admin'), async (c) => {
+  const body = await c.req.json()
+  const parsed = materialSchema.partial().safeParse(body)
+  if (!parsed.success) return jsonError(parsed.error.issues[0].message)
+
+  const db = c.get('db')
+  await db.update(materials).set({ ...parsed.data, updatedAt: now() })
+    .where(eq(materials.id, c.req.param('id')))
+  return jsonOk({ message: 'Materi diperbarui' })
+})
+
+// DELETE /api/materials/:id (admin)
+materialRoutes.delete('/:id', authMiddleware, requireRole('admin'), async (c) => {
+  const db = c.get('db')
+  const material = await db.select().from(materials).where(eq(materials.id, c.req.param('id'))).get()
+  if (!material) return jsonError('Materi tidak ditemukan', 404)
+
+  // Hapus dari R2 jika ada file
+  if (material.fileKey && c.env.R2) {
+    await c.env.R2.delete(material.fileKey).catch(() => {})
+  }
+
+  await db.delete(materials).where(eq(materials.id, c.req.param('id')))
+  return jsonOk({ message: 'Materi dihapus' })
+})
+
+// POST /api/materials/:id/upload â€” upload file ke R2
+materialRoutes.post('/:id/upload', authMiddleware, requireRole('admin'), async (c) => {
+  const maxSize = parseInt(c.env.MAX_UPLOAD_SIZE || '52428800')
+  const formData = await c.req.formData()
+  const file = formData.get('file') as File | null
+  if (!file) return jsonError('File diperlukan')
+  if (file.size > maxSize) return jsonError(`File terlalu besar. Maks ${maxSize / 1024 / 1024}MB`)
+
+  const allowed = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'image/webp']
+  if (!allowed.includes(file.type)) return jsonError('Tipe file tidak didukung')
+
+  const ext = file.name.split('.').pop()
+  const fileKey = `materials/${c.req.param('id')}/${createId()}.${ext}`
+
+  const arrayBuffer = await file.arrayBuffer()
+  await c.env.R2.put(fileKey, arrayBuffer, {
+    httpMetadata: { contentType: file.type },
+    customMetadata: { originalName: file.name, uploadedBy: c.get('userId') },
+  })
+
+  const db = c.get('db')
+  await db.update(materials).set({
+    fileKey, fileType: file.type, fileSize: file.size, updatedAt: now(),
+  }).where(eq(materials.id, c.req.param('id')))
+
+  return jsonOk({ fileKey, message: 'File berhasil diupload' })
+})
+
+// GET /api/materials/:id/file â€” serve file dari R2
+materialRoutes.get('/:id/file', async (c) => {
+  const db = c.get('db')
+  const material = await db.select().from(materials).where(eq(materials.id, c.req.param('id'))).get()
+  if (!material?.fileKey) return jsonError('File tidak ditemukan', 404)
+
+  const obj = await c.env.R2.get(material.fileKey)
+  if (!obj) return jsonError('File tidak ditemukan di storage', 404)
+
+  return new Response(obj.body, {
+    headers: {
+      'Content-Type': obj.httpMetadata?.contentType || 'application/octet-stream',
+      'Content-Disposition': `inline; filename="${material.title}"`,
+      'Cache-Control': 'public, max-age=3600',
+    },
+  })
+})
+
+app.route('/api/materials', materialRoutes)
+
+// ============================================================
+// TRYOUT ROUTES: /api/tryouts
+// ============================================================
+const tryoutRoutes = new Hono<{ Bindings: Env; Variables: Variables }>()
+
+// GET /api/tryouts
+tryoutRoutes.get('/', async (c) => {
+  const db = c.get('db')
+  const isAdmin = c.req.header('Authorization')
+    ? await verifyToken(c.req.header('Authorization')!.slice(7), c.env.JWT_SECRET)
+        .then(p => p.role === 'admin').catch(() => false)
+    : false
+
+  const all = await db.select().from(tryouts)
+    .where(isAdmin ? undefined : eq(tryouts.isActive, true))
+    .orderBy(desc(tryouts.createdAt))
+    .all()
+  return jsonOk({ tryouts: all })
+})
+
+// GET /api/tryouts/:id
+tryoutRoutes.get('/:id', async (c) => {
+  const db = c.get('db')
+  const tryout = await db.select().from(tryouts).where(eq(tryouts.id, c.req.param('id'))).get()
+  if (!tryout) return jsonError('Tryout tidak ditemukan', 404)
+  return jsonOk({ tryout })
+})
+
+// POST /api/tryouts (admin)
+tryoutRoutes.post('/', authMiddleware, requireRole('admin'), async (c) => {
+  const body = await c.req.json()
+  const parsed = tryoutSchema.safeParse(body)
+  if (!parsed.success) return jsonError(parsed.error.issues[0].message)
+
+  const db = c.get('db')
+  const id = createId()
+  const ts = now()
+  await db.insert(tryouts).values({ id, ...parsed.data, createdBy: c.get('userId'), createdAt: ts, updatedAt: ts })
+  return jsonOk({ id, message: 'Tryout dibuat' }, 201)
+})
+
+// PUT /api/tryouts/:id (admin)
+tryoutRoutes.put('/:id', authMiddleware, requireRole('admin'), async (c) => {
+  const body = await c.req.json()
+  const parsed = tryoutSchema.partial().safeParse(body)
+  if (!parsed.success) return jsonError(parsed.error.issues[0].message)
+  const db = c.get('db')
+  await db.update(tryouts).set({ ...parsed.data, updatedAt: now() }).where(eq(tryouts.id, c.req.param('id')))
+  return jsonOk({ message: 'Tryout diperbarui' })
+})
+
+// DELETE /api/tryouts/:id (admin)
+tryoutRoutes.delete('/:id', authMiddleware, requireRole('admin'), async (c) => {
+  const db = c.get('db')
+  await db.delete(questions).where(eq(questions.tryoutId, c.req.param('id')))
+  await db.delete(tryoutAttempts).where(eq(tryoutAttempts.tryoutId, c.req.param('id')))
+  await db.delete(tryouts).where(eq(tryouts.id, c.req.param('id')))
+  return jsonOk({ message: 'Tryout dihapus' })
+})
+
+// GET /api/tryouts/:id/questions
+tryoutRoutes.get('/:id/questions', authMiddleware, async (c) => {
+  const db = c.get('db')
+  const all = await db.select().from(questions)
+    .where(eq(questions.tryoutId, c.req.param('id')))
+    .orderBy(questions.order)
+    .all()
+
+  const role = c.get('userRole')
+  const safeQuestions = all.map(q => ({
+    ...q,
+    options: JSON.parse(q.options),
+    // Sembunyikan jawaban dari student
+    ...(role !== 'admin' ? { correctAnswer: undefined, explanation: undefined } : {}),
+  }))
+  return jsonOk({ questions: safeQuestions })
+})
+
+// POST /api/tryouts/:id/questions (admin)
+tryoutRoutes.post('/:id/questions', authMiddleware, requireRole('admin'), async (c) => {
+  const body = await c.req.json()
+  const parsed = questionSchema.safeParse(body)
+  if (!parsed.success) return jsonError(parsed.error.issues[0].message)
+
+  const db = c.get('db')
+  const id = createId()
+  await db.insert(questions).values({
+    id,
+    tryoutId: c.req.param('id'),
+    ...parsed.data,
+    options: JSON.stringify(parsed.data.options),
+    createdAt: now(),
+  })
+  // Update totalQuestions
+  const count = await db.select({ count: sql<number>`count(*)` }).from(questions)
+    .where(eq(questions.tryoutId, c.req.param('id'))).get()
+  await db.update(tryouts).set({ totalQuestions: count?.count || 0, updatedAt: now() })
+    .where(eq(tryouts.id, c.req.param('id')))
+
+  return jsonOk({ id, message: 'Soal ditambahkan' }, 201)
+})
+
+// DELETE /api/tryouts/:id/questions/:qid (admin)
+tryoutRoutes.delete('/:id/questions/:qid', authMiddleware, requireRole('admin'), async (c) => {
+  const db = c.get('db')
+  await db.delete(questions).where(
+    and(eq(questions.id, c.req.param('qid')), eq(questions.tryoutId, c.req.param('id')))
+  )
+  return jsonOk({ message: 'Soal dihapus' })
+})
+
+// POST /api/tryouts/:id/start â€” mulai attempt
+tryoutRoutes.post('/:id/start', authMiddleware, async (c) => {
+  const db = c.get('db')
+  const tryout = await db.select().from(tryouts).where(eq(tryouts.id, c.req.param('id'))).get()
+  if (!tryout) return jsonError('Tryout tidak ditemukan', 404)
+  if (!tryout.isActive) return jsonError('Tryout belum aktif', 400)
+
+  // Cek apakah ada attempt yang masih in_progress
+  const existing = await db.select().from(tryoutAttempts)
+    .where(and(
+      eq(tryoutAttempts.tryoutId, c.req.param('id')),
+      eq(tryoutAttempts.userId, c.get('userId')),
+      eq(tryoutAttempts.status, 'in_progress'),
+    )).get()
+  if (existing) return jsonOk({ attemptId: existing.id, message: 'Lanjutkan attempt yang ada' })
+
+  const id = createId()
+  await db.insert(tryoutAttempts).values({
+    id,
+    tryoutId: c.req.param('id'),
+    userId: c.get('userId'),
+    startedAt: now(),
+    status: 'in_progress',
+  })
+  return jsonOk({ attemptId: id, duration: tryout.duration }, 201)
+})
+
+// POST /api/tryouts/:id/submit â€” submit jawaban
+tryoutRoutes.post('/:id/submit', authMiddleware, async (c) => {
+  const body = await c.req.json()
+  const { attemptId, answers } = body
+  if (!attemptId || !answers) return jsonError('attemptId dan answers diperlukan')
+
+  const db = c.get('db')
+  const attempt = await db.select().from(tryoutAttempts)
+    .where(and(eq(tryoutAttempts.id, attemptId), eq(tryoutAttempts.userId, c.get('userId')))).get()
+  if (!attempt) return jsonError('Attempt tidak ditemukan', 404)
+  if (attempt.status !== 'in_progress') return jsonError('Attempt sudah selesai')
+
+  // Hitung skor
+  const allQuestions = await db.select().from(questions)
+    .where(eq(questions.tryoutId, c.req.param('id'))).all()
+  let correct = 0
+  allQuestions.forEach(q => {
+    if (answers[q.id] === q.correctAnswer) correct++
+  })
+  const score = allQuestions.length > 0 ? (correct / allQuestions.length) * 100 : 0
+  const timeTaken = now() - attempt.startedAt
+
+  await db.update(tryoutAttempts).set({
+    answers: JSON.stringify(answers),
+    score,
+    totalCorrect: correct,
+    timeTaken,
+    status: 'completed',
+    completedAt: now(),
+  }).where(eq(tryoutAttempts.id, attemptId))
+
+  // Track progress
+  await db.insert(userProgress).values({
+    id: createId(),
+    userId: c.get('userId'),
+    tryoutId: c.req.param('id'),
+    type: 'tryout_completed',
+    metadata: JSON.stringify({ score, correct, total: allQuestions.length }),
+    createdAt: now(),
+  }).catch(() => {})
+
+  return jsonOk({ score, totalCorrect: correct, totalQuestions: allQuestions.length, timeTaken })
+})
+
+// GET /api/tryouts/:id/result/:attemptId â€” hasil tryout dengan pembahasan
+tryoutRoutes.get('/:id/result/:attemptId', authMiddleware, async (c) => {
+  const db = c.get('db')
+  const attempt = await db.select().from(tryoutAttempts)
+    .where(and(
+      eq(tryoutAttempts.id, c.req.param('attemptId')),
+      eq(tryoutAttempts.userId, c.get('userId')),
+    )).get()
+  if (!attempt) return jsonError('Attempt tidak ditemukan', 404)
+  if (attempt.status !== 'completed') return jsonError('Tryout belum selesai', 400)
+
+  const allQuestions = await db.select().from(questions)
+    .where(eq(questions.tryoutId, c.req.param('id'))).orderBy(questions.order).all()
+
+  const answers = attempt.answers ? JSON.parse(attempt.answers) : {}
+  const result = allQuestions.map(q => ({
+    id: q.id,
+    text: q.text,
+    options: JSON.parse(q.options),
+    correctAnswer: q.correctAnswer,
+    userAnswer: answers[q.id],
+    isCorrect: answers[q.id] === q.correctAnswer,
+    explanation: q.explanation,
+  }))
+
+  return jsonOk({
+    attempt: {
+      id: attempt.id,
+      score: attempt.score,
+      totalCorrect: attempt.totalCorrect,
+      timeTaken: attempt.timeTaken,
+      completedAt: attempt.completedAt,
+    },
+    questions: result,
+  })
+})
+
+app.route('/api/tryouts', tryoutRoutes)
+
+// ============================================================
+// DASHBOARD / PROGRESS: /api/dashboard
+// ============================================================
+const dashboardRoutes = new Hono<{ Bindings: Env; Variables: Variables }>()
+dashboardRoutes.use('*', authMiddleware)
+
+// GET /api/dashboard â€” ringkasan user
+dashboardRoutes.get('/', async (c) => {
+  const db = c.get('db')
+  const userId = c.get('userId')
+
+  const [completedTryouts, viewedMaterials, latestAttempts] = await Promise.all([
+    db.select({ count: sql<number>`count(*)` }).from(tryoutAttempts)
+      .where(and(eq(tryoutAttempts.userId, userId), eq(tryoutAttempts.status, 'completed'))).get(),
+    db.select({ count: sql<number>`count(*)` }).from(userProgress)
+      .where(and(eq(userProgress.userId, userId), eq(userProgress.type, 'material_viewed'))).get(),
+    db.select().from(tryoutAttempts)
+      .where(and(eq(tryoutAttempts.userId, userId), eq(tryoutAttempts.status, 'completed')))
+      .orderBy(desc(tryoutAttempts.completedAt))
+      .limit(5).all(),
+  ])
+
+  const avgScore = latestAttempts.length > 0
+    ? latestAttempts.reduce((a, b) => a + (b.score || 0), 0) / latestAttempts.length
+    : 0
+
+  return jsonOk({
+    stats: {
+      completedTryouts: completedTryouts?.count || 0,
+      viewedMaterials: viewedMaterials?.count || 0,
+      averageScore: Math.round(avgScore * 100) / 100,
+    },
+    latestAttempts,
+  })
+})
+
+// GET /api/dashboard/history â€” riwayat lengkap
+dashboardRoutes.get('/history', async (c) => {
+  const db = c.get('db')
+  const page = parseInt(c.req.query('page') || '1')
+  const limit = Math.min(parseInt(c.req.query('limit') || '10'), 50)
+  const offset = (page - 1) * limit
+
+  const attempts = await db.select().from(tryoutAttempts)
+    .where(eq(tryoutAttempts.userId, c.get('userId')))
+    .orderBy(desc(tryoutAttempts.startedAt))
+    .limit(limit).offset(offset).all()
+
+  return jsonOk({ attempts, page, limit })
+})
+
+app.route('/api/dashboard', dashboardRoutes)
+
+// ============================================================
+// ADMIN STATS: /api/admin
+// ============================================================
+const adminRoutes = new Hono<{ Bindings: Env; Variables: Variables }>()
+adminRoutes.use('*', authMiddleware, requireRole('admin'))
+
+// GET /api/admin/stats
+adminRoutes.get('/stats', async (c) => {
+  const db = c.get('db')
+  const [totalUsers, totalMaterials, totalTryouts, totalAttempts] = await Promise.all([
+    db.select({ count: sql<number>`count(*)` }).from(users).get(),
+    db.select({ count: sql<number>`count(*)` }).from(materials).get(),
+    db.select({ count: sql<number>`count(*)` }).from(tryouts).get(),
+    db.select({ count: sql<number>`count(*)` }).from(tryoutAttempts)
+      .where(eq(tryoutAttempts.status, 'completed')).get(),
+  ])
+
+  return jsonOk({
+    stats: {
+      totalUsers: totalUsers?.count || 0,
+      totalMaterials: totalMaterials?.count || 0,
+      totalTryouts: totalTryouts?.count || 0,
+      totalAttempts: totalAttempts?.count || 0,
+    },
+  })
+})
+
+// GET /api/admin/attempts â€” semua attempt (dengan pagination)
+adminRoutes.get('/attempts', async (c) => {
+  const db = c.get('db')
+  const page = parseInt(c.req.query('page') || '1')
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100)
+  const offset = (page - 1) * limit
+
+  const attempts = await db.select().from(tryoutAttempts)
+    .orderBy(desc(tryoutAttempts.startedAt))
+    .limit(limit).offset(offset).all()
+
+  const total = await db.select({ count: sql<number>`count(*)` }).from(tryoutAttempts).get()
+  return jsonOk({ attempts, total: total?.count || 0, page, limit })
+})
+
+// DELETE cleanup expired sessions & rate limits
+adminRoutes.post('/cleanup', async (c) => {
+  const db = c.get('db')
+  await db.delete(sessions).where(lt(sessions.expiresAt, now()))
+  await db.delete(rateLimits).where(lt(rateLimits.resetAt, now()))
+  return jsonOk({ message: 'Cleanup selesai' })
+})
+
+app.route('/api/admin', adminRoutes)
+
+// ============================================================
+// EXPORT
+// ============================================================
+export default app
+

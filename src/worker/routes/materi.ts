@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
-import { createSuccessResponse, createErrorResponse } from '@/utils/security';
+import { createSuccessResponse, createErrorResponse } from '../../utils/security';
 
 const materiRoutes = new Hono();
 
-// ──── LIST MATERI ────
+// ---- LIST MATERI ----
 materiRoutes.get('/list', async (c) => {
   try {
     // TODO: Query materi from DB with pagination
@@ -24,7 +24,7 @@ materiRoutes.get('/list', async (c) => {
   }
 });
 
-// ──── GET MATERI DETAIL ────
+// ---- GET MATERI DETAIL ----
 materiRoutes.get('/:id', async (c) => {
   try {
     const id = c.req.param('id');
@@ -51,7 +51,7 @@ materiRoutes.get('/:id', async (c) => {
   }
 });
 
-// ──── DOWNLOAD MATERI ────
+// ---- DOWNLOAD MATERI ----
 materiRoutes.get('/download/:fileKey', async (c) => {
   try {
     const fileKey = c.req.param('fileKey');
@@ -62,7 +62,7 @@ materiRoutes.get('/download/:fileKey', async (c) => {
     return c.text('File content', {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="materi.pdf"`,
+        'Content-Disposition': ttachment; filename="materi.pdf",
       },
     });
   } catch (error) {
@@ -73,7 +73,7 @@ materiRoutes.get('/download/:fileKey', async (c) => {
   }
 });
 
-// ──── UPLOAD MATERI (ADMIN) ────
+// ---- UPLOAD MATERI (ADMIN) ----
 materiRoutes.post('/upload', async (c) => {
   try {
     const formData = await c.req.formData();

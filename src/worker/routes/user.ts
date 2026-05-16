@@ -1,9 +1,9 @@
-import { Hono } from 'hono';
-import { createSuccessResponse, createErrorResponse } from '@/utils/security';
+import { Hono as HonoUser } from 'hono';
+import { createSuccessResponse as createSuccessResponseUser, createErrorResponse as createErrorResponseUser } from '../../utils/security';
 
-const userRoutes = new Hono();
+const userRoutes = new HonoUser();
 
-// ──── GET PROFILE ────
+// ---- GET PROFILE ----
 userRoutes.get('/profile', async (c) => {
   try {
     // TODO: Get userId from JWT token
@@ -11,7 +11,7 @@ userRoutes.get('/profile', async (c) => {
     // TODO: Include role and permissions
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseUser({
         id: 'user-1',
         username: 'user@example.com',
         fullName: 'User Name',
@@ -24,13 +24,13 @@ userRoutes.get('/profile', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengambil profile', 'FETCH_ERROR'),
+      createErrorResponseUser('Gagal mengambil profile', 'FETCH_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── UPDATE PROFILE ────
+// ---- UPDATE PROFILE ----
 userRoutes.put('/profile', async (c) => {
   try {
     const body = await c.req.json();
@@ -42,20 +42,20 @@ userRoutes.put('/profile', async (c) => {
     // TODO: Return updated profile
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseUser({
         message: 'Profile berhasil diupdate',
       }),
       { status: 200 }
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengupdate profile', 'UPDATE_ERROR'),
+      createErrorResponseUser('Gagal mengupdate profile', 'UPDATE_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── CHANGE PASSWORD ────
+// ---- CHANGE PASSWORD ----
 userRoutes.post('/change-password', async (c) => {
   try {
     const body = await c.req.json();
@@ -63,7 +63,7 @@ userRoutes.post('/change-password', async (c) => {
 
     if (!currentPassword || !newPassword) {
       return c.json(
-        createErrorResponse('Current password dan new password diperlukan', 'INVALID_INPUT'),
+        createErrorResponseUser('Current password dan new password diperlukan', 'INVALID_INPUT'),
         { status: 400 }
       );
     }
@@ -75,20 +75,20 @@ userRoutes.post('/change-password', async (c) => {
     // TODO: Invalidate all sessions
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseUser({
         message: 'Password berhasil diubah',
       }),
       { status: 200 }
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengubah password', 'UPDATE_ERROR'),
+      createErrorResponseUser('Gagal mengubah password', 'UPDATE_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── GET PROGRESS ────
+// ---- GET PROGRESS ----
 userRoutes.get('/progress', async (c) => {
   try {
     // TODO: Get userId from JWT
@@ -96,7 +96,7 @@ userRoutes.get('/progress', async (c) => {
     // TODO: Calculate stats
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseUser({
         totalTryout: 5,
         completedTryout: 4,
         averageScore: 78.5,
@@ -108,13 +108,13 @@ userRoutes.get('/progress', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengambil progress', 'FETCH_ERROR'),
+      createErrorResponseUser('Gagal mengambil progress', 'FETCH_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── GET TRYOUT HISTORY ────
+// ---- GET TRYOUT HISTORY ----
 userRoutes.get('/history', async (c) => {
   try {
     const page = parseInt(c.req.query('page') || '1', 10);
@@ -125,7 +125,7 @@ userRoutes.get('/history', async (c) => {
     // TODO: Include tryout details
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseUser({
         history: [],
         total: 0,
         page,
@@ -135,13 +135,13 @@ userRoutes.get('/history', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengambil history', 'FETCH_ERROR'),
+      createErrorResponseUser('Gagal mengambil history', 'FETCH_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── GET LEADERBOARD ────
+// ---- GET LEADERBOARD ----
 userRoutes.get('/leaderboard', async (c) => {
   try {
     const limit = parseInt(c.req.query('limit') || '10', 10);
@@ -151,7 +151,7 @@ userRoutes.get('/leaderboard', async (c) => {
     // TODO: Include user info
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseUser({
         leaderboard: [],
         total: 0,
       }),
@@ -159,7 +159,7 @@ userRoutes.get('/leaderboard', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengambil leaderboard', 'FETCH_ERROR'),
+      createErrorResponseUser('Gagal mengambil leaderboard', 'FETCH_ERROR'),
       { status: 500 }
     );
   }

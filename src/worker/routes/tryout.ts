@@ -1,14 +1,14 @@
-import { Hono } from 'hono';
-import { createSuccessResponse, createErrorResponse } from '@/utils/security';
+import { Hono as HonoTryout } from 'hono';
+import { createSuccessResponse as createSuccessResponseTryout, createErrorResponse as createErrorResponseTryout } from '../../utils/security';
 
-const tryoutRoutes = new Hono();
+const tryoutRoutes = new HonoTryout();
 
-// ──── LIST TRYOUT ────
+// ---- LIST TRYOUT ----
 tryoutRoutes.get('/list', async (c) => {
   try {
     // TODO: Query tryout list with pagination
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseTryout({
         tryouts: [],
         total: 0,
         page: 1,
@@ -18,13 +18,13 @@ tryoutRoutes.get('/list', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengambil data tryout', 'FETCH_ERROR'),
+      createErrorResponseTryout('Gagal mengambil data tryout', 'FETCH_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── GET TRYOUT DETAIL ────
+// ---- GET TRYOUT DETAIL ----
 tryoutRoutes.get('/:id', async (c) => {
   try {
     const id = c.req.param('id');
@@ -33,7 +33,7 @@ tryoutRoutes.get('/:id', async (c) => {
     // TODO: Get questions
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseTryout({
         id,
         title: 'Example Tryout',
         description: 'Tryout description',
@@ -46,13 +46,13 @@ tryoutRoutes.get('/:id', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Tryout tidak ditemukan', 'NOT_FOUND'),
+      createErrorResponseTryout('Tryout tidak ditemukan', 'NOT_FOUND'),
       { status: 404 }
     );
   }
 });
 
-// ──── START TRYOUT ────
+// ---- START TRYOUT ----
 tryoutRoutes.post('/:id/start', async (c) => {
   try {
     const id = c.req.param('id');
@@ -61,7 +61,7 @@ tryoutRoutes.post('/:id/start', async (c) => {
     // TODO: Generate session token for this tryout
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseTryout({
         sessionId: 'session-123',
         tryoutId: id,
         startedAt: new Date().toISOString(),
@@ -70,13 +70,13 @@ tryoutRoutes.post('/:id/start', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal memulai tryout', 'START_ERROR'),
+      createErrorResponseTryout('Gagal memulai tryout', 'START_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── SUBMIT JAWABAN ────
+// ---- SUBMIT JAWABAN ----
 tryoutRoutes.post('/:id/submit', async (c) => {
   try {
     const id = c.req.param('id');
@@ -85,7 +85,7 @@ tryoutRoutes.post('/:id/submit', async (c) => {
 
     if (!answers || !Array.isArray(answers)) {
       return c.json(
-        createErrorResponse('Jawaban diperlukan', 'INVALID_INPUT'),
+        createErrorResponseTryout('Jawaban diperlukan', 'INVALID_INPUT'),
         { status: 400 }
       );
     }
@@ -96,7 +96,7 @@ tryoutRoutes.post('/:id/submit', async (c) => {
     // TODO: Update hasil_tryout
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseTryout({
         benar: 70,
         salah: 20,
         kosong: 10,
@@ -108,13 +108,13 @@ tryoutRoutes.post('/:id/submit', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal submit tryout', 'SUBMIT_ERROR'),
+      createErrorResponseTryout('Gagal submit tryout', 'SUBMIT_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── GET HASIL TRYOUT ────
+// ---- GET HASIL TRYOUT ----
 tryoutRoutes.get('/:id/hasil', async (c) => {
   try {
     const id = c.req.param('id');
@@ -123,7 +123,7 @@ tryoutRoutes.get('/:id/hasil', async (c) => {
     // TODO: Get jawaban_soal details
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseTryout({
         id,
         totalSoal: 100,
         terjawab: 90,
@@ -139,13 +139,13 @@ tryoutRoutes.get('/:id/hasil', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Hasil tidak ditemukan', 'NOT_FOUND'),
+      createErrorResponseTryout('Hasil tidak ditemukan', 'NOT_FOUND'),
       { status: 404 }
     );
   }
 });
 
-// ──── CREATE TRYOUT (ADMIN) ────
+// ---- CREATE TRYOUT (ADMIN) ----
 tryoutRoutes.post('/create', async (c) => {
   try {
     const body = await c.req.json();
@@ -153,7 +153,7 @@ tryoutRoutes.post('/create', async (c) => {
 
     if (!title || !durationMinutes || !totalSoal) {
       return c.json(
-        createErrorResponse('Title, durationMinutes, totalSoal diperlukan', 'INVALID_INPUT'),
+        createErrorResponseTryout('Title, durationMinutes, totalSoal diperlukan', 'INVALID_INPUT'),
         { status: 400 }
       );
     }
@@ -162,7 +162,7 @@ tryoutRoutes.post('/create', async (c) => {
     // TODO: Return created tryout with ID
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseTryout({
         id: 'tryout-123',
         title,
         description,
@@ -173,13 +173,13 @@ tryoutRoutes.post('/create', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal membuat tryout', 'CREATE_ERROR'),
+      createErrorResponseTryout('Gagal membuat tryout', 'CREATE_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── UPLOAD SOAL (ADMIN, from Word using Mammoth) ────
+// ---- UPLOAD SOAL (ADMIN, from Word using Mammoth) ----
 tryoutRoutes.post('/:id/upload-soal', async (c) => {
   try {
     const id = c.req.param('id');
@@ -188,7 +188,7 @@ tryoutRoutes.post('/:id/upload-soal', async (c) => {
 
     if (!file) {
       return c.json(
-        createErrorResponse('File diperlukan', 'INVALID_INPUT'),
+        createErrorResponseTryout('File diperlukan', 'INVALID_INPUT'),
         { status: 400 }
       );
     }
@@ -199,7 +199,7 @@ tryoutRoutes.post('/:id/upload-soal', async (c) => {
     // TODO: Return success with number of soal imported
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseTryout({
         totalImported: 50,
         message: 'Soal berhasil diimport dari file Word',
       }),
@@ -207,7 +207,7 @@ tryoutRoutes.post('/:id/upload-soal', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal upload soal', 'UPLOAD_ERROR'),
+      createErrorResponseTryout('Gagal upload soal', 'UPLOAD_ERROR'),
       { status: 500 }
     );
   }

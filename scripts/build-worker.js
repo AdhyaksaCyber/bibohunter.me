@@ -1,21 +1,36 @@
-// scripts/build-worker.js
-import { build } from 'esbuild';
-import { resolve } from 'path';
+import { build } from 'esbuild'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const isDev = process.argv.includes('--dev');
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const isDev = process.argv.includes('--dev')
 
-build({
-  entryPoints: [resolve('src/worker/index.ts')],
+console.log(`\n🔨 Building worker [${isDev ? 'development' : 'production'}]...\n`)
+
+await build({
+  entryPoints: [resolve(__dirname, '../src/worker/index.ts')],
   bundle: true,
-  outfile: 'dist/worker.js',
+  outfile: resolve(__dirname, '../dist/worker.js'),
+  platform: 'neutral',
   format: 'esm',
-  platform: 'browser', // Cloudflare Workers runtime
   target: 'es2022',
   minify: !isDev,
   sourcemap: isDev,
-  external: ['__STATIC_CONTENT_MANIFEST'], // Cloudflare internal
+  treeShaking: true,
   define: {
-    'process.env.NODE_ENV': JSON.stringify(isDev ? 'development' : 'production'),
+    'process.env.NODE_ENV': isDev ? '"development"' : '"production"',
   },
-  logLevel: 'info',
-}).catch(() => process.exit(1));
+  external: [
+    '__STATIC_CONTENT_MANIFEST',
+  ],
+  conditions: ['worker', 'browser'],
+  mainFields: ['browser', 'module', 'main'],
+  banner: {
+    js: '// Ultron Bimbel Worker - bibohunter.me',
+  },
+}).then(() => {
+  console.log('✅ Worker built successfully → dist/worker.js\n')
+}).catch((err) => {
+  console.error('❌ Build failed:', err)
+  process.exit(1)
+})

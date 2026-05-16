@@ -1,9 +1,9 @@
-import { Hono } from 'hono';
-import { createSuccessResponse, createErrorResponse } from '@/utils/security';
+import { Hono as HonoAdmin } from 'hono';
+import { createSuccessResponse as createSuccessResponseAdmin, createErrorResponse as createErrorResponseAdmin } from '../../utils/security';
 
-const adminRoutes = new Hono();
+const adminRoutes = new HonoAdmin();
 
-// ──── LIST USERS ────
+// ---- LIST USERS ----
 adminRoutes.get('/users', async (c) => {
   try {
     const page = parseInt(c.req.query('page') || '1', 10);
@@ -14,7 +14,7 @@ adminRoutes.get('/users', async (c) => {
     // TODO: Include role info
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseAdmin({
         users: [],
         total: 0,
         page,
@@ -24,13 +24,13 @@ adminRoutes.get('/users', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengambil data user', 'FETCH_ERROR'),
+      createErrorResponseAdmin('Gagal mengambil data user', 'FETCH_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── CREATE USER ────
+// ---- CREATE USER ----
 adminRoutes.post('/users', async (c) => {
   try {
     // TODO: Verify admin role
@@ -39,7 +39,7 @@ adminRoutes.post('/users', async (c) => {
 
     if (!username || !email || !password || !role) {
       return c.json(
-        createErrorResponse('Username, email, password, role diperlukan', 'INVALID_INPUT'),
+        createErrorResponseAdmin('Username, email, password, role diperlukan', 'INVALID_INPUT'),
         { status: 400 }
       );
     }
@@ -50,7 +50,7 @@ adminRoutes.post('/users', async (c) => {
     // TODO: Assign role
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseAdmin({
         id: 'user-123',
         username,
         email,
@@ -61,13 +61,13 @@ adminRoutes.post('/users', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal membuat user', 'CREATE_ERROR'),
+      createErrorResponseAdmin('Gagal membuat user', 'CREATE_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── UPDATE USER ────
+// ---- UPDATE USER ----
 adminRoutes.put('/users/:id', async (c) => {
   try {
     // TODO: Verify admin role
@@ -78,20 +78,20 @@ adminRoutes.put('/users/:id', async (c) => {
     // TODO: Update user in DB
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseAdmin({
         message: 'User berhasil diupdate',
       }),
       { status: 200 }
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengupdate user', 'UPDATE_ERROR'),
+      createErrorResponseAdmin('Gagal mengupdate user', 'UPDATE_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── DELETE USER ────
+// ---- DELETE USER ----
 adminRoutes.delete('/users/:id', async (c) => {
   try {
     // TODO: Verify admin role
@@ -100,20 +100,20 @@ adminRoutes.delete('/users/:id', async (c) => {
     // TODO: Soft delete user in DB
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseAdmin({
         message: 'User berhasil dihapus',
       }),
       { status: 200 }
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal menghapus user', 'DELETE_ERROR'),
+      createErrorResponseAdmin('Gagal menghapus user', 'DELETE_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── LIST MATERI ────
+// ---- LIST MATERI ----
 adminRoutes.get('/materi', async (c) => {
   try {
     // TODO: Verify admin role
@@ -124,7 +124,7 @@ adminRoutes.get('/materi', async (c) => {
     // TODO: Include upload info
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseAdmin({
         materi: [],
         total: 0,
         page,
@@ -134,13 +134,13 @@ adminRoutes.get('/materi', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengambil data materi', 'FETCH_ERROR'),
+      createErrorResponseAdmin('Gagal mengambil data materi', 'FETCH_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── PUBLISH MATERI ────
+// ---- PUBLISH MATERI ----
 adminRoutes.post('/materi/:id/publish', async (c) => {
   try {
     // TODO: Verify admin role
@@ -149,20 +149,20 @@ adminRoutes.post('/materi/:id/publish', async (c) => {
     // TODO: Update status to 'published' in DB
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseAdmin({
         message: 'Materi berhasil dipublikasi',
       }),
       { status: 200 }
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mempublikasi materi', 'UPDATE_ERROR'),
+      createErrorResponseAdmin('Gagal mempublikasi materi', 'UPDATE_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── LIST TRYOUT ────
+// ---- LIST TRYOUT ----
 adminRoutes.get('/tryout', async (c) => {
   try {
     // TODO: Verify admin role
@@ -172,7 +172,7 @@ adminRoutes.get('/tryout', async (c) => {
     // TODO: Query tryout with pagination
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseAdmin({
         tryouts: [],
         total: 0,
         page,
@@ -182,13 +182,13 @@ adminRoutes.get('/tryout', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengambil data tryout', 'FETCH_ERROR'),
+      createErrorResponseAdmin('Gagal mengambil data tryout', 'FETCH_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── PUBLISH TRYOUT ────
+// ---- PUBLISH TRYOUT ----
 adminRoutes.post('/tryout/:id/publish', async (c) => {
   try {
     // TODO: Verify admin role
@@ -197,27 +197,27 @@ adminRoutes.post('/tryout/:id/publish', async (c) => {
     // TODO: Update status to 'published' in DB
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseAdmin({
         message: 'Tryout berhasil dipublikasi',
       }),
       { status: 200 }
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mempublikasi tryout', 'UPDATE_ERROR'),
+      createErrorResponseAdmin('Gagal mempublikasi tryout', 'UPDATE_ERROR'),
       { status: 500 }
     );
   }
 });
 
-// ──── GET STATS ────
+// ---- GET STATS ----
 adminRoutes.get('/stats', async (c) => {
   try {
     // TODO: Verify admin role
     // TODO: Query stats from DB
 
     return c.json(
-      createSuccessResponse({
+      createSuccessResponseAdmin({
         totalUsers: 0,
         totalMateri: 0,
         totalTryout: 0,
@@ -228,7 +228,7 @@ adminRoutes.get('/stats', async (c) => {
     );
   } catch (error) {
     return c.json(
-      createErrorResponse('Gagal mengambil stats', 'FETCH_ERROR'),
+      createErrorResponseAdmin('Gagal mengambil stats', 'FETCH_ERROR'),
       { status: 500 }
     );
   }

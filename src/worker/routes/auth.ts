@@ -1,8 +1,16 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { JWTManager, PasswordManager, InputValidator, RateLimiter, createSuccessResponse, createErrorResponse } from '@/utils/security';
-import { users, roles, sessions } from '@db/schema';
+import { 
+  JWTManager, 
+  PasswordManager, 
+  InputValidator, 
+  RateLimiter, 
+  createSuccessResponse, 
+  createErrorResponse 
+} from '../../utils/security';
+// Database schema import (uncomment saat schema sudah setup)
+// import { users, roles, sessions } from '../../../database/schema';
 
 const authRoutes = new Hono<{
   Bindings: {
@@ -55,12 +63,15 @@ authRoutes.post('/login', async (c) => {
     // Simulate timing-safe delay
     await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
 
-    // Fetch user
-    // Note: In real implementation with Drizzle, use proper DB query
-    // This is a placeholder showing the pattern
+    // Fetch user from DB
+    // NOTE: Uncomment saat DB sudah connected
+    // const user = await c.env.DB?.prepare(
+    //   'SELECT * FROM users WHERE username = ?'
+    // ).bind(username).first();
+
     const jwtManager = new JWTManager(c.env.JWT_SECRET, parseInt(c.env.JWT_EXPIRES_IN || '900', 10));
 
-    // For now, return example response (would connect to DB in full implementation)
+    // Placeholder - replace dengan DB query sebenarnya
     const user = { id: 'user-1', username: 'admin', roleId: 'role-1' };
     const role = { id: 'role-1', name: 'admin' };
 
