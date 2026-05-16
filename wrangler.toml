@@ -1,4 +1,4 @@
-name = "ultron-bimbel"
+name = "bibohunter"
 main = "dist/worker.js"
 compatibility_date = "2024-01-01"
 account_id = "eff59edef4a07d839795fa83e22d2eac"
