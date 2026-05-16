@@ -5,17 +5,19 @@ import { secureHeaders } from 'hono/secure-headers'
 import { HTTPException } from 'hono/http-exception'
 import { SignJWT, jwtVerify } from 'jose'
 import { drizzle } from 'drizzle-orm/d1'
-import { eq, and, sql, desc, lt } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import {
   integer,
   sqliteTable,
   text,
   real,
-  blob,
 } from 'drizzle-orm/sqlite-core'
-import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import { createId } from '@paralleldrive/cuid2'
+import { getAssetFromKV } from '@cloudflare/kv-asset-handler'
+import manifestJSON from '__STATIC_CONTENT_MANIFEST'
+
+const assetManifest = JSON.parse(manifestJSON)
 
 // ============================================================
 // ENV BINDINGS
@@ -23,6 +25,7 @@ import { createId } from '@paralleldrive/cuid2'
 export interface Env {
   DB: D1Database
   R2: R2Bucket
+  __STATIC_CONTENT: KVNamespace
   JWT_SECRET: string
   JWT_EXPIRES_IN: string
   REFRESH_TOKEN_EXPIRES: string
@@ -136,8 +139,6 @@ const rateLimits = sqliteTable('rate_limits', {
 // ============================================================
 // HELPERS
 // ============================================================
-const now = () => Math.floor(Date.now() / 1000)
-
 const getJwtSecret = (secret: string) =>
   new TextEncoder().encode(secret)
 
@@ -208,7 +209,6 @@ function requireRole(...roles: string[]) {
 // ============================================================
 const app = new Hono<{ Bindings: Env; Variables: Variables }>()
 
-// Global middleware
 app.use('*', logger())
 app.use('*', secureHeaders())
 app.use('*', async (c, next) => {
@@ -226,7 +226,6 @@ app.use('*', async (c, next) => {
   return await next()
 })
 
-// Global error handler
 app.onError((err, c) => {
   console.error('[Worker Error]', err)
   if (err instanceof HTTPException) {
@@ -311,7 +310,6 @@ admin.use('*', authMiddleware)
 
 admin.get('/stats', requireRole('admin'), async (c) => {
   const db = c.get('db')
-
   try {
     const totalUsers = await db.select({ count: sql<number>`count(*)` }).from(users).get().catch(() => ({ count: 0 }))
     const totalMaterials = await db.select({ count: sql<number>`count(*)` }).from(materials).get().catch(() => ({ count: 0 }))
@@ -331,15 +329,47 @@ admin.get('/stats', requireRole('admin'), async (c) => {
 app.route('/api/admin', admin)
 
 // ============================================================
-// FALLBACK: Return SPA or API error
+// FALLBACK: Serve SPA static files dari KV
 // ============================================================
-app.all('*', (c) => {
+app.all('*', async (c) => {
   const path = c.req.path
+
+  // API routes yang tidak ditemukan
   if (path.startsWith('/api')) {
     return jsonError('Not found', 404)
   }
-  // For frontend routes, return simple message for now
-  return c.json({ message: 'Frontend should be served by [site] in wrangler.toml' }, 404)
+
+  // Serve static files dari KV (hasil build frontend)
+  try {
+    return await getAssetFromKV(
+      {
+        request: c.req.raw,
+        waitUntil: (promise: Promise<any>) => c.executionCtx.waitUntil(promise),
+      },
+      {
+        ASSET_NAMESPACE: c.env.__STATIC_CONTENT,
+        ASSET_MANIFEST: assetManifest,
+      }
+    )
+  } catch (e: any) {
+    // File tidak ditemukan, serve index.html untuk SPA routing
+    try {
+      const indexUrl = new URL('/index.html', c.req.url)
+      const indexRequest = new Request(indexUrl.toString(), c.req.raw)
+      return await getAssetFromKV(
+        {
+          request: indexRequest,
+          waitUntil: (promise: Promise<any>) => c.executionCtx.waitUntil(promise),
+        },
+        {
+          ASSET_NAMESPACE: c.env.__STATIC_CONTENT,
+          ASSET_MANIFEST: assetManifest,
+        }
+      )
+    } catch {
+      return jsonError('Not found', 404)
+    }
+  }
 })
 
 export default app
