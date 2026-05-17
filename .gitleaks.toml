@@ -1,5 +1,4 @@
-﻿$content = @'
-title = "Gitleaks Config"
+﻿title = "Gitleaks Config"
 
 [extend]
 useDefault = true
@@ -18,4 +17,3 @@ paths = [
     '^migrations/',
     'test-security\.ps1$'
 ]
-'@
