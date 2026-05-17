@@ -62,7 +62,7 @@ materiRoutes.get('/download/:fileKey', async (c) => {
     return c.text('File content', {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': ttachment; filename="materi.pdf",
+        'Content-Disposition': 'attachment; filename="materi.pdf"',
       },
     });
   } catch (error) {

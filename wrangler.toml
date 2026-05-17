@@ -76,6 +76,9 @@ routes = [
 
 ]
 
+[env.production.site]
+bucket = "dist/public"
+
 [env.production.vars]
 
 ENVIRONMENT = "production"

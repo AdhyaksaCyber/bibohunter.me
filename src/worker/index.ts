@@ -682,6 +682,12 @@ upload.post('/', authMiddleware, validateUploadSize(), async (c) => {
 })
 
 // ============================================================
+// ROUTE REGISTRATION
+// ============================================================
+app.route('/api/auth', auth)
+app.route('/api/upload', upload)
+
+// ============================================================
 // STATIC FILE SERVING
 // ============================================================
 app.get('*', async (c) => {
@@ -710,11 +716,5 @@ app.get('*', async (c) => {
     }
   }
 })
-
-// ============================================================
-// ROUTE REGISTRATION
-// ============================================================
-app.route('/api/auth', auth)
-app.route('/api/upload', upload)
 
 export default app
