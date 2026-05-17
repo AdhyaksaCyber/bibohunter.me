@@ -159,16 +159,24 @@ export class InputValidator {
 const ALLOWED_TAGS = ['b','i','em','strong','p','br','ul','ol','li','h1','h2','h3','h4','h5','h6','blockquote','a','code','pre'];
 
 export function sanitizeHtmlContent(html: string): string {
-  // Strip all tags except allowed ones
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<(\/?)([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g, (match, slash, tag) => {
-      if (ALLOWED_TAGS.includes(tag.toLowerCase())) {
-        return `<${slash}${tag.toLowerCase()}>`;
-      }
-      return '';
-    });
+  // 1. Loop until stable — prevents nested bypass e.g. <scr<script>ipt>
+  let prev = '';
+  let current = html;
+  while (prev !== current) {
+    prev = current;
+    current = current
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '');
+  }
+
+  // 2. Strip all tags; only re-emit allowed ones — never copy attributes
+  return current.replace(/<(\/?)([a-zA-Z][a-zA-Z0-9]*)(?:\s[^>]*)?\s*\/?>/g, (_, slash, tag) => {
+    const lower = tag.toLowerCase();
+    if (ALLOWED_TAGS.includes(lower)) {
+      return `<${slash}${lower}>`;
+    }
+    return '';
+  });
 }
 
 export function sanitizeDOMContent(html: string): string {
