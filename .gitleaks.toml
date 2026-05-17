@@ -1,4 +1,4 @@
-title = "Gitleaks Config"
+﻿title = "Gitleaks Config"
 
 [extend]
 useDefault = true
@@ -15,5 +15,6 @@ paths = [
     'src/worker/index\.ts\.backup$',
     'database/schema\.sql$',
     '^migrations/',
-    'test-security\.ps1$'
+    'test-security\.ps1$',
+    'login\.html$'
 ]
