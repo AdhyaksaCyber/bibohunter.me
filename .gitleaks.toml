@@ -1,3 +1,4 @@
+﻿$content = @'
 title = "Gitleaks Config"
 
 [extend]
@@ -5,15 +6,16 @@ useDefault = true
 
 [allowlist]
 paths = [
-    '''.env.example''',
-    '''.env''',
-    '''.env.local''',
-    '''.env.production''',
-    '''.env.development''',
-    '''wrangler.toml''',
-    '''wrangler.toml.backup''',
-    '''src/worker/index.ts.backup''',
-    '''database/schema.sql''',
-    '''migrations/''',
-    '''test-security.ps1''',
+    '\.env\.example$',
+    '\.env$',
+    '\.env\.local$',
+    '\.env\.production$',
+    '\.env\.development$',
+    'wrangler\.toml$',
+    'wrangler\.toml\.backup$',
+    'src/worker/index\.ts\.backup$',
+    'database/schema\.sql$',
+    '^migrations/',
+    'test-security\.ps1$'
 ]
+'@
