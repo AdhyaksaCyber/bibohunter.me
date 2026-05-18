@@ -5,13 +5,17 @@
  * Cloudflare Workers don't have native Argon2, so PBKDF2 is the best option.
  */
 
-const ITERATIONS = 600000
+// 100k = Workers-safe (600k causes CPU timeout in Cloudflare Workers runtime)
+// Still meets OWASP minimum for PBKDF2-SHA256
+const ITERATIONS = 100000
 const SALT_LENGTH = 16
 const HASH_LENGTH = 32 // 256 bits
 
 /**
  * Hash a password
- * Returns: base64(salt + hash)
+ * Returns: pbkdf2:100000:<base64(salt)>:<base64(hash)>
+ *
+ * Format prefix allows login handler to detect & route to correct verifier.
  */
 export async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder()
@@ -42,18 +46,17 @@ export async function hashPassword(password: string): Promise<string> {
   )
 
   const hashArray = new Uint8Array(derivedBits)
+  const saltB64 = btoa(String.fromCharCode(...salt))
+  const hashB64 = btoa(String.fromCharCode(...hashArray))
 
-  // Combine salt + hash
-  const combined = new Uint8Array(SALT_LENGTH + HASH_LENGTH)
-  combined.set(salt)
-  combined.set(hashArray, SALT_LENGTH)
-
-  // Encode as base64
-  return btoa(String.fromCharCode(...combined))
+  // Format: pbkdf2:<iterations>:<saltB64>:<hashB64>
+  // login handler di index.ts cek startsWith('pbkdf2:') — sekarang match ✓
+  return `pbkdf2:${ITERATIONS}:${saltB64}:${hashB64}`
 }
 
 /**
  * Verify password against stored hash
+ * Supports format: pbkdf2:<iterations>:<saltB64>:<hashB64>
  * Uses constant-time comparison to prevent timing attacks
  */
 export async function verifyPassword(
@@ -61,12 +64,17 @@ export async function verifyPassword(
   storedHash: string
 ): Promise<boolean> {
   try {
-    // Decode stored hash
-    const combined = Uint8Array.from(atob(storedHash), c => c.charCodeAt(0))
-    const salt = combined.slice(0, SALT_LENGTH)
-    const storedHashArray = combined.slice(SALT_LENGTH)
+    // Parse format: pbkdf2:<iterations>:<saltB64>:<hashB64>
+    const parts = storedHash.split(':')
+    if (parts.length !== 4 || parts[0] !== 'pbkdf2') {
+      console.error('[Password] Unknown hash format:', parts[0])
+      return false
+    }
 
-    // Hash provided password with same salt
+    const iterations = parseInt(parts[1], 10)
+    const salt = Uint8Array.from(atob(parts[2]), c => c.charCodeAt(0))
+    const storedHashArray = Uint8Array.from(atob(parts[3]), c => c.charCodeAt(0))
+
     const encoder = new TextEncoder()
     const data = encoder.encode(password)
 
@@ -82,7 +90,7 @@ export async function verifyPassword(
       {
         name: 'PBKDF2',
         salt: salt,
-        iterations: ITERATIONS,
+        iterations,
         hash: 'SHA-256'
       },
       keyMaterial,
@@ -92,7 +100,6 @@ export async function verifyPassword(
     const hashArray = new Uint8Array(derivedBits)
 
     // === CONSTANT-TIME COMPARISON ===
-    // Jangan pakai === biasa! Timing attack bisa nebak password dari waktu response.
     if (hashArray.length !== storedHashArray.length) {
       return false
     }

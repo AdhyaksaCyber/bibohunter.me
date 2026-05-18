@@ -28,9 +28,9 @@ API_URL = "https://bibohunter.bagusiqbal18.workers.dev"
 
 FRONTEND_URL = "http://localhost:5173"
 
-JWT_EXPIRES_IN = "900"
+JWT_EXPIRES_IN = "86400"
 
-REFRESH_TOKEN_EXPIRES = "604800"
+REFRESH_TOKEN_EXPIRES = "86400"
 
 MAX_LOGIN_ATTEMPT = "5"
 
@@ -76,8 +76,7 @@ routes = [
 
 ]
 
-[env.production.site]
-bucket = "dist/public"
+# [env.production.site] dihapus — wrangler v4 tidak support ini
 
 [env.production.vars]
 
@@ -87,9 +86,9 @@ API_URL = "https://bibohunter.me"
 
 FRONTEND_URL = "https://bibohunter.me"
 
-JWT_EXPIRES_IN = "900"
+JWT_EXPIRES_IN = "86400"
 
-REFRESH_TOKEN_EXPIRES = "604800"
+REFRESH_TOKEN_EXPIRES = "86400"
 
 MAX_LOGIN_ATTEMPT = "5"
 
@@ -137,9 +136,9 @@ API_URL = "https://ultron-bimbel-staging.bagusiqbal18.workers.dev"
 
 FRONTEND_URL = "https://ultron-bimbel-staging.bagusiqbal18.workers.dev"
 
-JWT_EXPIRES_IN = "900"
+JWT_EXPIRES_IN = "86400"
 
-REFRESH_TOKEN_EXPIRES = "604800"
+REFRESH_TOKEN_EXPIRES = "86400"
 
 MAX_LOGIN_ATTEMPT = "5"
 
