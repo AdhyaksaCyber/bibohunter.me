@@ -64,14 +64,12 @@ bucket_name = "ultron-bimbel-dev"
 
 [env.production]
 
-name = "bibohunter-api"
+name = "bibohunter"
 
 workers_dev = false
 
-# CRITICAL FIX: Hanya tangkap API routes, bukan semua request
-# Ini memungkinkan frontend (Cloudflare Pages) handle root path
 routes = [
-  { pattern = "bibohunter.me/api/*", zone_name = "bibohunter.me" }
+  { pattern = "bibohunter.me/*", zone_name = "bibohunter.me" }
 ]
 
 [env.production.vars]
