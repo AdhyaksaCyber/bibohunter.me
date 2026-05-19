@@ -358,14 +358,6 @@ app.use('*', rateLimitMiddleware())
 app.use('*', monitoringMiddleware())
 app.use('*', strictSecurityHeaders())
 
-app.onError((err, c) => {
-  console.error('[Worker Error]', err)
-  if (err instanceof HTTPException) {
-    return jsonError(err.message, err.status)
-  }
-  return jsonError('Internal server error', 500)
-})
-
 // ============================================================
 // HEALTH CHECK
 // ============================================================
@@ -612,109 +604,62 @@ auth.post('/logout', authMiddleware, async (c) => {
   }
 })
 
-auth.get('/me', authMiddleware, async (c) => {
-  try {
-    const userId = c.get('userId')
-    const db = c.get('db')
-
-    const user = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        lastLogin: users.lastLogin,
-        createdAt: users.createdAt,
-      })
-      .from(users)
-      .where(eq(users.id, userId))
-      .get()
-      .catch(() => null)
-
-    if (!user) return jsonError('User tidak ditemukan', 404)
-
-    return jsonOk(user)
-  } catch (error) {
-    console.error('[Get User Error]', error)
-    return jsonError('Gagal mendapatkan data user', 500)
-  }
-})
-
-// ============================================================
-// UPLOAD ROUTES
-// ============================================================
-const upload = new Hono<{ Bindings: Env; Variables: Variables }>()
-
-upload.post('/', authMiddleware, validateUploadSize(), async (c) => {
-  try {
-    const formData = await c.req.formData()
-    const file = formData.get('file') as File
-
-    if (!file) return jsonError('File diperlukan')
-
-    const maxSize = parseInt(c.env.MAX_UPLOAD_SIZE || '52428800')
-    if (file.size > maxSize) {
-      return jsonError(`File terlalu besar. Maksimal ${maxSize / 1024 / 1024}MB`, 413)
-    }
-
-    const userId = c.get('userId')
-    const fileKey = `uploads/${userId}/${createId()}-${file.name}`
-    const buffer = await file.arrayBuffer()
-
-    await c.env.R2.put(fileKey, buffer, {
-      httpMetadata: { contentType: file.type },
-    })
-
-    return jsonOk(
-      {
-        message: 'File berhasil diupload',
-        fileKey,
-        fileName: file.name,
-        fileSize: file.size,
-        mimeType: file.type,
-      },
-      201
-    )
-  } catch (error) {
-    console.error('[Upload Error]', error)
-    return jsonError('Gagal upload file', 500)
-  }
-})
-
-// ============================================================
-// ROUTE REGISTRATION
-// ============================================================
 app.route('/api/auth', auth)
-app.route('/api/upload', upload)
 
 // ============================================================
-// STATIC FILE SERVING
+// STATIC FILE FALLBACK — serve SPA via KV assets
 // ============================================================
 app.get('*', async (c) => {
+  const urlPath = new URL(c.req.url).pathname
+
+  // API route tidak ditemukan → 404 JSON
+  if (urlPath.startsWith('/api/')) {
+    return c.json(
+      { success: false, error: 'API endpoint not found', path: urlPath },
+      404
+    )
+  }
+
+  // Serve static asset dari KV, fallback ke index.html untuk SPA routing
   try {
     return await getAssetFromKV(
       {
         request: c.req.raw,
-        waitUntil: c.executionCtx.waitUntil.bind(c.executionCtx),
+        waitUntil: (p: Promise<unknown>) => c.executionCtx.waitUntil(p),
       },
-      { ASSET_MANIFEST: assetManifest }
+      {
+        ASSET_NAMESPACE: c.env.__STATIC_CONTENT,
+        ASSET_MANIFEST: assetManifest,
+      }
     )
   } catch {
-    if (c.req.path.startsWith('/api/')) {
-      return jsonError('Not found', 404)
-    }
+    // File tidak ditemukan → fallback ke index.html (SPA routing)
     try {
       return await getAssetFromKV(
         {
-          request: new Request(new URL('index.html', c.req.url)),
-          waitUntil: c.executionCtx.waitUntil.bind(c.executionCtx),
+          request: new Request(new URL('/index.html', c.req.url).toString()),
+          waitUntil: (p: Promise<unknown>) => c.executionCtx.waitUntil(p),
         },
-        { ASSET_MANIFEST: assetManifest }
+        {
+          ASSET_NAMESPACE: c.env.__STATIC_CONTENT,
+          ASSET_MANIFEST: assetManifest,
+        }
       )
     } catch {
-      return jsonError('Not found', 404)
+      return c.json({ success: false, error: 'Not found' }, 404)
     }
   }
+})
+
+// ============================================================
+// ERROR HANDLER
+// ============================================================
+app.onError((err, c) => {
+  console.error('[Worker Error]', err)
+  if (err instanceof HTTPException) {
+    return jsonError(err.message, err.status)
+  }
+  return jsonError('Internal server error', 500)
 })
 
 export default app

@@ -59,34 +59,30 @@ binding = "R2"
 bucket_name = "ultron-bimbel-dev"
 
 # ============================================
-
 # PRODUCTION ENVIRONMENT
-
 # ============================================
 
 [env.production]
 
-name = "bibohunter"
+name = "bibohunter-api"
 
 workers_dev = false
 
+# CRITICAL FIX: Hanya tangkap API routes, bukan semua request
+# Ini memungkinkan frontend (Cloudflare Pages) handle root path
 routes = [
-
-  { pattern = "bibohunter.me/*", zone_name = "bibohunter.me" }
-
+  { pattern = "bibohunter.me/api/*", zone_name = "bibohunter.me" }
 ]
-
-# [env.production.site] dihapus — wrangler v4 tidak support ini
 
 [env.production.vars]
 
 ENVIRONMENT = "production"
 
-API_URL = "https://bibohunter.me"
+API_URL = "https://bibohunter.me/api"
 
 FRONTEND_URL = "https://bibohunter.me"
 
-JWT_EXPIRES_IN = "86400"
+JWT_EXPIRES_IN = "900"
 
 REFRESH_TOKEN_EXPIRES = "86400"
 
@@ -117,9 +113,7 @@ binding = "R2"
 bucket_name = "ultron-bimbel-production"
 
 # ============================================
-
 # STAGING ENVIRONMENT
-
 # ============================================
 
 [env.staging]
