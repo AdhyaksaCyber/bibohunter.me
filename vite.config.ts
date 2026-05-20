@@ -4,11 +4,33 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
+
+  // Entry point eksplisit
+  root: '.',
+
+  build: {
+    outDir: 'dist/public',
+    emptyOutDir: true,
+    sourcemap: false,
+    minify: 'esbuild',
+    rollupOptions: {
+      input: path.resolve(__dirname, 'index.html'),
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          store: ['zustand'],
+          ui: ['sonner', 'lucide-react'],
+        },
+      },
+    },
+  },
+
   server: {
     port: 5173,
     strictPort: false,
@@ -16,21 +38,10 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8787',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
-  build: {
-    outDir: 'dist/public',
-    emptyOutDir: true,
-    sourcemap: false,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-      },
-    },
-  },
+
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
   },

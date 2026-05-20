@@ -1,12 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import axios from 'axios';
+import { getApiUrl } from '@/config/api';
 
 export interface User {
   id: string;
-  username: string;
-  email?: string;
-  fullName?: string;
+  name: string;
+  email: string;
   role: string;
 }
 
@@ -16,16 +15,17 @@ export interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
 
-  // Actions
-  login: (username: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string, fullName?: string) => Promise<void>;
+  login: (email: string, password: string, recaptchaToken: string) => Promise<void>;
   logout: () => Promise<void>;
-  checkAuth: () => Promise<void>;
+  checkAuth: () => void;
   refreshAccessToken: () => Promise<void>;
   setUser: (user: User | null) => void;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787/api';
+const getAuthHeaders = (token: string) => ({
+  'Content-Type': 'application/json',
+  Authorization: `Bearer ${token}`,
+});
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -35,127 +35,86 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
 
-      login: async (username: string, password: string) => {
-        try {
-          const response = await axios.post(`${API_URL}/auth/login`, {
-            username,
-            password,
-          });
+      login: async (email: string, password: string, recaptchaToken: string) => {
+        const API_URL = getApiUrl();
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, recaptchaToken }),
+        });
 
-          const { accessToken, user } = response.data.data;
+        const data = await res.json();
 
-          set({
-            isAuthenticated: true,
-            user,
-            accessToken,
-          });
-
-          // Set default auth header
-          axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-        } catch (error: any) {
-          const message = error.response?.data?.error || 'Login gagal';
-          throw new Error(message);
+        if (!res.ok) {
+          throw new Error(data.error || 'Login gagal');
         }
-      },
 
-      register: async (username: string, email: string, password: string, fullName?: string) => {
-        try {
-          await axios.post(`${API_URL}/auth/register`, {
-            username,
-            email,
-            password,
-            fullName,
-          });
-        } catch (error: any) {
-          const message = error.response?.data?.error || 'Registrasi gagal';
-          throw new Error(message);
-        }
+        // Worker returns: { success, accessToken, refreshToken, expiresIn, user }
+        set({
+          isAuthenticated: true,
+          user: data.user,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+        });
       },
 
       logout: async () => {
+        const { accessToken } = get();
+        const API_URL = getApiUrl();
+
         try {
-          await axios.post(`${API_URL}/auth/logout`);
-        } catch (error) {
-          console.error('Logout error:', error);
+          if (accessToken) {
+            await fetch(`${API_URL}/auth/logout`, {
+              method: 'POST',
+              headers: getAuthHeaders(accessToken),
+            });
+          }
+        } catch {
+          // ignore logout errors
         }
 
-        // Clear state
         set({
           isAuthenticated: false,
           user: null,
           accessToken: null,
           refreshToken: null,
         });
-
-        // Clear auth header
-        delete axios.defaults.headers.common['Authorization'];
-
-        // Clear localStorage
-        localStorage.removeItem('auth-storage');
       },
 
-      checkAuth: async () => {
-        try {
-          const state = get();
-
-          if (!state.accessToken) {
-            set({ isAuthenticated: false, user: null });
-            return;
-          }
-
-          // Verify token
-          const response = await axios.get(`${API_URL}/auth/verify`, {
-            headers: {
-              Authorization: `Bearer ${state.accessToken}`,
-            },
-          });
-
-          if (response.data.data.valid) {
-            set({ isAuthenticated: true });
-            axios.defaults.headers.common['Authorization'] = `Bearer ${state.accessToken}`;
-          } else {
-            set({ isAuthenticated: false, user: null, accessToken: null });
-          }
-        } catch (error) {
-          // Token invalid or expired
-          set({ isAuthenticated: false, user: null, accessToken: null });
+      checkAuth: () => {
+        // Cukup cek apakah token ada di storage — verifikasi async dilakukan saat request
+        const { accessToken } = get();
+        if (!accessToken) {
+          set({ isAuthenticated: false, user: null });
         }
       },
 
       refreshAccessToken: async () => {
-        try {
-          const state = get();
+        const { refreshToken } = get();
+        const API_URL = getApiUrl();
 
-          if (!state.refreshToken) {
-            throw new Error('No refresh token available');
-          }
-
-          const response = await axios.post(`${API_URL}/auth/refresh`, {}, {
-            headers: {
-              Authorization: `Bearer ${state.refreshToken}`,
-            },
-          });
-
-          const { accessToken } = response.data.data;
-
-          set({ accessToken });
-          axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-        } catch (error) {
-          // Refresh failed, logout user
-          set({
-            isAuthenticated: false,
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-          });
-
-          throw error;
+        if (!refreshToken) {
+          set({ isAuthenticated: false, user: null, accessToken: null, refreshToken: null });
+          throw new Error('No refresh token');
         }
+
+        const res = await fetch(`${API_URL}/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          set({ isAuthenticated: false, user: null, accessToken: null, refreshToken: null });
+          throw new Error(data.error || 'Refresh gagal');
+        }
+
+        set({ accessToken: data.accessToken });
       },
 
-      setUser: (user: User | null) => {
-        set({ user });
-      },
+      setUser: (user) => set({ user }),
     }),
     {
       name: 'auth-storage',
@@ -167,30 +126,4 @@ export const useAuthStore = create<AuthState>()(
       }),
     }
   )
-);
-
-// Setup axios interceptor for token refresh
-axios.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // If token expired and not already retrying
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      useAuthStore.getState().refreshToken
-    ) {
-      originalRequest._retry = true;
-
-      try {
-        await useAuthStore.getState().refreshAccessToken();
-        return axios(originalRequest);
-      } catch (refreshError) {
-        return Promise.reject(refreshError);
-      }
-    }
-
-    return Promise.reject(error);
-  }
 );
